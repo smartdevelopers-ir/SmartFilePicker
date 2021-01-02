@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="?attr/selectableItemBackground"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/item_file_browser_root"
+    android:clickable="true"
+    tools:ignore="KeyboardInaccessibleWidget">
+<ImageView
+    android:id="@+id/item_file_browser_imgIcon"
+    android:layout_width="48dp"
+    android:layout_height="48dp"
+    android:layout_margin="16dp"
+    android:scaleType="centerCrop"
+    app:layout_constraintTop_toTopOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintBottom_toBottomOf="parent"
+    tools:src="@tools:sample/avatars"
+    tools:ignore="ContentDescription" />
+    <TextView
+        android:id="@+id/item_file_browser_txtTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toEndOf="@id/item_file_browser_imgIcon"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0"
+        android:layout_marginTop="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constrainedWidth="true"
+        tools:text="sadasdsad"
+        android:textColor="@color/colorFileBrowserItemTitle"
+        android:textSize="@dimen/colorFileBrowserItemTitleSize"
+        android:maxLines="1"
+        android:ellipsize="end"
+        />
+    <TextView
+        android:id="@+id/item_file_browser_txtSubTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toEndOf="@id/item_file_browser_imgIcon"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/item_file_browser_imgIcon"
+        app:layout_constraintHorizontal_bias="0"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        app:layout_constrainedWidth="true"
+        tools:text="sadasdsad"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:textColor="@color/colorFileBrowserItemSubTitle"
+        android:textSize="@dimen/colorFileBrowserItemSubTitleSize"
+        />
+
+        <View
+            android:id="@+id/item_file_browser_divider"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="@id/item_file_browser_txtTitle"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:background="?android:listDivider"
+            />
+
+    <ir.smartdevelopers.smartfilebrowser.customClasses.SFBCheckBoxWithTick
+        android:id="@+id/item_file_browser_chbSelected"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        app:layout_constraintEnd_toEndOf="@id/item_file_browser_imgIcon"
+        app:layout_constraintStart_toEndOf="@id/item_file_browser_imgIcon"
+        app:layout_constraintBottom_toBottomOf="@id/item_file_browser_imgIcon"
+        app:layout_constraintTop_toBottomOf="@id/item_file_browser_imgIcon"
+
+        android:visibility="gone"
+
+        />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="sfb_colorPrimary">#555457</color>
+    <color name="sfb_colorPrimaryDark">#00535353</color>
+    <color name="sfb_colorAccent">#03DAC5</color>
+    <color name="sfb_color_gallery">#0D3BD1</color>
+    <color name="sfb_color_pdf">#D22537</color>
+    <color name="sfb_color_audio">#155FBF</color>
+    <color name="sfb_color_file">#723C48</color>
+    <color name="colorDraggingLine">#383838</color>
+    <color name="white">#ffffff</color>
+    <color name="colorFileBrowserItemTitle">#272727</color>
+    <color name="colorFileBrowserItemSubTitle" >#99262626</color>
+    <color name="colorDivider">#9B9B9B</color>
+    <color name="colorFileBrowserAllFileText">#29B6F6</color>
+    <color name="sfb_color_item_inactive">#CCFFFFFF</color>
+    <color name="sfb_colorBlue">#1E88E5</color>
+    <color name="black">#000000</color>
+</resources>

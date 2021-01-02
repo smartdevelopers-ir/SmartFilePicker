@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+<item android:id="@+id/sfb_action_gallery"
+    android:title="@string/sfb_gallery"
+    android:icon="@drawable/sfb_ic_gallery"
+    app:iconTint="@color/sfb_color_gallery"
+    />
+    <item android:id="@+id/sfb_action_PDF"
+        android:title="@string/sfb_PDF"
+        android:icon="@drawable/sfb_ic_pdf"
+        app:iconTint="@color/sfb_color_pdf"
+        />
+    <item android:id="@+id/sfb_action_audio"
+        android:title="@string/sfb_audio"
+        android:icon="@drawable/sfb_ic_square_audio"
+        app:iconTint="@color/sfb_color_audio"
+        />
+    <item android:id="@+id/sfb_action_file"
+        android:title="@string/sfb_file"
+        android:icon="@drawable/sfb_ic_file"
+        app:iconTint="@color/sfb_color_file"
+        />
+</menu>

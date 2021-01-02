@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout"
+    android:layout_height="?attr/actionBarSize"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+<androidx.appcompat.widget.AppCompatEditText
+    android:id="@+id/sfb_searchView_edtSearch"
+    android:layout_width="0dp"
+    android:layout_height="?attr/actionBarSize"
+    app:layout_constraintTop_toTopOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintEnd_toStartOf="@id/sfb_searchView_imgClear"
+    app:layout_constraintBottom_toBottomOf="parent"
+    android:layout_marginEnd="16dp"
+    android:background="@null"
+    android:hint="@string/sfb_search"
+    android:inputType="text"
+    android:imeOptions="actionSearch"
+    />
+    <ImageView
+        android:id="@+id/sfb_searchView_imgClear"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:srcCompat="@drawable/sfb_ic_round_close"
+        android:layout_marginEnd="16dp"
+        android:contentDescription="@string/sfb_clear" />
+
+</merge>

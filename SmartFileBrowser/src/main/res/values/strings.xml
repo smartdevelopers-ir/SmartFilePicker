@@ -1,0 +1,28 @@
+<resources>
+    <string name="back">back</string>
+    <string name="sfb_gallery">Gallery</string>
+    <string name="sfb_PDF">PDF</string>
+    <string name="sfb_audio">Audio</string>
+    <string name="sfb_file">File</string>
+    <string name="internal_storage">Internal Storage</string>
+    <string name="external_storage">External Storage</string>
+    <string name="internal_storage_subTitle">Browse your internal storage</string>
+    <string name="external_storage_subTitle">Browse your SD card</string>
+    <string name="download_folder">Download</string>
+    <string name="download_folder_subTitle">%2d Files</string>
+    <string name="recent">"Recent files "</string>
+    <string name="home">Home</string>
+    <string name="sfb_innser_one_file_count_text">%2d file</string>
+    <string name="sfb_inner_more_than_one_file_count_text">%2d files</string>
+    <string name="sfb_done">done</string>
+    <string name="sfb_pick_from_gallery">Pick from gallery</string>
+    <string name="sfb_search">Search</string>
+    <string name="sfb_clear">Clear</string>
+    <string name="sfb_file_broswer_toolbar_title">Select file</string>
+    <string name="sfb_video_file_broswer_toolbar_title">Select video</string>
+    <string name="sfb_pdf_file_broswer_toolbar_title">Select pdf</string>
+    <string name="sfb_audio_file_broswer_toolbar_title">Select audio</string>
+    <string name="sfb_all_media">All Media</string>
+    <string name="sfb_no_result_found">No result found</string>
+    <string name="sfb_no_results_found_sub_title"><![CDATA[There are no matches with <b>%s</b> in current directory]]></string>
+</resources>

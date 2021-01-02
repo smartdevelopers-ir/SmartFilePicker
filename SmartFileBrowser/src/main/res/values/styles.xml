@@ -1,0 +1,51 @@
+<resources>
+    <!-- Base application theme. -->
+    <style name="sfb_AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar.Bridge">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/sfb_colorPrimary</item>
+        <item name="colorPrimaryDark">@color/sfb_colorPrimaryDark</item>
+        <item name="colorAccent">@color/sfb_colorAccent</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowDisablePreview">false</item>
+<!--        <item name="android:windowExitAnimation">@anim/fade_out</item>-->
+<!--        <item name="android:windowHideAnimation">@anim/fade_out</item>-->
+<!--        <item name="android:windowShowAnimation">@anim/fade_in</item>-->
+<!--        <item name="android:windowEnterAnimation">@anim/fade_in</item>-->
+<!--        <item name="android:activityCloseExitAnimation">@anim/fade_out</item>-->
+<!--        <item name="android:activityCloseEnterAnimation">@anim/fade_in</item>-->
+<!--        <item name="android:activityOpenExitAnimation">@anim/fade_out</item>-->
+<!--        <item name="android:activityOpenEnterAnimation">@anim/fade_in</item>-->
+    </style>
+<!--    <style name="sfb_WindowAnimation" parent="@android:style/Animation.Activity">-->
+<!--        <item name="android:activityOpenEnterAnimation">@anim/fade_in</item>-->
+<!--        <item name="android:activityOpenExitAnimation">@anim/fade_out</item>-->
+<!--        <item name="android:activityCloseEnterAnimation">@null</item>-->
+<!--        <item name="android:activityCloseExitAnimation">@anim/fade_out</item>-->
+<!--        <item name="android:taskOpenEnterAnimation">@anim/fade_in</item>-->
+<!--        <item name="android:taskOpenExitAnimation">@anim/fade_out</item>-->
+<!--        <item name="android:taskCloseEnterAnimation">@null</item>-->
+<!--        <item name="android:taskCloseExitAnimation">@anim/fade_out</item>-->
+<!--        <item name="android:taskToFrontEnterAnimation">@null</item>-->
+<!--        <item name="android:taskToFrontExitAnimation">@anim/fade_out</item>-->
+<!--        <item name="android:taskToBackEnterAnimation">@null</item>-->
+<!--        <item name="android:taskToBackExitAnimation">@anim/fade_out</item>-->
+<!--        <item name="android:wallpaperOpenEnterAnimation">@null</item>-->
+<!--        <item name="android:wallpaperOpenExitAnimation">@anim/fade_out</item>-->
+<!--        <item name="android:wallpaperCloseEnterAnimation">@anim/fade_in</item>-->
+<!--        <item name="android:wallpaperCloseExitAnimation">@anim/fade_out</item>-->
+<!--        <item name="android:wallpaperIntraOpenEnterAnimation">@null</item>-->
+<!--        <item name="android:wallpaperIntraOpenExitAnimation">@anim/fade_out</item>-->
+<!--        <item name="android:wallpaperIntraCloseEnterAnimation">@anim/fade_in</item>-->
+<!--        <item name="android:wallpaperIntraCloseExitAnimation">@anim/fade_out</item>-->
+
+<!--    </style>-->
+    <style name="animationPopupStyle" >
+        <item name="android:windowEnterAnimation">@anim/popup_enter_anim</item>
+        <item name="android:windowExitAnimation">@anim/popup_exit_anim</item>
+    </style>
+
+</resources>

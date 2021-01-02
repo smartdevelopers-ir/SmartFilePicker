@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="RoundLinearLayout">
+        <attr name="backgroundColor"/>
+        <attr name="android:topLeftRadius"/>
+        <attr name="android:topRightRadius"/>
+        <attr name="android:bottomRightRadius"/>
+        <attr name="android:bottomLeftRadius"/>
+    </declare-styleable>
+</resources>

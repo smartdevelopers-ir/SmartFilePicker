@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="180dp"
+    android:layout_height="wrap_content"
+    android:background="@color/white"
+    android:maxWidth="180dp"
+    android:maxHeight="200dp">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/fileBrowser_activity_main_albumRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+</FrameLayout>

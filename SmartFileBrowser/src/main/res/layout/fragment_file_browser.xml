@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/fragment_file_browser_recyclerView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/fragment_file_browser_imgNoItem"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/sfb_ic_file_not_found"
+        tools:ignore="ContentDescription"
+        app:layout_constraintVertical_bias="0.3"
+        app:tint="#808080" />
+    <TextView
+        android:id="@+id/fragment_file_browser_txtNoItemFoundTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/sfb_no_result_found"
+        app:layout_constraintTop_toBottomOf="@id/fragment_file_browser_imgNoItem"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:textAppearance="@style/TextAppearance.AppCompat.SearchResult.Title"
+        />
+    <TextView
+        android:id="@+id/fragment_file_browser_txtNoItemFoundSubTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="as sa sad as "
+        app:layout_constraintTop_toBottomOf="@id/fragment_file_browser_txtNoItemFoundTitle"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginEnd="16dp"
+        android:layout_marginStart="16dp"
+        app:layout_constrainedWidth="true"
+        android:gravity="center"
+        android:textAppearance="@style/TextAppearance.AppCompat.SearchResult.Subtitle"
+        />
+    <androidx.constraintlayout.widget.Group
+        android:id="@+id/fragment_file_browser_noItemGroup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:constraint_referenced_ids="fragment_file_browser_imgNoItem,fragment_file_browser_txtNoItemFoundSubTitle,fragment_file_browser_txtNoItemFoundTitle"
+        android:visibility="gone"
+        tools:visibility="visible"
+        />
+</androidx.constraintlayout.widget.ConstraintLayout>
