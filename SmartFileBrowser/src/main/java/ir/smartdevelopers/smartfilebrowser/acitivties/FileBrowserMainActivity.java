@@ -10,6 +10,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
+import android.content.Intent;
 import android.content.res.TypedArray;
 import android.os.Bundle;
 import android.util.Log;
@@ -19,6 +21,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewPropertyAnimator;
+import android.view.ViewTreeObserver;
+import android.view.WindowManager;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AccelerateInterpolator;
 import android.view.animation.OvershootInterpolator;
@@ -41,6 +45,7 @@ import ir.smartdevelopers.smartfilebrowser.customClasses.FileUtil;
 import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemClickListener;
 import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemSelectListener;
 import ir.smartdevelopers.smartfilebrowser.customClasses.RoundLinearLayout;
+import ir.smartdevelopers.smartfilebrowser.customClasses.SFBFileFilter;
 import ir.smartdevelopers.smartfilebrowser.customClasses.SearchView;
 import ir.smartdevelopers.smartfilebrowser.fragments.FileBrowserFragment;
 import ir.smartdevelopers.smartfilebrowser.fragments.GalleryFragment;
@@ -62,6 +67,7 @@ public class FileBrowserMainActivity extends AppCompatActivity {
     private BottomNavigation mBottomNavigationView;
     //    private BottomNavigationBar mBottomNavigationView;
 //    private BottomNavigationView mBottomNavigationView;
+    private View mMainRootView;
     private int mActionBarSize;
     private float mRadius;
     private View mDraggingLineView;
@@ -89,6 +95,106 @@ public class FileBrowserMainActivity extends AppCompatActivity {
     private boolean mAlbumListIsShowing=false;
     private ImageButton btnBack;
 
+    /*Builder parameters*/
+    private FileFilter mFileTabFileFilter;
+    private boolean mShowVideosInGallery=true;
+    private boolean mShowCamera=true;
+    private boolean mCanSelectMultipleInGallery=true;
+    private boolean mCanSelectMultipleInFiles=true;
+    private boolean mShowPDFTab=true;
+    private boolean mShowFilesTab=true;
+    private boolean mShowAudioTab=true;
+    private boolean mShowGalleryTab=true;
+
+
+    public static class Builder{
+        private SFBFileFilter fileTabFileFilter;
+        private boolean showVideosInGallery=true;
+        private boolean showCamera=true;
+        private boolean canSelectMultipleInGallery=true;
+        private boolean canSelectMultipleInFiles=true;
+        private boolean showPDFTab=true;
+        private boolean showFilesTab=true;
+        private boolean showAudioTab=true;
+        private boolean showGalleryTab=true;
+
+        public Builder setFileTabFileFilter(@NonNull FileFilter fileTabFileFilter) {
+            this.fileTabFileFilter = new SFBFileFilter(){
+                @Override
+                public boolean accept(File pathname) {
+                    return fileTabFileFilter.accept(pathname);
+                }
+            };
+            return this;
+        }
+
+        public Builder setShowVideosInGallery(boolean showVideosInGallery) {
+            this.showVideosInGallery = showVideosInGallery;
+            return this;
+        }
+
+        public Builder setShowCamera(boolean showCamera) {
+            this.showCamera = showCamera;
+            return this;
+        }
+
+        public Builder setCanSelectMultipleInGallery(boolean canSelectMultipleInGallery) {
+            this.canSelectMultipleInGallery = canSelectMultipleInGallery;
+            return this;
+        }
+
+        public Builder setCanSelectMultipleInFiles(boolean canSelectMultipleInFiles) {
+            this.canSelectMultipleInFiles = canSelectMultipleInFiles;
+            return this;
+        }
+
+        public Builder setShowPDFTab(boolean showPDFTab) {
+            this.showPDFTab = showPDFTab;
+            return this;
+        }
+
+        public Builder setShowFilesTab(boolean showFilesTab) {
+            this.showFilesTab = showFilesTab;
+            return this;
+        }
+
+        public Builder setShowAudioTab(boolean showAudioTab) {
+            this.showAudioTab = showAudioTab;
+            return this;
+        }
+
+        public Builder setShowGalleryTab(boolean showGalleryTab) {
+            this.showGalleryTab = showGalleryTab;
+            return this;
+        }
+        public void show(Context context){
+
+            Intent filePickerIntent=new Intent(context,FileBrowserMainActivity.class);
+            filePickerIntent.putExtra("mFileTabFileFilter",fileTabFileFilter);
+            filePickerIntent.putExtra("mShowVideosInGallery",showVideosInGallery);
+            filePickerIntent.putExtra("mShowCamera",showCamera);
+            filePickerIntent.putExtra("mCanSelectMultipleInGallery",canSelectMultipleInGallery);
+            filePickerIntent.putExtra("mCanSelectMultipleInFiles",canSelectMultipleInFiles);
+            filePickerIntent.putExtra("mShowPDFTab",showPDFTab);
+            filePickerIntent.putExtra("mShowFilesTab",showFilesTab);
+            filePickerIntent.putExtra("mShowAudioTab",showAudioTab);
+            filePickerIntent.putExtra("mShowGalleryTab",showGalleryTab);
+            context.startActivity(filePickerIntent);
+
+        }
+    }
+
+    private void getDataFromIntent(){
+         mFileTabFileFilter= (FileFilter) getIntent().getSerializableExtra("mFileTabFileFilter");
+         mShowVideosInGallery=getIntent().getBooleanExtra("mShowVideosInGallery",true);
+         mShowCamera=getIntent().getBooleanExtra("mShowCamera",true);
+         mCanSelectMultipleInGallery=getIntent().getBooleanExtra("mCanSelectMultipleInGallery",true);
+         mCanSelectMultipleInFiles=getIntent().getBooleanExtra("mCanSelectMultipleInFiles",true);
+         mShowPDFTab=getIntent().getBooleanExtra("mShowPDFTab",true);
+         mShowFilesTab=getIntent().getBooleanExtra("mShowFilesTab",true);
+         mShowAudioTab=getIntent().getBooleanExtra("mShowAudioTab",true);
+         mShowGalleryTab=getIntent().getBooleanExtra("mShowGalleryTab",true);
+    }
     //    private BottomNavigationBar.OnTabSelectedListener mOnTabSelectedListener;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,6 +204,7 @@ public class FileBrowserMainActivity extends AppCompatActivity {
         mGalleryViewModel=new ViewModelProvider(this,new ViewModelProvider.AndroidViewModelFactory(getApplication()))
                 .get(GalleryViewModel.class);
         findViews();
+        getDataFromIntent();
         initListeners();
         initViews(savedInstanceState);
         if (savedInstanceState==null) {
@@ -149,6 +256,7 @@ public class FileBrowserMainActivity extends AppCompatActivity {
         mToolbarPlaceHolder = findViewById(R.id.fileBrowser_activity_main_toolbarPlaceHolder);
         mAlbumPlaceHolder = findViewById(R.id.fileBrowser_activity_main_albumPlaceHolder);
         btnBack = findViewById(R.id.fileBrowser_activity_main_btnBack);
+        mMainRootView = findViewById(R.id.fileBrowser_activity_main_windowRoot);
 
     }
     private void initListeners() {
@@ -255,11 +363,14 @@ public class FileBrowserMainActivity extends AppCompatActivity {
         ViewGroup.LayoutParams appBarParams = mAppBarLayout.getLayoutParams();
         appBarParams.height = mActionBarSize;
         mAppBarLayout.setLayoutParams(appBarParams);
-
+        int screenHeight=getResources().getDisplayMetrics().heightPixels;
         mRadius = getResources().getDimension(R.dimen.bottom_sheet_top_radius);
         mAppBarLayout.setTranslationY(-mActionBarSize);
         mBottomSheetBehavior = BottomSheetBehavior.from(mBottomSheetRoot);
         mBottomSheetBehavior.setHideable(true);
+//        mBottomSheetBehavior.setFitToContents(false);
+//        mBottomSheetBehavior.setHalfExpandedRatio(0.5f);
+        mBottomSheetBehavior.setPeekHeight(screenHeight/2,true);
         mBottomSheetBehavior.addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
             @Override
             public void onStateChanged(@NonNull View bottomSheet, int newState) {
@@ -300,6 +411,14 @@ public class FileBrowserMainActivity extends AppCompatActivity {
                 }
             }
         });
+        mMainRootView.setOnTouchListener(new View.OnTouchListener() {
+            @SuppressLint("ClickableViewAccessibility")
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                finish();
+                return true;
+            }
+        });
 
 //        if (savedInstanceState==null){
 //            mBottomSheetRoot.post(()->{
@@ -309,15 +428,23 @@ public class FileBrowserMainActivity extends AppCompatActivity {
         btnBack.setOnClickListener(v->{
             onBackPressed();
         });
-        mBottomSheetRoot.setTranslationY(1000);
-        mBottomNavigationView.setTranslationY(200);
-
+        if (savedInstanceState==null){
+            mBottomSheetRoot.setTranslationY(screenHeight*0.6f);
+            mBottomNavigationView.setTranslationY(200);
+            getWindow().getDecorView().getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                @Override
+                public void onGlobalLayout() {
+                    startFirstAnimation();
+                    getWindow().getDecorView().getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                }
+            });
+        }
     }
 
     private void startFirstAnimation() {
-        long duration=800;
+        long duration=300;
         mBottomSheetRoot.animate().setDuration(duration).translationY(0)
-                .setInterpolator(new FastOutSlowInInterpolator()).start();
+                .setInterpolator(new OvershootInterpolator()).start();
         mBottomNavigationView.animate().setDuration(duration).translationY(0)
                 .setInterpolator(new FastOutSlowInInterpolator()).start();
     }
@@ -326,7 +453,7 @@ public class FileBrowserMainActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
-        startFirstAnimation();
+
 
     }
 

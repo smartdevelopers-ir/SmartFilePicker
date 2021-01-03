@@ -80,12 +80,12 @@ public class Repository {
             String[] projection= {MediaStore.Files.FileColumns.BUCKET_ID,
                     MediaStore.Files.FileColumns.BUCKET_DISPLAY_NAME,
                     MediaStore.Files.FileColumns.DATE_ADDED,
-                    MediaStore.Files.FileColumns.DATA,
-                    "MAX("+ MediaStore.Images.Media.DATE_ADDED+") as max"};
-            String selection="1) GROUP BY ("+ MediaStore.Images.Media.BUCKET_DISPLAY_NAME;
-//            String[] selectionArgs={Utils.join(new String[]{String.valueOf(MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE),
-//                    String.valueOf(MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO)},",")};
-            String orderBy="max DESC";
+                    MediaStore.Files.FileColumns.DATA};
+            String selection=MediaStore.Files.FileColumns.MIME_TYPE+" NOT NULL ";
+            String[] mediaTypes={String.valueOf(MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE),
+                    String.valueOf(MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO)};
+//            String[] selectionArgs={Utils.join(mediaTypes,",")};
+            String orderBy=MediaStore.Files.FileColumns.DATE_ADDED+" DESC";
            Cursor imageCursor= mContentResolver.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
                     projection,selection,null,orderBy);
             Cursor videoCursor= mContentResolver.query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
@@ -113,6 +113,9 @@ public class Repository {
     }
     private Set<AlbumModel> getAlbumModels(Cursor cursor,String[] projection){
         Set<AlbumModel> albumModels=new HashSet<>();
+        if (cursor==null){
+            return albumModels;
+        }
         int bucketIdIndex=cursor.getColumnIndex(projection[0]);
         int bucketNameIndex=cursor.getColumnIndex(projection[1]);
         int dateTakenIndex=cursor.getColumnIndex(projection[2]);

@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/fileBrowser_activity_main_windowRoot"
     tools:context=".acitivties.FileBrowserMainActivity">
 
 
@@ -16,20 +17,20 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         android:fillViewport="true"
-        android:layout_marginTop="?actionBarSize"
+
+        android:layout_marginTop="@dimen/sfb_expanded_margin_top"
         >
 
         <ir.smartdevelopers.smartfilebrowser.customClasses.RoundLinearLayout
             android:id="@+id/fileBrowser_activity_main_contentRootLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
             android:orientation="vertical"
             android:topRightRadius="20dp"
             android:topLeftRadius="20dp"
             android:bottomRightRadius="0dp"
             android:bottomLeftRadius="0dp"
-
+            app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
             >
             <View
                 android:id="@+id/fileBrowser_activity_main_draggingLineView"
@@ -44,6 +45,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginTop="16dp"
+
                 />
         </ir.smartdevelopers.smartfilebrowser.customClasses.RoundLinearLayout>
 
@@ -61,9 +63,10 @@
         >
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="?actionBarSize"
+            android:layout_height="@dimen/appbarSize"
             android:orientation="horizontal"
             android:layout_gravity="bottom"
+
             >
             <ImageButton
                 android:id="@+id/fileBrowser_activity_main_btnBack"

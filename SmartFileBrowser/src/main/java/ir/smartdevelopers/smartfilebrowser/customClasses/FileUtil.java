@@ -103,7 +103,7 @@ public class FileUtil {
     public static File getImageFile(Context context) throws IOException {
         File folder= Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
         DateFormat dateFormat=new SimpleDateFormat("yyyyMMdd-HHmmss",new Locale("en"));
-        String name="JPEG_"+dateFormat.format(new Date())+"_";
+        String name="JPEG_"+dateFormat.format(new Date());
 //        return File.createTempFile(name,".jpg",folder);
         return new File(folder,name+".jpg");
     }
