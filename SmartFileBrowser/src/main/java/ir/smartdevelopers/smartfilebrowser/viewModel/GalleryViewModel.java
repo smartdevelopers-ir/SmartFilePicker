@@ -23,16 +23,16 @@ public class GalleryViewModel extends AndroidViewModel {
 
     }
 
-    public LiveData<List<GalleryModel>> getAllGalleryModels(boolean addCamera){
+    public LiveData<List<GalleryModel>> getAllGalleryModels(boolean addCamera, boolean showVideosInGallery){
 
-        mGalleryModelsLiveData=mRepository.getGalleryMediaList(null,null,addCamera);
+        mGalleryModelsLiveData=mRepository.getGalleryMediaList(null,null,addCamera,showVideosInGallery);
         return mGalleryModelsLiveData;
     }
-    public void  getGalleryModelsByAlbumName(String albumName) {
+    public void  getGalleryModelsByAlbumName(String albumName,boolean showVideosInGallery) {
         @SuppressLint("InlinedApi")
         String selections = MediaStore.Images.Media.BUCKET_DISPLAY_NAME + "=?";
         String[] selectionArgs = new String[]{albumName};
-        mRepository.getGalleryMediaList(selections, selectionArgs, false);
+        mRepository.getGalleryMediaList(selections, selectionArgs, false, showVideosInGallery);
     }
     public LiveData<List<AlbumModel>> getAllImageAlbums(){
         if (mAlbumLiveData == null) {

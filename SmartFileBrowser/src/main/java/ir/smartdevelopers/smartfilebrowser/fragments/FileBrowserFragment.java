@@ -24,6 +24,7 @@ import java.util.List;
 import ir.smartdevelopers.smartfilebrowser.R;
 import ir.smartdevelopers.smartfilebrowser.acitivties.FileBrowserMainActivity;
 import ir.smartdevelopers.smartfilebrowser.adapters.FileBrowserAdapter;
+import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemChooseListener;
 import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemClickListener;
 import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemSelectListener;
 import ir.smartdevelopers.smartfilebrowser.customClasses.OnSearchListener;
@@ -39,6 +40,7 @@ public class FileBrowserFragment extends Fragment {
     private FileBrowserAdapter mFileBrowserAdapter;
     private FilesViewModel mFilesViewModel;
     private OnItemClickListener<FileBrowserModel> mOnItemClickListener;
+    private OnItemChooseListener mOnItemChooseListener;
     private FileFilter mFileFilter;
     private OnItemSelectListener<FileBrowserModel> mOnItemSelectListener;
     private SelectionFileViewModel mSelectionFileViewModel;
@@ -46,10 +48,13 @@ public class FileBrowserFragment extends Fragment {
     private OnSearchListener mOnSearchListener;
     private Group mNoItemGroup;
     private TextView txtNotFoundSubTitle;
+    private boolean mCanSelectMultipleInFiles=true;
 
-    public static FileBrowserFragment getInstance() {
+    public static FileBrowserFragment getInstance(boolean canSelectMultipleInFiles) {
         FileBrowserFragment fragment=new FileBrowserFragment();
-
+        Bundle bundle=new Bundle();
+        bundle.putBoolean("mCanSelectMultipleInFiles",canSelectMultipleInFiles);
+        fragment.setArguments(bundle);
         return fragment;
     }
 
@@ -60,7 +65,12 @@ public class FileBrowserFragment extends Fragment {
         if (activity!=null) {
             mFileFilter = activity.getFileFilter();
             mOnItemSelectListener = activity.getOnFileItemSelectListener();
+            mOnItemChooseListener=activity.getOnItemChooseListener();
             mPageType=activity.getPageType();
+        }
+        Bundle bundle=getArguments();
+        if (bundle!=null){
+            mCanSelectMultipleInFiles=bundle.getBoolean("mCanSelectMultipleInFiles",true);
         }
     }
 
@@ -85,7 +95,9 @@ public class FileBrowserFragment extends Fragment {
         mFileBrowserAdapter=new FileBrowserAdapter(mSelectionFileViewModel.getSelectedFiles());
         mFileBrowserAdapter.setOnItemClickListener(mOnItemClickListener);
         mFileBrowserAdapter.setOnItemSelectListener(mOnItemSelectListener);
+        mFileBrowserAdapter.setOnItemChooseListener(mOnItemChooseListener);
         mFileBrowserAdapter.setOnSearchListener(mOnSearchListener);
+        mFileBrowserAdapter.setCanSelectMultiple(mCanSelectMultipleInFiles);
         mRecyclerView.setAdapter(mFileBrowserAdapter);
         getFirstPageList();
         mSelectionFileViewModel.getSelectionHelperLiveData().observe(this, new Observer<SelectionHelper>() {
@@ -101,16 +113,17 @@ public class FileBrowserFragment extends Fragment {
             @Override
             public void onItemClicked(FileBrowserModel model, int position) {
                 if (model.getCurrentFile()!=null){
-                    mFilesViewModel.getFilesList(model, mFileFilter).observe(getViewLifecycleOwner(), new Observer<List<FileBrowserModel>>() {
-                        @Override
-                        public void onChanged(List<FileBrowserModel> fileBrowserModels) {
+                        mFilesViewModel.getFilesList(model, mFileFilter).observe(getViewLifecycleOwner(), new Observer<List<FileBrowserModel>>() {
+                            @Override
+                            public void onChanged(List<FileBrowserModel> fileBrowserModels) {
 
-                            if (fileBrowserModels!=null){
-                                mFileBrowserAdapter.setList(fileBrowserModels);
+                                if (fileBrowserModels!=null){
+                                    mFileBrowserAdapter.setList(fileBrowserModels);
+                                }
+
                             }
+                        });
 
-                        }
-                    });
                 }else {
                     getFirstPageList();
                 }
@@ -128,6 +141,12 @@ public class FileBrowserFragment extends Fragment {
         };
     }
 
+    public boolean isInSubDirectory(){
+       return mFileBrowserAdapter.isInSubDirectory();
+    }
+    public void goBackToParentDirectory(){
+        mFileBrowserAdapter.goBackToParentDirectory();
+    }
     private void hideNoItem() {
         mNoItemGroup.setVisibility(View.GONE);
         mRecyclerView.setVisibility(View.VISIBLE);

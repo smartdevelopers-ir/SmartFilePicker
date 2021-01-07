@@ -41,26 +41,30 @@ public class Repository {
         mContentResolver=application.getContentResolver();
         wContext=new WeakReference<>(application);
     }
-    public LiveData<List<GalleryModel>> getGalleryMediaList(String selection, String[] selectionArgs, boolean addCameraItem){
+    public LiveData<List<GalleryModel>> getGalleryMediaList(String selection, String[] selectionArgs, boolean addCameraItem, boolean showVideosInGallery){
        if (galleryList==null){
            galleryList=new MutableLiveData<>();
        }
         mExecutorService.execute(()->{
-            List<GalleryModel> galleryModelList=new ArrayList<>();
-            String[] imageProjection={MediaStore.Images.Media._ID,
+            // <editor-fold defaultstate="collapsed" desc=" Images ">
+            String[] imageProjection = {MediaStore.Images.Media._ID,
                     MediaStore.Images.Media.DATA, MediaStore.Images.Media.DATE_ADDED,
                     MediaStore.Images.Media.DISPLAY_NAME, MediaStore.Images.Media.MIME_TYPE};
-            String[] videoProjection={MediaStore.Video.Media._ID,
-                    MediaStore.Video.Media.DATA, MediaStore.Video.Media.DATE_ADDED,
-                    MediaStore.Video.Media.DISPLAY_NAME, MediaStore.Video.Media.MIME_TYPE};
-            Cursor externalImageCursor=mContentResolver.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,imageProjection,
-                    selection,selectionArgs,MediaStore.Images.Media.DATE_ADDED+" DESC");
+            Cursor externalImageCursor = mContentResolver.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, imageProjection,
+                    selection, selectionArgs, MediaStore.Images.Media.DATE_ADDED + " DESC");
+            List<GalleryModel> galleryModelList = new ArrayList<>(getGalleryModel(externalImageCursor, imageProjection));
+            // </editor-fold>
 
-            Cursor externalVideoCursor=mContentResolver.query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI,videoProjection,
-                    selection,selectionArgs, MediaStore.Video.Media.DATE_ADDED+" DESC");
-
-            galleryModelList.addAll(getGalleryModel(externalImageCursor,imageProjection));
-            galleryModelList.addAll(getGalleryModel(externalVideoCursor,videoProjection));
+            // <editor-fold defaultstate="collapsed" desc=" Videos ">
+            if (showVideosInGallery) {
+                String[] videoProjection = {MediaStore.Video.Media._ID,
+                        MediaStore.Video.Media.DATA, MediaStore.Video.Media.DATE_ADDED,
+                        MediaStore.Video.Media.DISPLAY_NAME, MediaStore.Video.Media.MIME_TYPE};
+                Cursor externalVideoCursor = mContentResolver.query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, videoProjection,
+                        selection, selectionArgs, MediaStore.Video.Media.DATE_ADDED + " DESC");
+                galleryModelList.addAll(getGalleryModel(externalVideoCursor, videoProjection));
+            }
+            // </editor-fold>
             if (addCameraItem){
                 GalleryModel cameraModel=new GalleryModel();
                 cameraModel.setType(GalleryModel.TYPE_CAMERA);
@@ -172,16 +176,16 @@ public class Repository {
         mExecutorService.execute(()->{
 
             String[] projection={MediaStore.Files.FileColumns._ID,
-                    MediaStore.Files.FileColumns.DATA, MediaStore.Files.FileColumns.DATE_ADDED,
-                    MediaStore.Files.FileColumns.DISPLAY_NAME, MediaStore.Files.FileColumns.MIME_TYPE};
+                    MediaStore.Files.FileColumns.DATA,
+                     MediaStore.Files.FileColumns.MIME_TYPE};
 
             Cursor cursor=mContentResolver.query(MediaStore.Files.getContentUri("external"),projection, finalSelection,
-                    selectionArgs, MediaStore.MediaColumns.DATE_ADDED+" ASC LIMIT 20");
+                    selectionArgs, MediaStore.MediaColumns.DATE_ADDED+" DESC LIMIT 30");
             int idIndex=cursor.getColumnIndex(projection[0]);
             int pathIndex=cursor.getColumnIndex(projection[1]);
-            int dateIndex=cursor.getColumnIndex(projection[2]);
-            int nameIndex=cursor.getColumnIndex(projection[3]);
-            int mimeTypeIndex=cursor.getColumnIndex(projection[4]);
+//            int dateIndex=cursor.getColumnIndex(projection[2]);
+//            int nameIndex=cursor.getColumnIndex(projection[3]);
+            int mimeTypeIndex=cursor.getColumnIndex(projection[2]);
             List<FileBrowserModel> fileBrowserModels=new ArrayList<>();
             while (cursor.moveToNext()){
                 String path=cursor.getString(pathIndex);
@@ -194,7 +198,7 @@ public class Repository {
                 }
                 long id=cursor.getLong(idIndex);
 
-                long date=cursor.getLong(dateIndex);
+//                long date=cursor.getLong(dateIndex);
                 String name=file.getName();
                 String fileMimeType=cursor.getString(mimeTypeIndex);
 

@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,19 +20,16 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 
-import ir.smartdevelopers.smartfilebrowser.BuildConfig;
 import ir.smartdevelopers.smartfilebrowser.R;
 import ir.smartdevelopers.smartfilebrowser.acitivties.FileBrowserMainActivity;
 import ir.smartdevelopers.smartfilebrowser.adapters.GalleryAdapter;
 import ir.smartdevelopers.smartfilebrowser.customClasses.FileUtil;
 import ir.smartdevelopers.smartfilebrowser.customClasses.GalleyItemDecoration;
+import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemChooseListener;
 import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemClickListener;
 import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemSelectListener;
 import ir.smartdevelopers.smartfilebrowser.models.AlbumModel;
@@ -48,15 +44,38 @@ public class GalleryFragment extends Fragment {
     private GalleryViewModel mGalleryViewModel;
     private GridLayoutManager mGridLayoutManager;
     private OnItemClickListener<GalleryModel> mGalleryModelItemClickListener;
+    private OnItemClickListener<GalleryModel> mOnGalleryItemClickListener_m;
+    private OnItemChooseListener mOnItemChooseListener;
     private OnItemSelectListener<GalleryModel> mOnItemSelectListener;
     private String tackingPictureFilePath;
+    private boolean mShowVideosInGallery;
+    private boolean mShowCamera;
+    private boolean mCanSelectMultipleInGallery;
 
+    public static GalleryFragment getInstance(boolean showVideosInGallery,boolean showCamera,
+                                              boolean canSelectMultipleInGallery) {
+        GalleryFragment fragment=new GalleryFragment();
+        Bundle bundle=new Bundle();
+        bundle.putBoolean("mShowVideosInGallery",showVideosInGallery);
+        bundle.putBoolean("mShowCamera",showCamera);
+        bundle.putBoolean("mCanSelectMultipleInGallery",canSelectMultipleInGallery);
+        fragment.setArguments(bundle);
+        return fragment;
+    }
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         FileBrowserMainActivity activity=(FileBrowserMainActivity) getActivity();
         if (activity!=null){
             mOnItemSelectListener=activity.getOnGalleryItemSelectListener();
+            mOnGalleryItemClickListener_m=activity.getOnGalleryItemClickListener();
+            mOnItemChooseListener=activity.getOnItemChooseListener();
+        }
+        Bundle bundle=getArguments();
+        if (bundle != null) {
+            mShowCamera=bundle.getBoolean("mShowCamera",true);
+            mShowVideosInGallery=bundle.getBoolean("mShowVideosInGallery",true);
+            mCanSelectMultipleInGallery=bundle.getBoolean("mCanSelectMultipleInGallery",true);
         }
     }
 
@@ -81,11 +100,13 @@ public class GalleryFragment extends Fragment {
         mGalleryRecyclerView.addItemDecoration(new GalleyItemDecoration(spanCount,gapSpace,true));
 
         mGalleryAdapter=new GalleryAdapter();
+        mGalleryAdapter.setCanSelectMultiple(mCanSelectMultipleInGallery);
         mGalleryAdapter.setOnItemClickListener(mGalleryModelItemClickListener);
         mGalleryAdapter.setOnItemSelectListener(mOnItemSelectListener);
+        mGalleryAdapter.setOnItemChooseListener(mOnItemChooseListener);
         mGalleryRecyclerView.setAdapter(mGalleryAdapter);
 
-        mGalleryViewModel.getAllGalleryModels(true).observe(this, new Observer<List<GalleryModel>>() {
+        mGalleryViewModel.getAllGalleryModels(mShowCamera,mShowVideosInGallery).observe(this, new Observer<List<GalleryModel>>() {
             @Override
             public void onChanged(List<GalleryModel> galleryModels) {
                 mGalleryAdapter.setList(galleryModels);
@@ -101,7 +122,10 @@ public class GalleryFragment extends Fragment {
                 if (model.getType()==GalleryModel.TYPE_CAMERA){
                     openCamera();
                 }else {
-                    //TODO : select item
+                    if (mOnGalleryItemClickListener_m != null) {
+                        mOnGalleryItemClickListener_m.onItemClicked(model,position);
+                    }
+
                 }
             }
         };
@@ -131,12 +155,23 @@ public class GalleryFragment extends Fragment {
     }
     public void updateGallery(AlbumModel albumModel){
         if (albumModel.getId()==-1){
-            mGalleryViewModel.getAllGalleryModels(true);
+            mGalleryViewModel.getAllGalleryModels(mShowCamera, mShowVideosInGallery);
         }else {
-            mGalleryViewModel.getGalleryModelsByAlbumName(albumModel.getName());
+            mGalleryViewModel.getGalleryModelsByAlbumName(albumModel.getName(),mShowVideosInGallery);
         }
     }
 
+    public List<File> getSelectedFiles(){
+        if (mGalleryAdapter==null){
+            return Collections.emptyList();
+        }
+        List<File> selectedFiles=new ArrayList<>();
+        List<GalleryModel> selectedModels=mGalleryAdapter.getSelectedModels();
+       for (GalleryModel model:selectedModels){
+           selectedFiles.add(model.getCurrentFile());
+       }
+       return selectedFiles;
+    }
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);

@@ -4,9 +4,10 @@ import android.net.Uri;
 
 import java.io.File;
 
+import ir.smartdevelopers.smartfilebrowser.customClasses.FileModel;
 import ir.smartdevelopers.smartfilebrowser.customClasses.FileUtil;
 
-public  class GalleryModel {
+public  class GalleryModel implements FileModel {
 
     public static final int TYPE_CAMERA = -102;
     private long id;
@@ -73,7 +74,8 @@ public  class GalleryModel {
         mType = type;
     }
 
-    public File getFile() {
+    @Override
+    public File getCurrentFile() {
         return mFile;
     }
 

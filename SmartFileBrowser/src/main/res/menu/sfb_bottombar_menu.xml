@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-   app:bbn_itemColorInactive="@color/sfb_color_item_inactive"
+
     >
 <item android:id="@+id/sfb_action_gallery"
     android:title="@string/sfb_gallery"

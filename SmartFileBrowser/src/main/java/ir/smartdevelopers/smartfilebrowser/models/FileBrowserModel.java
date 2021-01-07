@@ -5,9 +5,10 @@ import android.webkit.URLUtil;
 
 import java.io.File;
 
+import ir.smartdevelopers.smartfilebrowser.customClasses.FileModel;
 import ir.smartdevelopers.smartfilebrowser.customClasses.Utils;
 
-public class FileBrowserModel {
+public class FileBrowserModel implements FileModel {
     public static final int MODEL_TYPE_FOLDER=0;
     public static final int MODEL_TYPE_INTERNAL_STORAGE=1;
     public static final int MODEL_TYPE_EXTERNAL_STORAGE=2;
@@ -55,6 +56,7 @@ public class FileBrowserModel {
         }
     }
 
+    @Override
     public File getCurrentFile() {
         return mCurrentFile;
     }

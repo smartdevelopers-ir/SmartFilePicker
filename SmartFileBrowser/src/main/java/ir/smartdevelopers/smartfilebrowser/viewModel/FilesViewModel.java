@@ -87,6 +87,8 @@ public class FilesViewModel extends AndroidViewModel {
 
         }
         List<FileBrowserModel> files=getFileList(parentModel, fileFilter);
+        /*If we do not set null and just return mFilesLiveData if there are some value in mFilesLiveData
+        * then it observe the observers by last value so we must pass null and check it in onChange method*/
         mFilesLiveData.setValue(files);
         return mFilesLiveData;
     }

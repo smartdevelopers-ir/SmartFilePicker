@@ -3,7 +3,6 @@ package ir.smartdevelopers.smartfilebrowser.adapters;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
@@ -18,6 +17,7 @@ import java.util.List;
 
 import ir.smartdevelopers.smartfilebrowser.R;
 import ir.smartdevelopers.smartfilebrowser.customClasses.FileUtil;
+import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemChooseListener;
 import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemClickListener;
 import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemSelectListener;
 import ir.smartdevelopers.smartfilebrowser.customClasses.SFBCountingCheckBox;
@@ -30,6 +30,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     private boolean mCanSelectMultiple=true;
     private OnItemSelectListener<GalleryModel> mOnItemSelectListener;
     private OnItemClickListener<GalleryModel> mOnItemClickListener;
+    private OnItemChooseListener mOnItemChooseListener;
 
     public GalleryAdapter() {
        mGalleryModels=new ArrayList<>();
@@ -111,7 +112,13 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
     public void addNewPic(GalleryModel newPicModel) {
-        mSelectedFiles.add(newPicModel.getFile());
+        if (!mCanSelectMultiple){
+            if (mOnItemClickListener!=null){
+                mOnItemClickListener.onItemClicked(newPicModel,0);
+                return;
+            }
+        }
+        mSelectedFiles.add(newPicModel.getCurrentFile());
         newPicModel.setNumber(mSelectedFiles.size());
         newPicModel.setId(System.currentTimeMillis());
         mGalleryModels.add(1,newPicModel);
@@ -134,6 +141,11 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     public int getSelectionCount() {
         return mSelectedFiles.size();
+    }
+
+    public GalleryAdapter setOnItemChooseListener(OnItemChooseListener onItemChooseListener) {
+        mOnItemChooseListener = onItemChooseListener;
+        return this;
     }
 
     class CameraViewHolder extends RecyclerView.ViewHolder {
@@ -169,9 +181,14 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 chbSelection.setVisibility(View.GONE);
             }
             mImageView.setOnClickListener(v->{
-                if (mOnItemClickListener != null) {
-                    mOnItemClickListener.onItemClicked(mGalleryModels.get(getAdapterPosition()),getAdapterPosition());
-
+                if (mCanSelectMultiple){
+                    if (mOnItemClickListener != null) {
+                        mOnItemClickListener.onItemClicked(mGalleryModels.get(getAdapterPosition()),getAdapterPosition());
+                    }
+                }else {
+                    if (mOnItemChooseListener != null) {
+                        mOnItemChooseListener.onChoose(mGalleryModels.get(getAdapterPosition()));
+                    }
                 }
             });
 
@@ -185,8 +202,9 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 imgPlay.setVisibility(View.GONE);
             }
 
-
-            checkSelection(model,false);
+            if (mCanSelectMultiple) {
+                checkSelection(model, false);
+            }
         }
 
         public void checkSelection(GalleryModel model, boolean animate) {
@@ -204,9 +222,9 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         int pos=mGalleryModels.indexOf(model);
         int previousSize=mSelectedFiles.size();
         if (selected){
-            mSelectedFiles.add(model.getFile());
+            mSelectedFiles.add(model.getCurrentFile());
         }else {
-            mSelectedFiles.remove(model.getFile());
+            mSelectedFiles.remove(model.getCurrentFile());
         }
         if (selected) {
             model.setNumber(mSelectedFiles.size());

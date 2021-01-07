@@ -30,8 +30,9 @@
             android:topLeftRadius="20dp"
             android:bottomRightRadius="0dp"
             android:bottomLeftRadius="0dp"
+            android:clickable="true"
             app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
-            >
+            android:focusable="true">
             <View
                 android:id="@+id/fileBrowser_activity_main_draggingLineView"
                 android:layout_width="48dp"
@@ -60,6 +61,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         android:background="#fff"
         android:gravity="bottom"
+        android:clickable="true"
         >
         <LinearLayout
             android:layout_width="match_parent"
@@ -68,12 +70,13 @@
             android:layout_gravity="bottom"
 
             >
-            <ImageButton
+            <ImageView
                 android:id="@+id/fileBrowser_activity_main_btnBack"
-                android:layout_width="?attr/actionBarSize"
-                android:layout_height="?attr/actionBarSize"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 app:srcCompat="@drawable/sfb_ic_round_arrow_back"
+                android:layout_margin="16dp"
                 android:contentDescription="@string/back" />
             <FrameLayout
                 android:id="@+id/fileBrowser_activity_main_toolbarPlaceHolder"
@@ -99,14 +102,22 @@
 <!--        app:labelVisibilityMode="labeled"-->
 
 <!--        />-->
-    <it.sephiroth.android.library.bottomnavigation.BottomNavigation
+<!--    <it.sephiroth.android.library.bottomnavigation.BottomNavigation-->
+<!--        android:id="@+id/fileBrowser_activity_main_bottomNavigation"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        app:layout_constraintStart_toStartOf="parent"-->
+<!--        app:layout_constraintEnd_toEndOf="parent"-->
+<!--        app:layout_constraintBottom_toBottomOf="parent"-->
+<!--        app:bbn_entries="@menu/sfb_bottombar_menu"-->
+<!--        />-->
+    <com.aurelhubert.ahbottomnavigation.AHBottomNavigation
         android:id="@+id/fileBrowser_activity_main_bottomNavigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:bbn_entries="@menu/sfb_bottombar_menu"
         />
    <androidx.constraintlayout.widget.ConstraintLayout
        android:id="@+id/fileBrowser_activity_main_selectionContainer"
@@ -116,6 +127,7 @@
        app:layout_constraintEnd_toEndOf="parent"
        android:layout_margin="8dp"
        android:visibility="invisible"
+       android:clipChildren="false"
        >
        <ImageView
            android:id="@+id/fileBrowser_activity_main_imgOk"
@@ -123,8 +135,13 @@
            android:layout_height="?attr/actionBarSize"
             app:layout_constraintTop_toTopOf="parent"
            app:layout_constraintStart_toStartOf="parent"
+           app:layout_constraintEnd_toEndOf="parent"
+           app:layout_constraintBottom_toBottomOf="parent"
            app:srcCompat="@drawable/sfb_ic_circle_tick_filled"
-           android:contentDescription="@string/sfb_done" />
+           android:contentDescription="@string/sfb_done"
+           android:layout_margin="10dp"
+
+           />
        <View
            android:id="@+id/fileBrowser_activity_main_txtSelectionCountPositionHelper"
            android:layout_width="1dp"

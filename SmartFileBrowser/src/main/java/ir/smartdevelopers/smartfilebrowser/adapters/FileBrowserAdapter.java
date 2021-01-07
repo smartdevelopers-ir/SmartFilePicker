@@ -21,6 +21,7 @@ import java.util.List;
 
 import ir.smartdevelopers.smartfilebrowser.R;
 import ir.smartdevelopers.smartfilebrowser.customClasses.FileUtil;
+import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemChooseListener;
 import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemClickListener;
 import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemLongClickListener;
 import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemSelectListener;
@@ -37,7 +38,7 @@ public class FileBrowserAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     private List<FileBrowserModel> mFileBrowserModels = new ArrayList<>();
     private List<FileBrowserModel> mFileBrowserModelsCopy = new ArrayList<>();
     private OnItemClickListener<FileBrowserModel> mOnItemClickListener;
-    private OnItemLongClickListener<FileBrowserModel> mOnItemLongClickListener;
+    private OnItemChooseListener mOnItemChooseListener;
     private OnSearchListener mOnSearchListener;
     private OnItemSelectListener<FileBrowserModel> mOnItemSelectListener;
     private boolean isMultiSelect=false;
@@ -110,10 +111,6 @@ public class FileBrowserAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
 
 
-    public void setOnItemLongClickListener(OnItemLongClickListener<FileBrowserModel> onItemLongClickListener) {
-        mOnItemLongClickListener = onItemLongClickListener;
-    }
-
     public void setOnItemSelectListener(OnItemSelectListener<FileBrowserModel> onItemSelectListener) {
         mOnItemSelectListener = onItemSelectListener;
     }
@@ -184,6 +181,26 @@ public class FileBrowserAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         mOnSearchListener = onSearchListener;
     }
 
+    public boolean isInSubDirectory() {
+        return mFileBrowserModelsCopy.get(0).getModelType() == FileBrowserModel.MODEL_TYPE_GO_BACK;
+    }
+
+    public void goBackToParentDirectory() {
+        FileBrowserModel model=mFileBrowserModelsCopy.get(0);
+        if (model!=null){
+            if (model.getModelType()==FileBrowserModel.MODEL_TYPE_GO_BACK){
+                if (mOnItemClickListener != null) {
+                    mOnItemClickListener.onItemClicked(model,0);
+                }
+            }
+        }
+    }
+
+    public FileBrowserAdapter setOnItemChooseListener(OnItemChooseListener onItemChooseListener) {
+        mOnItemChooseListener = onItemChooseListener;
+        return this;
+    }
+
     public class FileBrowserViewHolder extends RecyclerView.ViewHolder {
         ImageView imgIcon;
         TextView txtTitle, txtSubTitle;
@@ -201,6 +218,12 @@ public class FileBrowserAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             chbSelected = itemView.findViewById(R.id.item_file_browser_chbSelected);
             root.setOnClickListener(v -> {
                 FileBrowserModel model=mFileBrowserModels.get(getAdapterPosition());
+                if (!mCanSelectMultiple && model.getCurrentFile()!=null && model.getCurrentFile().isFile()){
+                    if (mOnItemChooseListener != null) {
+                        mOnItemChooseListener.onChoose(model);
+                        return;
+                    }
+                }
                 if (mOnItemClickListener != null) {
                     mOnItemClickListener.onItemClicked(model, getAdapterPosition());
                 }
@@ -208,8 +231,6 @@ public class FileBrowserAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                     if (!FileUtil.isDirectory(model.getCurrentFile())) {
                         addSelection(model, !model.isSelected());
                     }
-                }else {
-                    //TODO : select just this one
                 }
             });
             root.setOnLongClickListener(new View.OnLongClickListener() {
@@ -325,6 +346,12 @@ public class FileBrowserAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         }
 
         void bindView(FileBrowserModel model) {
+            if (getAdapterPosition()==mFileBrowserModelsCopy.size()-1){
+                itemView.setVisibility(View.GONE);
+                return;
+            }else {
+                itemView.setVisibility(View.VISIBLE);
+            }
             txtTitle.setText(model.getTitle());
         }
     }
