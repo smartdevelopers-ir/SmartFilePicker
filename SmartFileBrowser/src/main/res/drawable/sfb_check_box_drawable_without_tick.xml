@@ -5,19 +5,19 @@
     <item
         android:id="@+id/checked"
         android:state_checked="true"
-        android:drawable="@drawable/check_box_checked_without_tick"
+        android:drawable="@drawable/sfb_check_box_checked_witout_tick"
         />
     <item
         android:id="@+id/unchecked"
-        android:drawable="@drawable/chech_box_unchecked_without_tick"/>
+        android:drawable="@drawable/sfb_check_box_uncheck_without_tick"/>
     <transition
         android:fromId="@id/unchecked"
         android:toId="@id/checked"
-        android:drawable="@drawable/avd_uncheck_to_check_without_tick"
+        android:drawable="@drawable/sfb_avd_unchek_to_check"
         />
     <transition
         android:fromId="@id/checked"
         android:toId="@id/unchecked"
-        android:drawable="@drawable/avd_check_to_uncheck_without_tick"
+        android:drawable="@drawable/sfb_avd_check_to_uncheck2"
         />
 </animated-selector>

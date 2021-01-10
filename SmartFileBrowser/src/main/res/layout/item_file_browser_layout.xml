@@ -50,8 +50,8 @@
         android:layout_marginEnd="16dp"
         app:layout_constrainedWidth="true"
         tools:text="sadasdsad"
-        android:textColor="@color/colorFileBrowserItemTitle"
-        android:textSize="@dimen/colorFileBrowserItemTitleSize"
+        android:textColor="@color/sfb_colorFileBrowserItemTitle"
+        android:textSize="@dimen/sfb_fileBrowserItemTitleSize"
         android:maxLines="1"
         android:ellipsize="end"
         />
@@ -71,8 +71,8 @@
         tools:text="sadasdsad"
         android:maxLines="1"
         android:ellipsize="end"
-        android:textColor="@color/colorFileBrowserItemSubTitle"
-        android:textSize="@dimen/colorFileBrowserItemSubTitleSize"
+        android:textColor="@color/sfb_colorFileBrowserItemSubTitle"
+        android:textSize="@dimen/sfb_fileBrowserItemSubTitleSize"
         />
 
         <View

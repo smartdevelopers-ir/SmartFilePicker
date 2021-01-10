@@ -31,6 +31,7 @@ import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemSelectListener;
 import ir.smartdevelopers.smartfilebrowser.customClasses.OnSearchListener;
 import ir.smartdevelopers.smartfilebrowser.customClasses.SelectionHelper;
 import ir.smartdevelopers.smartfilebrowser.models.FileBrowserModel;
+import ir.smartdevelopers.smartfilebrowser.models.FileModel;
 import ir.smartdevelopers.smartfilebrowser.viewModel.FilesViewModel;
 import ir.smartdevelopers.smartfilebrowser.viewModel.SelectionFileViewModel;
 
@@ -44,7 +45,7 @@ public class FileBrowserFragment extends Fragment {
     private OnItemClickListener<FileBrowserModel> mOnItemClickListener;
     private OnItemChooseListener mOnItemChooseListener;
     private FileFilter mFileFilter;
-    private OnItemSelectListener<FileBrowserModel> mOnItemSelectListener;
+    private OnItemSelectListener<FileModel> mOnItemSelectListener;
     private SelectionFileViewModel mSelectionFileViewModel;
     private FileBrowserMainActivity.PageType mPageType;
     private OnSearchListener mOnSearchListener;
@@ -110,7 +111,9 @@ public class FileBrowserFragment extends Fragment {
                 }
             }
         });
-        getFirstPageList();
+        if (savedInstanceState==null) {
+            getFirstPageList();
+        }
 
     }
 
@@ -119,16 +122,9 @@ public class FileBrowserFragment extends Fragment {
             @Override
             public void onItemClicked(FileBrowserModel model, int position) {
                 if (model.getCurrentFile()!=null){
-                        mFilesViewModel.getFilesList(model, mFileFilter).observe(getViewLifecycleOwner(), new Observer<List<FileBrowserModel>>() {
-                            @Override
-                            public void onChanged(List<FileBrowserModel> fileBrowserModels) {
-
-                                if (fileBrowserModels!=null){
-                                    mFileBrowserAdapter.setList(fileBrowserModels);
-                                }
-
-                            }
-                        });
+                       if (model.getCurrentFile().isDirectory()){
+                           mFilesViewModel.getFilesList(model, mFileFilter);
+                       }
 
                 }else {
                     getFirstPageList();
@@ -172,31 +168,22 @@ public class FileBrowserFragment extends Fragment {
         getFirstPageList();
     }
     private void getFirstPageList() {
-        LiveData<List<FileBrowserModel>> liveData=null;
+
         switch (mPageType){
             case TYPE_FILE_BROWSER:
-                liveData= mFilesViewModel.getFirstPageFilesLiveData(mFileFilter);
+                mFilesViewModel.getFirstPageFilesLiveData(mFileFilter);
                 break;
             case TYPE_VIDEO:
-                liveData=mFilesViewModel.getFirstPageVideosLiveData(mFileFilter);
+                mFilesViewModel.getFirstPageVideosLiveData(mFileFilter);
                 break;
             case TYPE_PDF:
-                liveData=mFilesViewModel.getFirstPagePdfLiveData(mFileFilter);
+                mFilesViewModel.getFirstPagePdfLiveData(mFileFilter);
                 break;
             case TYPE_AUDIO:
-                liveData=mFilesViewModel.getFirstPageAudiosLiveData(mFileFilter);
+                mFilesViewModel.getFirstPageAudiosLiveData(mFileFilter);
                 break;
         }
 
-        if (liveData.hasObservers()){
-            liveData.removeObservers(this);
-        }
-        liveData.observe(this, new Observer<List<FileBrowserModel>>() {
-            @Override
-            public void onChanged(List<FileBrowserModel> fileBrowserModels) {
-
-            }
-        });
     }
 
 

@@ -1,4 +1,4 @@
-package ir.smartdevelopers.smartfilebrowser.customClasses;
+package ir.smartdevelopers.smartfilebrowser.models;
 
 import java.io.File;
 

@@ -1,7 +1,7 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/appbarSize"
+    android:layout_height="@dimen/sfb_appbarSize"
     xmlns:tools="http://schemas.android.com/tools"
     app:layout_constraintBottom_toBottomOf="@+id/fileBrowser_activity_main_txtToolbarTitle"
     app:layout_constraintTop_toBottomOf="@+id/fileBrowser_activity_main_txtToolbarTitle">
@@ -16,7 +16,7 @@
         tools:text="All media"
         android:layout_marginStart="16dp"
         android:textAppearance="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"
-        app:drawableEndCompat="@drawable/ic_arrow_drop_down"
+        app:drawableEndCompat="@drawable/sfb_ic_arrow_drop_down"
         />
     <ImageButton
         android:id="@+id/fileBrowser_activity_main_imgVerticalDotsMore"
@@ -26,7 +26,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         android:background="?attr/selectableItemBackgroundBorderless"
-        app:srcCompat="@drawable/ic_vertical_more_dots"
+        app:srcCompat="@drawable/sfb_ic_vertical_more_dots"
         android:layout_marginEnd="16dp"
         android:visibility="gone"
         android:contentDescription="@string/sfb_pick_from_gallery" />

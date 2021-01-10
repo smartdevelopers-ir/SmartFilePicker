@@ -23,19 +23,21 @@ import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemChooseListener;
 import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemClickListener;
 import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemSelectListener;
 import ir.smartdevelopers.smartfilebrowser.customClasses.SFBCountingCheckBox;
+import ir.smartdevelopers.smartfilebrowser.models.FileModel;
 import ir.smartdevelopers.smartfilebrowser.models.GalleryModel;
 
 public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
     private List<GalleryModel> mGalleryModels;
-    private List<File> mSelectedFiles=new ArrayList<>();
+    private List<File> mSelectedFiles;
     private boolean mCanSelectMultiple=true;
-    private OnItemSelectListener<GalleryModel> mOnItemSelectListener;
+    private OnItemSelectListener<FileModel> mOnItemSelectListener;
     private OnItemClickListener<GalleryModel> mOnItemClickListener;
     private OnItemChooseListener mOnItemChooseListener;
 
-    public GalleryAdapter() {
+    public GalleryAdapter(List<File> selectedFiles) {
        mGalleryModels=new ArrayList<>();
+        mSelectedFiles=selectedFiles;
     }
 
     @NonNull
@@ -113,7 +115,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         mCanSelectMultiple = canSelectMultiple;
     }
 
-    public void setOnItemSelectListener(OnItemSelectListener<GalleryModel> onItemSelectListener) {
+    public void setOnItemSelectListener(OnItemSelectListener<FileModel> onItemSelectListener) {
         mOnItemSelectListener = onItemSelectListener;
     }
 

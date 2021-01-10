@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="sfb_gallery_gap_size">4dp</dimen>
-    <dimen name="bottom_sheet_top_radius">15dp</dimen>
-    <dimen name="colorFileBrowserItemTitleSize">18sp</dimen>
-    <dimen name="colorFileBrowserItemSubTitleSize">12sp</dimen>
-    <dimen name="fileBrowserListSpliterSize">16dp</dimen>
-    <dimen name="appbarSize">56dp</dimen>
+    <dimen name="sfb_bottom_sheet_top_radius">15dp</dimen>
+    <dimen name="sfb_fileBrowserItemTitleSize">18sp</dimen>
+    <dimen name="sfb_fileBrowserItemSubTitleSize">12sp</dimen>
+    <dimen name="sfb_fileBrowserListSpliterSize">16dp</dimen>
+    <dimen name="sfb_appbarSize">56dp</dimen>
     <dimen name="sfb_expanded_margin_top">44dp</dimen>
 </resources>

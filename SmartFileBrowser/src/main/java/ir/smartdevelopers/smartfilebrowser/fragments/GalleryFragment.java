@@ -34,8 +34,10 @@ import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemChooseListener;
 import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemClickListener;
 import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemSelectListener;
 import ir.smartdevelopers.smartfilebrowser.models.AlbumModel;
+import ir.smartdevelopers.smartfilebrowser.models.FileModel;
 import ir.smartdevelopers.smartfilebrowser.models.GalleryModel;
 import ir.smartdevelopers.smartfilebrowser.viewModel.GalleryViewModel;
+import ir.smartdevelopers.smartfilebrowser.viewModel.SelectionFileViewModel;
 
 public class GalleryFragment extends Fragment {
     public static final String FRAGMENT_TAG="gallery_fragment";
@@ -44,11 +46,12 @@ public class GalleryFragment extends Fragment {
     private RecyclerView mGalleryRecyclerView;
     private GalleryAdapter mGalleryAdapter;
     private GalleryViewModel mGalleryViewModel;
+    private SelectionFileViewModel mSelectionFileViewModel;
     private GridLayoutManager mGridLayoutManager;
     private OnItemClickListener<GalleryModel> mGalleryModelItemClickListener;
     private OnItemClickListener<GalleryModel> mOnGalleryItemClickListener_m;
     private OnItemChooseListener mOnItemChooseListener;
-    private OnItemSelectListener<GalleryModel> mOnItemSelectListener;
+    private OnItemSelectListener<FileModel> mOnItemSelectListener;
     private String tackingPictureFilePath;
     private boolean mShowVideosInGallery;
     private boolean mShowCamera;
@@ -71,7 +74,7 @@ public class GalleryFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         FileBrowserMainActivity activity=(FileBrowserMainActivity) getActivity();
         if (activity!=null){
-            mOnItemSelectListener=activity.getOnGalleryItemSelectListener();
+            mOnItemSelectListener=activity.getOnFileItemSelectListener();
             mOnGalleryItemClickListener_m=activity.getOnGalleryItemClickListener();
             mOnItemChooseListener=activity.getOnItemChooseListener();
         }
@@ -93,6 +96,7 @@ public class GalleryFragment extends Fragment {
         mGalleryViewModel=new ViewModelProvider(this,
                 new ViewModelProvider.AndroidViewModelFactory(requireActivity().getApplication()))
                 .get(GalleryViewModel.class);
+        mSelectionFileViewModel=new ViewModelProvider(getActivity()).get(SelectionFileViewModel.class);
         findViews(view);
         initListeners();
         int spanCount=getResources().getInteger(R.integer.sfb_gallery_grid);
@@ -101,7 +105,7 @@ public class GalleryFragment extends Fragment {
         mGalleryRecyclerView.setLayoutManager(mGridLayoutManager);
         mGalleryRecyclerView.addItemDecoration(new GalleyItemDecoration(spanCount,gapSpace,true));
 
-        mGalleryAdapter=new GalleryAdapter();
+        mGalleryAdapter=new GalleryAdapter(mSelectionFileViewModel.getSelectedFiles());
         mGalleryAdapter.setCanSelectMultiple(mCanSelectMultipleInGallery);
         mGalleryAdapter.setOnItemClickListener(mGalleryModelItemClickListener);
         mGalleryAdapter.setOnItemSelectListener(mOnItemSelectListener);

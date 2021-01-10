@@ -3,14 +3,12 @@ package ir.smartdevelopers.smartfilebrowser.adapters;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.widget.AppCompatCheckBox;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -23,12 +21,12 @@ import ir.smartdevelopers.smartfilebrowser.R;
 import ir.smartdevelopers.smartfilebrowser.customClasses.FileUtil;
 import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemChooseListener;
 import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemClickListener;
-import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemLongClickListener;
 import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemSelectListener;
 import ir.smartdevelopers.smartfilebrowser.customClasses.OnSearchListener;
 import ir.smartdevelopers.smartfilebrowser.customClasses.SFBCheckBoxWithTick;
 import ir.smartdevelopers.smartfilebrowser.customClasses.Utils;
 import ir.smartdevelopers.smartfilebrowser.models.FileBrowserModel;
+import ir.smartdevelopers.smartfilebrowser.models.FileModel;
 
 public class FileBrowserAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements Filterable {
 
@@ -40,7 +38,7 @@ public class FileBrowserAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     private OnItemClickListener<FileBrowserModel> mOnItemClickListener;
     private OnItemChooseListener mOnItemChooseListener;
     private OnSearchListener mOnSearchListener;
-    private OnItemSelectListener<FileBrowserModel> mOnItemSelectListener;
+    private OnItemSelectListener<FileModel> mOnItemSelectListener;
 //    private boolean isMultiSelect=false;
     private  List<File> mSelectedFiles;
     private boolean mCanSelectMultiple=true;
@@ -111,7 +109,7 @@ public class FileBrowserAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
 
 
-    public void setOnItemSelectListener(OnItemSelectListener<FileBrowserModel> onItemSelectListener) {
+    public void setOnItemSelectListener(OnItemSelectListener<FileModel> onItemSelectListener) {
         mOnItemSelectListener = onItemSelectListener;
     }
 
@@ -264,15 +262,15 @@ public class FileBrowserAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             }
             switch (model.getModelType()) {
                 case FileBrowserModel.MODEL_TYPE_EXTERNAL_STORAGE:
-                    imgIcon.setImageResource(R.drawable.ic_sdcard);
+                    imgIcon.setImageResource(R.drawable.sfb_ic_sdcard);
                     hideExtensionText();
                     break;
                 case FileBrowserModel.MODEL_TYPE_INTERNAL_STORAGE:
-                    imgIcon.setImageResource(R.drawable.ic_storage);
+                    imgIcon.setImageResource(R.drawable.sfb_ic_storage);
                     hideExtensionText();
                     break;
                 case FileBrowserModel.MODEL_TYPE_DOWNLOAD_FOLDER:
-                    imgIcon.setImageResource(R.drawable.ic_download_folder);
+                    imgIcon.setImageResource(R.drawable.sfb_ic_download_folder);
                     divider.setVisibility(View.GONE);
                     hideExtensionText();
                     break;

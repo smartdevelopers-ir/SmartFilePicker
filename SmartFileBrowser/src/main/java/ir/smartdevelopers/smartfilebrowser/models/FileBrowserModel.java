@@ -1,11 +1,9 @@
 package ir.smartdevelopers.smartfilebrowser.models;
 
 import android.text.TextUtils;
-import android.webkit.URLUtil;
 
 import java.io.File;
 
-import ir.smartdevelopers.smartfilebrowser.customClasses.FileModel;
 import ir.smartdevelopers.smartfilebrowser.customClasses.FileUtil;
 import ir.smartdevelopers.smartfilebrowser.customClasses.Utils;
 

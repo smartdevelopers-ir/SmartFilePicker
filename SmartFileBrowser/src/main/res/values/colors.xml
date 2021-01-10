@@ -7,12 +7,11 @@
     <color name="sfb_color_pdf">#CB0606</color>
     <color name="sfb_color_audio">#326FB2</color>
     <color name="sfb_color_file">#006C80</color>
-    <color name="colorDraggingLine">#383838</color>
     <color name="white">#ffffff</color>
-    <color name="colorFileBrowserItemTitle">#272727</color>
-    <color name="colorFileBrowserItemSubTitle" >#99262626</color>
-    <color name="colorDivider">#9B9B9B</color>
-    <color name="colorFileBrowserAllFileText">#29B6F6</color>
+    <color name="sfb_colorFileBrowserItemTitle">#272727</color>
+    <color name="sfb_colorFileBrowserItemSubTitle" >#99262626</color>
+    <color name="sfb_colorDivider">#9B9B9B</color>
+    <color name="sfb_colorFileBrowserAllFileText">#29B6F6</color>
     <color name="sfb_color_item_inactive">#CCFFFFFF</color>
     <color name="sfb_colorBlue">#1E88E5</color>
     <color name="black">#000000</color>

@@ -35,7 +35,6 @@ public class Repository {
     private ContentResolver mContentResolver;
     private WeakReference<Context> wContext;
     private MutableLiveData<List<GalleryModel>> galleryList;
-    private MutableLiveData<List<FileBrowserModel>> mFileBrowserFirstPageListLiveData;
     public Repository(Application application) {
         mExecutorService= Executors.newCachedThreadPool();
         mContentResolver=application.getContentResolver();
@@ -159,14 +158,14 @@ public class Repository {
         return galleryModelList;
     }
 
-    /**@param modelType is one of {@link FileBrowserModel} model types*/
-    public MutableLiveData<List<FileBrowserModel>> getFirstBrowserPageList(String selection,
-                                                                    String[] selectionArgs,int modelType,
-                                                                    FileFilter fileFilter){
+    /**
+     * @param modelType is one of {@link FileBrowserModel} model types
+     * @param filesLiveData */
+    public void getFirstBrowserPageList(String selection,String[] selectionArgs, int modelType,
+                                                         FileFilter fileFilter,
+                                                         MutableLiveData<List<FileBrowserModel>> filesLiveData){
 
-        if (mFileBrowserFirstPageListLiveData==null){
-            mFileBrowserFirstPageListLiveData=new MutableLiveData<>();
-        }
+
         String extraQuery=MediaStore.Files.FileColumns.MIME_TYPE+" IS NOT NULL AND " +
                 MediaStore.Files.FileColumns.DATA+" NOT LIKE '%.thumbnail%'";
         selection= TextUtils.isEmpty(selection) ? extraQuery
@@ -209,10 +208,10 @@ public class Repository {
             }
             cursor.close();
             if (wContext.get()==null){return;}
-            mFileBrowserFirstPageListLiveData.postValue(Utils.generateFirstPageList(wContext.get(),fileBrowserModels));
+            filesLiveData.postValue(Utils.generateFirstPageList(wContext.get(),fileBrowserModels));
 
         });
-        return mFileBrowserFirstPageListLiveData;
+
 
 
     }

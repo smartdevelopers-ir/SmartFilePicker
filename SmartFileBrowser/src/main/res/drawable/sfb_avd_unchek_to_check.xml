@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<animated-vector 
+    
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:drawable="@drawable/sfb_check_box_uncheck_without_tick"
+    tools:ignore="NewApi">
+<target
+    android:animation="@anim/sfb_anim_uncheck_to_check_border"
+    android:name="border"
+    />
+    <target
+        android:animation="@anim/sfb_anim_uncheck_to_check_fill_area"
+        android:name="fill_area"
+        />
+</animated-vector>

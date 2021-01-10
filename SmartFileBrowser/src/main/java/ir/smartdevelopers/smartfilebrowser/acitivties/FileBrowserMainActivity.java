@@ -39,7 +39,7 @@ import java.util.List;
 
 import ir.smartdevelopers.smartfilebrowser.R;
 import ir.smartdevelopers.smartfilebrowser.adapters.AlbumAdapter;
-import ir.smartdevelopers.smartfilebrowser.customClasses.FileModel;
+import ir.smartdevelopers.smartfilebrowser.models.FileModel;
 import ir.smartdevelopers.smartfilebrowser.customClasses.FileUtil;
 import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemChooseListener;
 import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemClickListener;
@@ -47,7 +47,6 @@ import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemSelectListener;
 import ir.smartdevelopers.smartfilebrowser.customClasses.RoundLinearLayout;
 import ir.smartdevelopers.smartfilebrowser.customClasses.SFBFileFilter;
 import ir.smartdevelopers.smartfilebrowser.customClasses.SearchView;
-import ir.smartdevelopers.smartfilebrowser.customClasses.Utils;
 import ir.smartdevelopers.smartfilebrowser.fragments.FileBrowserFragment;
 import ir.smartdevelopers.smartfilebrowser.fragments.GalleryFragment;
 import ir.smartdevelopers.smartfilebrowser.models.AlbumModel;
@@ -77,9 +76,9 @@ public class FileBrowserMainActivity extends AppCompatActivity {
     private View mSelectionContainer;
     private TextView txtSelectionCount;
     private ImageView btnSelectionOk;
-    private OnItemSelectListener<FileBrowserModel> mOnFileItemSelectListener;
+    private OnItemSelectListener<FileModel> mOnFileItemSelectListener;
     private OnItemChooseListener mOnItemChooseListener;
-    private OnItemSelectListener<GalleryModel> mOnGalleryItemSelectListener;
+    //    private OnItemSelectListener<GalleryModel> mOnGalleryItemSelectListener;
     private OnItemClickListener<GalleryModel> mOnGalleryItemClickListener;
 
     private SearchView.OnVisibilityChangeListener mOnVisibilityChangeListener;
@@ -159,10 +158,6 @@ public class FileBrowserMainActivity extends AppCompatActivity {
         mSelectionFileViewModel = new ViewModelProvider(this).get(SelectionFileViewModel.class);
         mGalleryViewModel = new ViewModelProvider(this, new ViewModelProvider.AndroidViewModelFactory(getApplication()))
                 .get(GalleryViewModel.class);
-        findViews();
-        getDataFromIntent();
-        initListeners();
-        initViews(savedInstanceState);
         if (savedInstanceState == null) {
             if (mShowGalleryTab) {
                 mPageType = PageType.TYPE_GALLERY;
@@ -175,15 +170,20 @@ public class FileBrowserMainActivity extends AppCompatActivity {
             } else {
                 finish();
             }
-            showSuitableFragment(mPageType, true, false, true);
+
         } else {
             mPageType = (PageType) savedInstanceState.getSerializable("page_type");
-            showSuitableFragment(mPageType, true, false, false);
+
         }
+        findViews();
+        getDataFromIntent();
+        initListeners();
+        initViews(savedInstanceState);
+
 
 
         if (savedInstanceState != null) {
-
+            showSuitableFragment(mPageType, true, false, false);
             int bottomSheetState = savedInstanceState.getInt("bottomSheet_state");
             mBottomSheetBehavior.setState(bottomSheetState);
             if (bottomSheetState == BottomSheetBehavior.STATE_EXPANDED) {
@@ -199,6 +199,8 @@ public class FileBrowserMainActivity extends AppCompatActivity {
             if (albumListIsVisible) {
                 showAlbumsList(false);
             }
+        }else {
+            showSuitableFragment(mPageType, true, false, true);
         }
     }
 
@@ -274,16 +276,32 @@ public class FileBrowserMainActivity extends AppCompatActivity {
                 return true;
             }
         };
-        mOnFileItemSelectListener = new OnItemSelectListener<FileBrowserModel>() {
+        mOnFileItemSelectListener = new OnItemSelectListener<FileModel>() {
             @Override
-            public void onItemSelected(FileBrowserModel model, int position, int selectionCount) {
-                if (selectionCount > 0) {
-                    showSelectionOkButton();
-                    changeSelectionCount(selectionCount);
-                    setGalleryEnabled(false);
-                } else {
-                    hideSelectionOkButton();
-                    setGalleryEnabled(true);
+            public void onItemSelected(FileModel model, int position, int selectionCount) {
+                if (model instanceof FileBrowserModel) {
+                    if (selectionCount > 0) {
+                        showSelectionOkButton();
+                        changeSelectionCount(selectionCount);
+                        setGalleryEnabled(false);
+                    } else {
+                        hideSelectionOkButton();
+                        setGalleryEnabled(true);
+                    }
+                }
+                if (model instanceof GalleryModel){
+                    if (!mCanSelectMultipleInGallery) {
+                        sendBackResult(model);
+                        return;
+                    }
+                    if (selectionCount > 0) {
+                        showSelectionOkButton();
+                        changeSelectionCount(selectionCount);
+                        setFileBrowserEnabled(false);
+                    } else {
+                        hideSelectionOkButton();
+                        setFileBrowserEnabled(true);
+                    }
                 }
                 mSelectionFileViewModel.onItemSelected(selectionCount, selectionCount > 0);
             }
@@ -294,24 +312,24 @@ public class FileBrowserMainActivity extends AppCompatActivity {
                 sendBackResult(fileModel);
             }
         };
-        mOnGalleryItemSelectListener = new OnItemSelectListener<GalleryModel>() {
-            @Override
-            public void onItemSelected(GalleryModel model, int position, int selectionCount) {
-                if (!mCanSelectMultipleInGallery) {
-                    sendBackResult(model);
-                    return;
-                }
-                if (selectionCount > 0) {
-                    showSelectionOkButton();
-                    changeSelectionCount(selectionCount);
-                    setFileBrowserEnabled(false);
-                } else {
-                    hideSelectionOkButton();
-                    setFileBrowserEnabled(true);
-                }
-
-            }
-        };
+//        mOnGalleryItemSelectListener = new OnItemSelectListener<GalleryModel>() {
+//            @Override
+//            public void onItemSelected(GalleryModel model, int position, int selectionCount) {
+//                if (!mCanSelectMultipleInGallery) {
+//                    sendBackResult(model);
+//                    return;
+//                }
+//                if (selectionCount > 0) {
+//                    showSelectionOkButton();
+//                    changeSelectionCount(selectionCount);
+//                    setFileBrowserEnabled(false);
+//                } else {
+//                    hideSelectionOkButton();
+//                    setFileBrowserEnabled(true);
+//                }
+//
+//            }
+//        };
         mOnGalleryItemClickListener = new OnItemClickListener<GalleryModel>() {
             @Override
             public void onItemClicked(GalleryModel model, int position) {
@@ -393,7 +411,7 @@ public class FileBrowserMainActivity extends AppCompatActivity {
         appBarParams.height = mActionBarSize;
         mAppBarLayout.setLayoutParams(appBarParams);
         int screenHeight = getResources().getDisplayMetrics().heightPixels;
-        mRadius = getResources().getDimension(R.dimen.bottom_sheet_top_radius);
+        mRadius = getResources().getDimension(R.dimen.sfb_bottom_sheet_top_radius);
         mAppBarLayout.setTranslationY(-mActionBarSize);
         mBottomSheetBehavior = BottomSheetBehavior.from(mBottomSheetRoot);
         mBottomSheetBehavior.setHideable(true);
@@ -455,8 +473,13 @@ public class FileBrowserMainActivity extends AppCompatActivity {
         });
 
         if (mSelectionFileViewModel.getSelectionHelperLiveData().getValue().selectionCount > 0) {
-            mOnFileItemSelectListener.onItemSelected(null, 0,
-                    mSelectionFileViewModel.getSelectionHelperLiveData().getValue().selectionCount);
+            if (mPageType==PageType.TYPE_GALLERY){
+                mOnFileItemSelectListener.onItemSelected(new GalleryModel(), 0,
+                        mSelectionFileViewModel.getSelectionHelperLiveData().getValue().selectionCount);
+            }else {
+                mOnFileItemSelectListener.onItemSelected(new FileBrowserModel(), 0,
+                        mSelectionFileViewModel.getSelectionHelperLiveData().getValue().selectionCount);
+            }
         }
 //        if (savedInstanceState==null){
 //            mBottomSheetRoot.post(()->{
@@ -803,14 +826,14 @@ public class FileBrowserMainActivity extends AppCompatActivity {
         if (mSelectionContainer.getVisibility() == View.VISIBLE) {
             return;
         }
-       mSelectionContainer.post(()->{
-           mSelectionContainer.animate().setDuration(100).scaleX(1).scaleY(1)
-                   .withStartAction(() -> {
-                       mSelectionContainer.setScaleX(0);
-                       mSelectionContainer.setScaleY(0);
-                       mSelectionContainer.setVisibility(View.VISIBLE);
-                   }).start();
-       });
+        mSelectionContainer.post(() -> {
+            mSelectionContainer.animate().setDuration(100).scaleX(1).scaleY(1)
+                    .withStartAction(() -> {
+                        mSelectionContainer.setScaleX(0);
+                        mSelectionContainer.setScaleY(0);
+                        mSelectionContainer.setVisibility(View.VISIBLE);
+                    }).start();
+        });
     }
 
     private void hideSelectionOkButton() {
@@ -922,7 +945,7 @@ public class FileBrowserMainActivity extends AppCompatActivity {
     public void finish() {
         mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
         super.finish();
-        overridePendingTransition(R.anim.not_anim, R.anim.fade_out);
+        overridePendingTransition(R.anim.sfb_not_anim, R.anim.sfb_fade_out);
 
     }
 
@@ -955,7 +978,7 @@ public class FileBrowserMainActivity extends AppCompatActivity {
 
             mSelectionFileViewModel.removeAllSelections();
             if (mFileBrowserFragment != null) {
-                mOnFileItemSelectListener.onItemSelected(null, 0, 0);
+                mOnFileItemSelectListener.onItemSelected(new FileBrowserModel(), 0, 0);
                 mFileBrowserFragment.removeAllSelection();
             }
 
@@ -965,7 +988,7 @@ public class FileBrowserMainActivity extends AppCompatActivity {
         if (mGalleryFragment != null) {
             if (mGalleryFragment.getSelectionCount() > 0) {
 
-                mOnGalleryItemSelectListener.onItemSelected(null, 0, 0);
+                mOnFileItemSelectListener.onItemSelected(new GalleryModel(), 0, 0);
                 mGalleryFragment.removeAllSelections();
                 return;
             }
@@ -987,13 +1010,13 @@ public class FileBrowserMainActivity extends AppCompatActivity {
         return mPageType;
     }
 
-    public OnItemSelectListener<FileBrowserModel> getOnFileItemSelectListener() {
+    public OnItemSelectListener<FileModel> getOnFileItemSelectListener() {
         return mOnFileItemSelectListener;
     }
 
-    public OnItemSelectListener<GalleryModel> getOnGalleryItemSelectListener() {
-        return mOnGalleryItemSelectListener;
-    }
+//    public OnItemSelectListener<GalleryModel> getOnGalleryItemSelectListener() {
+//        return mOnGalleryItemSelectListener;
+//    }
 
     public OnItemClickListener<GalleryModel> getOnGalleryItemClickListener() {
         return mOnGalleryItemClickListener;

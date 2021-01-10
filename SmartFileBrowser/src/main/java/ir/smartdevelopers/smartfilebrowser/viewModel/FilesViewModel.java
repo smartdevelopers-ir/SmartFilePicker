@@ -20,7 +20,6 @@ import java.util.Objects;
 
 import ir.smartdevelopers.smartfilebrowser.R;
 import ir.smartdevelopers.smartfilebrowser.customClasses.FileUtil;
-import ir.smartdevelopers.smartfilebrowser.customClasses.Utils;
 import ir.smartdevelopers.smartfilebrowser.models.FileBrowserModel;
 
 public class FilesViewModel extends AndroidViewModel {
@@ -38,59 +37,57 @@ public class FilesViewModel extends AndroidViewModel {
         super(application);
         mRepository=new Repository(application);
         mAllLiveData=new HashMap<>();
+        mFilesLiveData=new MutableLiveData<>();
     }
 
-    public LiveData<List<FileBrowserModel>> getFirstPageFilesLiveData(FileFilter fileFilter) {
+    public void getFirstPageFilesLiveData(FileFilter fileFilter) {
 
-            mFilesLiveData =mRepository.getFirstBrowserPageList(null,null,
-                    FileBrowserModel.MODEL_TYPE_FILE,fileFilter);
+            mRepository.getFirstBrowserPageList(null,null,
+                    FileBrowserModel.MODEL_TYPE_FILE,fileFilter,mFilesLiveData);
 //            mAllLiveData.put("files", mFirstPageFilesLiveData);
 
-        return mFilesLiveData;
+
     }
 
-    public LiveData<List<FileBrowserModel>> getFirstPagePdfLiveData(FileFilter fileFilter) {
+    public void getFirstPagePdfLiveData(FileFilter fileFilter) {
 //        if (mFirstPagePdfLiveData ==null){
             String selection= MediaStore.Files.FileColumns.MIME_TYPE+" LIKE ?";
             String[] selectionArgs=new String[]{"%pdf%"};
-            mFirstPagePdfLiveData =mRepository.getFirstBrowserPageList(selection, selectionArgs,
-                    FileBrowserModel.MODEL_TYPE_FILE, fileFilter);
+            mRepository.getFirstBrowserPageList(selection, selectionArgs,
+                    FileBrowserModel.MODEL_TYPE_FILE, fileFilter, mFilesLiveData);
 //            mAllLiveData.put("pdf", mFirstPagePdfLiveData);
 //        }
-        return mFirstPagePdfLiveData;
+
     }
 
-    public LiveData<List<FileBrowserModel>> getFirstPageAudiosLiveData(FileFilter fileFilter) {
+    public void getFirstPageAudiosLiveData(FileFilter fileFilter) {
 //        if (mFirstPageAudiosLiveData ==null){
             String selection= MediaStore.Files.FileColumns.MIME_TYPE+" LIKE ?";
             String[] selectionArgs=new String[]{"%audio%"};
-            mFirstPageAudiosLiveData =mRepository.getFirstBrowserPageList(selection,selectionArgs,
-                    FileBrowserModel.MODEL_TYPE_FILE,fileFilter);
+           mRepository.getFirstBrowserPageList(selection,selectionArgs,
+                    FileBrowserModel.MODEL_TYPE_FILE,fileFilter, mFilesLiveData);
 //            mAllLiveData.put("audio", mFirstPageAudiosLiveData);
 //        }
-        return mFirstPageAudiosLiveData;
+
     }
 
-    public LiveData<List<FileBrowserModel>> getFirstPageVideosLiveData(FileFilter fileFilter) {
+    public void getFirstPageVideosLiveData(FileFilter fileFilter) {
 //        if (mFirstPageVideosLiveData ==null){
             String selection= MediaStore.Files.FileColumns.MIME_TYPE+" LIKE ?";
             String[] selectionArgs=new String[]{"%video%"};
-            mFirstPageVideosLiveData =mRepository.getFirstBrowserPageList(selection,selectionArgs,
-                    FileBrowserModel.MODEL_TYPE_FILE,fileFilter);
+            mRepository.getFirstBrowserPageList(selection,selectionArgs,
+                    FileBrowserModel.MODEL_TYPE_FILE,fileFilter, mFilesLiveData);
 //            mAllLiveData.put("video", mFirstPageVideosLiveData);
 //        }
-        return mFirstPageVideosLiveData;
-    }
-    public LiveData<List<FileBrowserModel>> getFilesList(FileBrowserModel parentModel, FileFilter fileFilter) {
-        if (mFilesLiveData==null) {
-            mFilesLiveData = new MutableLiveData<>();
 
-        }
+    }
+    public void getFilesList(FileBrowserModel parentModel, FileFilter fileFilter) {
+
         List<FileBrowserModel> files=getFileList(parentModel, fileFilter);
-        /*If we do not set null and just return mFilesLiveData if there are some value in mFilesLiveData
-        * then it observe the observers by last value so we must pass null and check it in onChange method*/
-        mFilesLiveData.setValue(files);
-        return mFilesLiveData;
+       if (files!=null){
+            mFilesLiveData.setValue(files);
+        }
+
     }
 
     @Nullable
