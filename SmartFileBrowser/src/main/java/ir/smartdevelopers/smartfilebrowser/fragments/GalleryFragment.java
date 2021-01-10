@@ -13,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -37,8 +38,9 @@ import ir.smartdevelopers.smartfilebrowser.models.GalleryModel;
 import ir.smartdevelopers.smartfilebrowser.viewModel.GalleryViewModel;
 
 public class GalleryFragment extends Fragment {
+    public static final String FRAGMENT_TAG="gallery_fragment";
 
-    private static final int REQ_CODE_TACK_PICTURE = 303;
+    public static final int REQ_CODE_TACK_PICTURE = 303;
     private RecyclerView mGalleryRecyclerView;
     private GalleryAdapter mGalleryAdapter;
     private GalleryViewModel mGalleryViewModel;
@@ -62,9 +64,11 @@ public class GalleryFragment extends Fragment {
         fragment.setArguments(bundle);
         return fragment;
     }
+
+
+    @Nullable
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         FileBrowserMainActivity activity=(FileBrowserMainActivity) getActivity();
         if (activity!=null){
             mOnItemSelectListener=activity.getOnGalleryItemSelectListener();
@@ -77,11 +81,9 @@ public class GalleryFragment extends Fragment {
             mShowVideosInGallery=bundle.getBoolean("mShowVideosInGallery",true);
             mCanSelectMultipleInGallery=bundle.getBoolean("mCanSelectMultipleInGallery",true);
         }
-    }
-
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        if (savedInstanceState!=null){
+            tackingPictureFilePath=savedInstanceState.getString("tackingPictureFilePath");
+        }
         return inflater.inflate(R.layout.fragment_gallery_layout,container,false);
     }
 
@@ -106,12 +108,22 @@ public class GalleryFragment extends Fragment {
         mGalleryAdapter.setOnItemChooseListener(mOnItemChooseListener);
         mGalleryRecyclerView.setAdapter(mGalleryAdapter);
 
-        mGalleryViewModel.getAllGalleryModels(mShowCamera,mShowVideosInGallery).observe(this, new Observer<List<GalleryModel>>() {
+        LiveData<List<GalleryModel>> allGalleryModels= mGalleryViewModel
+                .getAllGalleryModels(mShowCamera,mShowVideosInGallery,savedInstanceState==null);
+
+        allGalleryModels.observe(this, new Observer<List<GalleryModel>>() {
             @Override
             public void onChanged(List<GalleryModel> galleryModels) {
                 mGalleryAdapter.setList(galleryModels);
             }
         });
+
+    }
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("tackingPictureFilePath",tackingPictureFilePath);
 
     }
 
@@ -145,7 +157,7 @@ public class GalleryFragment extends Fragment {
                     getContext().getPackageName() + ".provider",
                     newPic);
             cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
-            startActivityForResult(cameraIntent, REQ_CODE_TACK_PICTURE);
+            getActivity().startActivityForResult(cameraIntent, REQ_CODE_TACK_PICTURE);
         }
     }
 
@@ -155,7 +167,7 @@ public class GalleryFragment extends Fragment {
     }
     public void updateGallery(AlbumModel albumModel){
         if (albumModel.getId()==-1){
-            mGalleryViewModel.getAllGalleryModels(mShowCamera, mShowVideosInGallery);
+            mGalleryViewModel.getAllGalleryModels(mShowCamera, mShowVideosInGallery,true);
         }else {
             mGalleryViewModel.getGalleryModelsByAlbumName(albumModel.getName(),mShowVideosInGallery);
         }
@@ -185,6 +197,7 @@ public class GalleryFragment extends Fragment {
                    newPicModel.setSelected(true);
                    newPicModel.setName(takenPic.getName());
                    newPicModel.setPath(takenPic.getPath());
+//                   mGalleryViewModel.insertModel(newPicModel);
                    mGalleryAdapter.addNewPic(newPicModel);
 
                 }
@@ -203,5 +216,9 @@ public class GalleryFragment extends Fragment {
             return mGalleryAdapter.getSelectionCount();
         }
         return 0;
+    }
+
+    public void scrollToFirstPos() {
+        mGalleryRecyclerView.smoothScrollToPosition(0);
     }
 }

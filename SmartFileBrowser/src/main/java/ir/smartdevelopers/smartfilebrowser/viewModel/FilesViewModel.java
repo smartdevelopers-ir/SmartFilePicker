@@ -42,11 +42,11 @@ public class FilesViewModel extends AndroidViewModel {
 
     public LiveData<List<FileBrowserModel>> getFirstPageFilesLiveData(FileFilter fileFilter) {
 
-            mFirstPageFilesLiveData =mRepository.getFirstBrowserPageList(null,null,
+            mFilesLiveData =mRepository.getFirstBrowserPageList(null,null,
                     FileBrowserModel.MODEL_TYPE_FILE,fileFilter);
 //            mAllLiveData.put("files", mFirstPageFilesLiveData);
 
-        return mFirstPageFilesLiveData;
+        return mFilesLiveData;
     }
 
     public LiveData<List<FileBrowserModel>> getFirstPagePdfLiveData(FileFilter fileFilter) {
@@ -157,6 +157,13 @@ public class FilesViewModel extends AndroidViewModel {
                 ((MutableLiveData<List<FileBrowserModel>>) liveData).postValue(fileBrowserModels);
             }
         }
+    }
+
+    public MutableLiveData<List<FileBrowserModel>> getFilesLiveData() {
+        if (mFilesLiveData == null) {
+            mFilesLiveData=new MutableLiveData<>();
+        }
+        return mFilesLiveData;
     }
 
     private String getFilesCountSubtitle(int count){

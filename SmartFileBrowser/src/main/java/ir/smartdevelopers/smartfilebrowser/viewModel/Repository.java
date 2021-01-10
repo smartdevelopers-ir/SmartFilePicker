@@ -160,7 +160,7 @@ public class Repository {
     }
 
     /**@param modelType is one of {@link FileBrowserModel} model types*/
-    public LiveData<List<FileBrowserModel>> getFirstBrowserPageList(String selection,
+    public MutableLiveData<List<FileBrowserModel>> getFirstBrowserPageList(String selection,
                                                                     String[] selectionArgs,int modelType,
                                                                     FileFilter fileFilter){
 

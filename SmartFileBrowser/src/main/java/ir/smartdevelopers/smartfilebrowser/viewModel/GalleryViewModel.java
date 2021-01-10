@@ -23,9 +23,11 @@ public class GalleryViewModel extends AndroidViewModel {
 
     }
 
-    public LiveData<List<GalleryModel>> getAllGalleryModels(boolean addCamera, boolean showVideosInGallery){
+    public LiveData<List<GalleryModel>> getAllGalleryModels(boolean addCamera, boolean showVideosInGallery, boolean fetchNewData){
 
-        mGalleryModelsLiveData=mRepository.getGalleryMediaList(null,null,addCamera,showVideosInGallery);
+        if (fetchNewData) {
+            mGalleryModelsLiveData=mRepository.getGalleryMediaList(null,null,addCamera,showVideosInGallery);
+        }
         return mGalleryModelsLiveData;
     }
     public void  getGalleryModelsByAlbumName(String albumName,boolean showVideosInGallery) {
@@ -41,4 +43,7 @@ public class GalleryViewModel extends AndroidViewModel {
         return mAlbumLiveData;
     }
 
+    public void insertModel(GalleryModel newPicModel) {
+        mGalleryModelsLiveData.getValue().add(1,newPicModel);
+    }
 }

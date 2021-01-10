@@ -15,8 +15,8 @@
     app:layout_constraintTop_toTopOf="parent"
     app:layout_constraintDimensionRatio="1:1"
     tools:ignore="ContentDescription"
-    app:tint="#2B2B2B"
-    android:background="#979797"
+    app:tint="@color/white"
+    android:background="#373737"
     />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

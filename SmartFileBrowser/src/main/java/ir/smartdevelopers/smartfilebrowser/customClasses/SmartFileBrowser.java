@@ -13,6 +13,7 @@ import ir.smartdevelopers.smartfilebrowser.acitivties.FileBrowserMainActivity;
 
 public class SmartFileBrowser {
     public static class IntentBuilder{
+        private SFBFileFilter mFileFilter;
         private boolean showVideosInGallery=true;
         private boolean showCamera=true;
         private boolean canSelectMultipleInGallery=true;
@@ -71,7 +72,13 @@ public class SmartFileBrowser {
             filePickerIntent.putExtra("mShowFilesTab",showFilesTab);
             filePickerIntent.putExtra("mShowAudioTab",showAudioTab);
             filePickerIntent.putExtra("mShowGalleryTab",showGalleryTab);
+            filePickerIntent.putExtra("mFileTabFileFilter",mFileFilter);
             return filePickerIntent;
+        }
+
+        public IntentBuilder setFileFilter(SFBFileFilter fileFilter) {
+            mFileFilter = fileFilter;
+            return this;
         }
     }
 

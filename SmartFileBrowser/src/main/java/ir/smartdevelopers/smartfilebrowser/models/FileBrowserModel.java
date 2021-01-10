@@ -6,6 +6,7 @@ import android.webkit.URLUtil;
 import java.io.File;
 
 import ir.smartdevelopers.smartfilebrowser.customClasses.FileModel;
+import ir.smartdevelopers.smartfilebrowser.customClasses.FileUtil;
 import ir.smartdevelopers.smartfilebrowser.customClasses.Utils;
 
 public class FileBrowserModel implements FileModel {
@@ -32,6 +33,7 @@ public class FileBrowserModel implements FileModel {
     private File mCurrentFile;
     private File mParentFile;
     private boolean mSelected;
+    private String mExtension;
 
 
     public FileBrowserModel(long id, String title, String subTitle, int modelType,
@@ -54,6 +56,15 @@ public class FileBrowserModel implements FileModel {
         if (!TextUtils.isEmpty(parentPath)){
             mParentFile=new File(parentPath);
         }
+        guessExtension(path);
+    }
+
+    private void guessExtension(String path){
+        mExtension= FileUtil.getFileExtensionFromPath(path);
+    }
+
+    public String getExtension() {
+        return mExtension;
     }
 
     @Override

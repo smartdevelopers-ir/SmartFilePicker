@@ -3,10 +3,12 @@ package ir.smartdevelopers.smartfilebrowser.adapters;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewPropertyAnimator;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatImageView;
+import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -67,7 +69,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             }else if (command.equals("remove_all_selections")){
                 if (holder instanceof GalleryViewHolder){
                     ((GalleryViewHolder) holder).chbSelection.setChecked(false);
-
+                    ((GalleryViewHolder) holder).scaleImageView(false,true);
                 }
                 return;
             }
@@ -92,6 +94,14 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     public void setList(List<GalleryModel> galleryModels) {
         mGalleryModels=galleryModels;
+        for (GalleryModel model:mGalleryModels){
+            if (model.getCurrentFile()==null){
+                continue;
+            }
+            if (mSelectedFiles.contains(model.getCurrentFile())){
+                model.setSelected(true);
+            }
+        }
         notifyDataSetChanged();
     }
 
@@ -131,7 +141,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     public void removeAllSelections() {
         mSelectedFiles.clear();
         int size=mGalleryModels.size();
-        for (int i=0;i<size;i++){
+        for (int i=size-1;i>=0;i--){
             mGalleryModels.get(i).setSelected(false);
             notifyItemChanged(i,"remove_all_selections");
         }
@@ -195,7 +205,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         }
         void bindView(GalleryModel model){
 //            Picasso.get().load(model.getPath()).into(mImageView);
-            Glide.with(mImageView).load(model.getPath()).into(mImageView);
+            Glide.with(mImageView).load(model.getPath()).placeholder(R.drawable.sfb_placeholder).into(mImageView);
             if (model.getType()== FileUtil.TYPE_VIDEO){
                 imgPlay.setVisibility(View.VISIBLE);
             }else {
@@ -210,9 +220,31 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         public void checkSelection(GalleryModel model, boolean animate) {
             chbSelection.setCounter(model.getNumber());
             chbSelection.setChecked(model.isSelected());
+
             if (!animate){
                 chbSelection.jumpDrawablesToCurrentState();
             }
+            scaleImageView(model.isSelected(),animate);
+
+        }
+        public void scaleImageView(boolean selected,boolean animate){
+            int duration;
+            float scale;
+            if (selected){
+                scale=0.85f;
+            }else {
+                scale=1;
+            }
+            if (!animate){
+                duration=0;
+            }else {
+                duration=100;
+            }
+            ViewPropertyAnimator animator=mImageView.animate().scaleY(scale).scaleX(scale).setDuration(duration);
+            if (animate){
+                animator.setInterpolator(new FastOutSlowInInterpolator());
+            }
+            animator.start();
         }
     }
 
@@ -240,6 +272,8 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                        notifyItemChanged(i,"checked_changed");
                    }
                 }
+            }else {
+                notifyItemChanged(pos,"checked_changed");
             }
         }
 

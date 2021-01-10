@@ -3,6 +3,7 @@ package ir.smartdevelopers.smartfilebrowser.fragments;
 import android.app.Application;
 import android.os.Bundle;
 import android.text.Html;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,6 +36,7 @@ import ir.smartdevelopers.smartfilebrowser.viewModel.SelectionFileViewModel;
 
 public class FileBrowserFragment extends Fragment {
 
+    public static final String FRAGMENT_TAG="file_browser_fragment";
     private RecyclerView mRecyclerView;
     private LinearLayoutManager mLinearLayoutManager;
     private FileBrowserAdapter mFileBrowserAdapter;
@@ -49,6 +51,7 @@ public class FileBrowserFragment extends Fragment {
     private Group mNoItemGroup;
     private TextView txtNotFoundSubTitle;
     private boolean mCanSelectMultipleInFiles=true;
+    private String mPendingQuery="";
 
     public static FileBrowserFragment getInstance(boolean canSelectMultipleInFiles) {
         FileBrowserFragment fragment=new FileBrowserFragment();
@@ -58,9 +61,10 @@ public class FileBrowserFragment extends Fragment {
         return fragment;
     }
 
+
+    @Nullable
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         FileBrowserMainActivity activity= (FileBrowserMainActivity) getActivity();
         if (activity!=null) {
             mFileFilter = activity.getFileFilter();
@@ -72,11 +76,6 @@ public class FileBrowserFragment extends Fragment {
         if (bundle!=null){
             mCanSelectMultipleInFiles=bundle.getBoolean("mCanSelectMultipleInFiles",true);
         }
-    }
-
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_file_browser,container,false);
     }
 
@@ -99,13 +98,20 @@ public class FileBrowserFragment extends Fragment {
         mFileBrowserAdapter.setOnSearchListener(mOnSearchListener);
         mFileBrowserAdapter.setCanSelectMultiple(mCanSelectMultipleInFiles);
         mRecyclerView.setAdapter(mFileBrowserAdapter);
-        getFirstPageList();
-        mSelectionFileViewModel.getSelectionHelperLiveData().observe(this, new Observer<SelectionHelper>() {
+        mFilesViewModel.getFilesLiveData().observe(getViewLifecycleOwner(), new Observer<List<FileBrowserModel>>() {
             @Override
-            public void onChanged(SelectionHelper selectionHelper) {
-                mFileBrowserAdapter.setMultiSelectEnabled(selectionHelper.isMultiSelectionEnabled);
+            public void onChanged(List<FileBrowserModel> fileBrowserModels) {
+                if (fileBrowserModels!=null){
+                    mFileBrowserAdapter.setList(fileBrowserModels);
+                    if (!TextUtils.isEmpty(mPendingQuery)){
+                        mFileBrowserAdapter.getFilter().filter(mPendingQuery);
+                        mPendingQuery="";
+                    }
+                }
             }
         });
+        getFirstPageList();
+
     }
 
     private void initListeners() {
@@ -188,7 +194,6 @@ public class FileBrowserFragment extends Fragment {
         liveData.observe(this, new Observer<List<FileBrowserModel>>() {
             @Override
             public void onChanged(List<FileBrowserModel> fileBrowserModels) {
-                mFileBrowserAdapter.setList(fileBrowserModels);
 
             }
         });
@@ -207,5 +212,17 @@ public class FileBrowserFragment extends Fragment {
 
     public FileBrowserAdapter getFileBrowserAdapter() {
         return mFileBrowserAdapter;
+    }
+
+    public void scrollToFirstPos() {
+        mRecyclerView.smoothScrollToPosition(0);
+    }
+
+    public void search(String query) {
+        if (mFileBrowserAdapter==null){
+            mPendingQuery=query;
+        }else {
+            mFileBrowserAdapter.getFilter().filter(query);
+        }
     }
 }

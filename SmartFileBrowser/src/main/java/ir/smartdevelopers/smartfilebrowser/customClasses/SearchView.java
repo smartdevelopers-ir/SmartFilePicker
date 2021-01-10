@@ -51,10 +51,10 @@ public class SearchView extends ConstraintLayout {
         imgClear.setVisibility(GONE);
         mClearIconIsShowing=false;
         imgClear.setOnClickListener(v->{
-            hideClearButton();
             edtSearch.setText("");
+            hideClearButton();
         });
-        edtSearch.addTextChangedListener(new TextWatcher() {
+        TextWatcher searchQueryListener=new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -67,6 +67,9 @@ public class SearchView extends ConstraintLayout {
 
             @Override
             public void afterTextChanged(Editable s) {
+                if (getVisibility()!=VISIBLE){
+                    return;
+                }
                 if (s != null && s.length() > 0) {
                     showClearButton();
                 } else {
@@ -79,7 +82,8 @@ public class SearchView extends ConstraintLayout {
                     mFilterable.getFilter().filter(s==null?"":s.toString());
                 }
             }
-        });
+        };
+        edtSearch.addTextChangedListener(searchQueryListener);
     }
 
     private void hideClearButton() {
@@ -122,11 +126,22 @@ public class SearchView extends ConstraintLayout {
         mOnVisibilityChangeListener = onVisibilityChangeListener;
     }
 
+    public String getQuery() {
+        return edtSearch.getText()==null?"":edtSearch.getText().toString();
+    }
+
+    public void setQuery(String query) {
+        edtSearch.setText(query);
+    }
+
     public interface OnQueryChangeListener{
         void onQueryChanged(String query);
     }
     public interface OnVisibilityChangeListener{
         void onVisibilityChanged(boolean isShowing);
+    }
+    public boolean isShowing(){
+        return getVisibility()==VISIBLE;
     }
     public void show(){
         setVisibility(View.VISIBLE);

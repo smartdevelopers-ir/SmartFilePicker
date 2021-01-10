@@ -28,6 +28,7 @@
         android:background="?attr/selectableItemBackgroundBorderless"
         app:srcCompat="@drawable/ic_vertical_more_dots"
         android:layout_marginEnd="16dp"
+        android:visibility="gone"
         android:contentDescription="@string/sfb_pick_from_gallery" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

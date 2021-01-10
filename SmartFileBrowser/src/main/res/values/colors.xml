@@ -3,10 +3,10 @@
     <color name="sfb_colorPrimary">#555457</color>
     <color name="sfb_colorPrimaryDark">#00535353</color>
     <color name="sfb_colorAccent">#03DAC5</color>
-    <color name="sfb_color_gallery">#0D3BD1</color>
-    <color name="sfb_color_pdf">#D22537</color>
-    <color name="sfb_color_audio">#155FBF</color>
-    <color name="sfb_color_file">#723C48</color>
+    <color name="sfb_color_gallery">#5B33AB</color>
+    <color name="sfb_color_pdf">#CB0606</color>
+    <color name="sfb_color_audio">#326FB2</color>
+    <color name="sfb_color_file">#006C80</color>
     <color name="colorDraggingLine">#383838</color>
     <color name="white">#ffffff</color>
     <color name="colorFileBrowserItemTitle">#272727</color>
