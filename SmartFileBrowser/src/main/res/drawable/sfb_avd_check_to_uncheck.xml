@@ -43,15 +43,25 @@
     </aapt:attr>
     <target android:name="uncheked_stroke">
         <aapt:attr name="android:animation">
-            <objectAnimator
-                android:propertyName="pathData"
-                android:startOffset="190"
-                android:duration="200"
-                android:valueFrom="M 17 34 C 7.6 34 0 26.4 0 17 C 0 7.6 7.6 0 17 0 C 26.4 0 34 7.6 34 17 C 34 26.4 26.4 34 17 34 Z M 17 16.8 C 16.9 16.8 16.8 16.9 16.8 17 C 16.8 17.1 16.9 17.2 17 17.2 C 17.1 17.2 17.2 17.1 17.2 17 C 17.2 16.9 17.1 16.8 17 16.8 Z"
-                android:valueTo="M 17 34 C 7.6 34 0 26.4 0 17 C 0 7.6 7.6 0 17 0 C 26.4 0 34 7.6 34 17 C 34 26.4 26.4 34 17 34 Z M 17 2 C 8.7 2 2 8.7 2 17 C 2 25.3 8.7 32 17 32 C 25.3 32 32 25.3 32 17 C 32 8.7 25.3 2 17 2 Z"
-                android:valueType="pathType"
-                android:interpolator="@android:interpolator/fast_out_slow_in"/>
-        </aapt:attr>
+            <set  android:ordering="sequentially">
+                <objectAnimator
+                    android:propertyName="pathData"
+                    android:duration="190"
+                    android:valueFrom="M 17 34 C 7.6 34 0 26.4 0 17 C 0 7.6 7.6 0 17 0 C 26.4 0 34 7.6 34 17 C 34 26.4 26.4 34 17 34 Z M 17 16.8 C 16.9 16.8 16.8 16.9 16.8 17 C 16.8 17.1 16.9 17.2 17 17.2 C 17.1 17.2 17.2 17.1 17.2 17 C 17.2 16.9 17.1 16.8 17 16.8 Z"
+                    android:valueTo="M 17 34 C 7.6 34 0 26.4 0 17 C 0 7.6 7.6 0 17 0 C 26.4 0 34 7.6 34 17 C 34 26.4 26.4 34 17 34 Z M 17 16.8 C 16.9 16.8 16.8 16.9 16.8 17 C 16.8 17.1 16.9 17.2 17 17.2 C 17.1 17.2 17.2 17.1 17.2 17 C 17.2 16.9 17.1 16.8 17 16.8 Z"
+                    android:valueType="pathType"
+                    android:interpolator="@android:interpolator/fast_out_slow_in"/>
+
+                <objectAnimator
+                    android:propertyName="pathData"
+                    android:duration="200"
+                    android:valueFrom="M 17 34 C 7.6 34 0 26.4 0 17 C 0 7.6 7.6 0 17 0 C 26.4 0 34 7.6 34 17 C 34 26.4 26.4 34 17 34 Z M 17 16.8 C 16.9 16.8 16.8 16.9 16.8 17 C 16.8 17.1 16.9 17.2 17 17.2 C 17.1 17.2 17.2 17.1 17.2 17 C 17.2 16.9 17.1 16.8 17 16.8 Z"
+                    android:valueTo="M 17 34 C 7.6 34 0 26.4 0 17 C 0 7.6 7.6 0 17 0 C 26.4 0 34 7.6 34 17 C 34 26.4 26.4 34 17 34 Z M 17 2 C 8.7 2 2 8.7 2 17 C 2 25.3 8.7 32 17 32 C 25.3 32 32 25.3 32 17 C 32 8.7 25.3 2 17 2 Z"
+                    android:valueType="pathType"
+                    android:interpolator="@android:interpolator/fast_out_slow_in"/>
+
+            </set>
+             </aapt:attr>
     </target>
     <target android:name="tick_group">
         <aapt:attr name="android:animation">

@@ -58,6 +58,9 @@ public class FileBrowserModel implements FileModel {
     }
 
     private void guessExtension(String path){
+        if (TextUtils.isEmpty(path)){
+            return;
+        }
         mExtension= FileUtil.getFileExtensionFromPath(path);
     }
 

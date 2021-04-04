@@ -2,12 +2,15 @@ package ir.smartdevelopers.smartfilebrowser.fragments;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -62,6 +65,7 @@ public class GalleryFragment extends Fragment {
         GalleryFragment fragment=new GalleryFragment();
         Bundle bundle=new Bundle();
         bundle.putBoolean("mShowVideosInGallery",showVideosInGallery);
+
         bundle.putBoolean("mShowCamera",showCamera);
         bundle.putBoolean("mCanSelectMultipleInGallery",canSelectMultipleInGallery);
         fragment.setArguments(bundle);
@@ -93,6 +97,9 @@ public class GalleryFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        if (!getContext().getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)){
+            mShowCamera=false;
+        }
         mGalleryViewModel=new ViewModelProvider(this,
                 new ViewModelProvider.AndroidViewModelFactory(requireActivity().getApplication()))
                 .get(GalleryViewModel.class);
@@ -161,6 +168,20 @@ public class GalleryFragment extends Fragment {
                     getContext().getPackageName() + ".provider",
                     newPic);
             cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+            cameraIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+            cameraIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            if (cameraIntent.resolveActivity(getContext().getPackageManager())==null){
+                Toast.makeText(getContext(), R.string.this_device_dose_not_have_camera_app, Toast.LENGTH_SHORT).show();
+                return;
+            }
+            List<ResolveInfo> resolveInfos=getContext().getPackageManager().queryIntentActivities(cameraIntent,
+                    PackageManager.MATCH_DEFAULT_ONLY);
+            for (ResolveInfo info:resolveInfos){
+                String packageName=info.activityInfo.packageName;
+                getContext().grantUriPermission(packageName,uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION|
+                        Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            }
+
             getActivity().startActivityForResult(cameraIntent, REQ_CODE_TACK_PICTURE);
         }
     }
@@ -181,12 +202,13 @@ public class GalleryFragment extends Fragment {
         if (mGalleryAdapter==null){
             return Collections.emptyList();
         }
-        List<File> selectedFiles=new ArrayList<>();
-        List<GalleryModel> selectedModels=mGalleryAdapter.getSelectedModels();
-       for (GalleryModel model:selectedModels){
-           selectedFiles.add(model.getCurrentFile());
-       }
-       return selectedFiles;
+        return mSelectionFileViewModel.getSelectedFiles();
+//        List<File> selectedFiles=new ArrayList<>();
+//        List<GalleryModel> selectedModels=mGalleryAdapter.getSelectedModels();
+//       for (GalleryModel model:selectedModels){
+//           selectedFiles.add(model.getCurrentFile());
+//       }
+//       return selectedFiles;
     }
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -224,5 +246,12 @@ public class GalleryFragment extends Fragment {
 
     public void scrollToFirstPos() {
         mGalleryRecyclerView.smoothScrollToPosition(0);
+    }
+
+    public void imageUpdated(String sourcePath, String newFilePath, int editedImagePosition) {
+        if (mGalleryAdapter!=null){
+            mGalleryAdapter.getItem(editedImagePosition).setPath(newFilePath);
+            mGalleryAdapter.notifyItemChanged(editedImagePosition);
+        }
     }
 }

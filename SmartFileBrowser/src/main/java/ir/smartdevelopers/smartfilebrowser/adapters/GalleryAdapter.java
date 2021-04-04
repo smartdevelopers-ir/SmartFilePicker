@@ -160,6 +160,10 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         return this;
     }
 
+    public GalleryModel getItem(int editedImagePosition) {
+        return mGalleryModels.get(editedImagePosition);
+    }
+
     class CameraViewHolder extends RecyclerView.ViewHolder {
         AppCompatImageView mImageView;
         public CameraViewHolder(@NonNull View itemView) {

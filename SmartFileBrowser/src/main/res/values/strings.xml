@@ -25,4 +25,7 @@
     <string name="sfb_all_media">All Media</string>
     <string name="sfb_no_result_found">No result found</string>
     <string name="sfb_no_results_found_sub_title"><![CDATA[There are no matches with <b>%s</b> in current directory]]></string>
+    <string name="this_device_dose_not_have_camera_app">This device does not have camera app</string>
+    <string name="sfb_image_editor_label">Edit</string>
+    <string name="sfb_edit">Edit</string>
 </resources>

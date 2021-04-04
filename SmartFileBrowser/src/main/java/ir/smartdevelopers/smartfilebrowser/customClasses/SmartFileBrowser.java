@@ -2,6 +2,8 @@ package ir.smartdevelopers.smartfilebrowser.customClasses;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.StateListDrawable;
+import android.os.Bundle;
 
 import androidx.annotation.Nullable;
 
@@ -10,8 +12,10 @@ import java.util.Collections;
 import java.util.List;
 
 import ir.smartdevelopers.smartfilebrowser.acitivties.FileBrowserMainActivity;
+import ir.smartdevelopers.smartfilebrowser.models.GalleryModel;
 
 public class SmartFileBrowser {
+    public static OnItemClickListener<GalleryModel> sOnGalleryModelClickListener;
     public static class IntentBuilder{
         private SFBFileFilter mFileFilter;
         private boolean showVideosInGallery=true;
@@ -62,6 +66,10 @@ public class SmartFileBrowser {
             this.showGalleryTab = showGalleryTab;
             return this;
         }
+        public IntentBuilder setOnGalleryItemClickListener(OnItemClickListener<GalleryModel> onGalleryModelClickListener){
+            sOnGalleryModelClickListener=onGalleryModelClickListener;
+            return this;
+        }
         public Intent build(Context context){
             Intent filePickerIntent=new Intent(context, FileBrowserMainActivity.class);
             filePickerIntent.putExtra("mShowVideosInGallery",showVideosInGallery);
@@ -87,6 +95,19 @@ public class SmartFileBrowser {
         if (data==null){
             return null;
         }
-        return (File[]) data.getSerializableExtra(FileBrowserMainActivity.EXTRA_RESULT);
+        Bundle bundle=data.getExtras();
+        if (bundle==null){
+            return null;
+        }
+        String[] filesPath=bundle.getStringArray(FileBrowserMainActivity.EXTRA_RESULT);
+        if (filesPath != null) {
+            File[] files=new File[filesPath.length];
+            for (int i=0;i<filesPath.length;i++){
+                files[i]=new File(filesPath[i]);
+            }
+            return files;
+        }
+        return null;
+
     }
 }

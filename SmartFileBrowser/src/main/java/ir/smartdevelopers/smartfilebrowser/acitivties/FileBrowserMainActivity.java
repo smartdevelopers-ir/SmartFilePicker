@@ -14,6 +14,8 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.res.TypedArray;
 import android.os.Bundle;
+import android.text.TextUtils;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -37,6 +39,8 @@ import java.io.File;
 import java.io.FileFilter;
 import java.util.List;
 
+import iamutkarshtiwari.github.io.ananas.editimage.EditImageActivity;
+import iamutkarshtiwari.github.io.ananas.editimage.ImageEditorIntentBuilder;
 import ir.smartdevelopers.smartfilebrowser.R;
 import ir.smartdevelopers.smartfilebrowser.adapters.AlbumAdapter;
 import ir.smartdevelopers.smartfilebrowser.models.FileModel;
@@ -58,6 +62,7 @@ import ir.smartdevelopers.smartfilebrowser.viewModel.SelectionFileViewModel;
 public class FileBrowserMainActivity extends AppCompatActivity {
 
     public static final String EXTRA_RESULT = "file_browser_result";
+    private static final int REQ_CODE_EDIT_IMAGE = 258;
     private GalleryFragment mGalleryFragment;
     private FileBrowserFragment mFileBrowserFragment;
     private AppBarLayout mAppBarLayout;
@@ -107,7 +112,8 @@ public class FileBrowserMainActivity extends AppCompatActivity {
     private boolean mShowFilesTab = true;
     private boolean mShowAudioTab = true;
     private boolean mShowGalleryTab = true;
-
+    private String mEditedImagePath;
+    private int mEditedImagePosition;
 
     private void getDataFromIntent() {
         mShowVideosInGallery = getIntent().getBooleanExtra("mShowVideosInGallery", true);
@@ -337,6 +343,9 @@ public class FileBrowserMainActivity extends AppCompatActivity {
                     sendBackResult(model);
                 } else {
                     //Todo manage on item click for user
+                    if (model.getType()==FileUtil.TYPE_IMAGE){
+                        openImageEditor(model,position);
+                    }
                 }
             }
         };
@@ -354,6 +363,32 @@ public class FileBrowserMainActivity extends AppCompatActivity {
         };
 
 
+    }
+
+    private void openImageEditor(GalleryModel model, int position) {
+        try {
+            mEditedImagePath=FileUtil.getImageTempFile(getApplicationContext()).getPath();
+            mEditedImagePosition=position;
+            Intent intent = new ImageEditorIntentBuilder(this,
+                    model.getPath()
+                    ,mEditedImagePath)
+                    .withAddText() // Add the features you need
+                    .withPaintFeature()
+
+//                            .withFilterFeature()
+                    .withRotateFeature()
+                    .withCropFeature()
+//                            .withBrightnessFeature()
+//                            .withSaturationFeature()
+//                            .withBeautyFeature()
+                    .withStickerFeature()
+                      // Add this to force portrait mode (It's set to false by default)
+                    .build();
+
+            EditImageActivity.start(this, intent, REQ_CODE_EDIT_IMAGE);
+        } catch (Exception e) {
+            Log.e("ttt", e.getMessage()); // This could throw if either `sourcePath` or `outputPath` is blank or Null
+        }
     }
 
     private boolean mFileBrowserEnabled = true;
@@ -521,7 +556,13 @@ public class FileBrowserMainActivity extends AppCompatActivity {
                 resultFiles = new File[]{model.getCurrentFile()};
             }
         }
-        result.putExtra(EXTRA_RESULT, resultFiles);
+        String[] filesPath=new String[resultFiles.length];
+        for (int i=0;i<resultFiles.length;i++){
+            filesPath[i]=resultFiles[i].getPath();
+        }
+        Bundle bundle=new Bundle();
+        bundle.putStringArray(EXTRA_RESULT,filesPath);
+        result.putExtras(bundle);
 
         setResult(RESULT_OK, result);
         finish();
@@ -993,6 +1034,12 @@ public class FileBrowserMainActivity extends AppCompatActivity {
                 return;
             }
         }
+        if (!TextUtils.isEmpty(mEditedImagePath)){
+            File editedImageTempFile=new File(mEditedImagePath);
+        if (editedImageTempFile.exists()){
+            editedImageTempFile.delete();
+        }
+        }
         setResult(RESULT_CANCELED);
         super.onBackPressed();
     }
@@ -1036,6 +1083,18 @@ public class FileBrowserMainActivity extends AppCompatActivity {
         if (requestCode == GalleryFragment.REQ_CODE_TACK_PICTURE) {
             if (mGalleryFragment != null) {
                 mGalleryFragment.onActivityResult(requestCode, resultCode, data);
+            }
+        }
+        if (requestCode==REQ_CODE_EDIT_IMAGE){
+            if (mGalleryFragment!=null){
+                if (data != null) {
+                    boolean isImageEdit = data.getBooleanExtra("is_image_edited", false);
+                    String sourcePath = data.getStringExtra("source_path");
+                    String newFilePath = data.getStringExtra("output_path");
+                   if (isImageEdit){
+                       mGalleryFragment.imageUpdated(sourcePath,newFilePath,mEditedImagePosition);
+                   }
+                }
             }
         }
     }

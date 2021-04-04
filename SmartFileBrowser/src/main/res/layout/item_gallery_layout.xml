@@ -34,5 +34,4 @@
         app:srcCompat="@drawable/sfb_ic_round_play"
         android:visibility="gone"
         tools:ignore="ContentDescription" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>
