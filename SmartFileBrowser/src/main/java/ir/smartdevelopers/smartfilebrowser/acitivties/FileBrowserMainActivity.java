@@ -43,6 +43,7 @@ import iamutkarshtiwari.github.io.ananas.editimage.EditImageActivity;
 import iamutkarshtiwari.github.io.ananas.editimage.ImageEditorIntentBuilder;
 import ir.smartdevelopers.smartfilebrowser.R;
 import ir.smartdevelopers.smartfilebrowser.adapters.AlbumAdapter;
+import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemLongClickListener;
 import ir.smartdevelopers.smartfilebrowser.models.FileModel;
 import ir.smartdevelopers.smartfilebrowser.customClasses.FileUtil;
 import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemChooseListener;
@@ -85,6 +86,7 @@ public class FileBrowserMainActivity extends AppCompatActivity {
     private OnItemChooseListener mOnItemChooseListener;
     //    private OnItemSelectListener<GalleryModel> mOnGalleryItemSelectListener;
     private OnItemClickListener<GalleryModel> mOnGalleryItemClickListener;
+    private OnItemLongClickListener<GalleryModel> mOnGalleryItemLongClickListener;
 
     private SearchView.OnVisibilityChangeListener mOnVisibilityChangeListener;
     private SelectionFileViewModel mSelectionFileViewModel;
@@ -342,11 +344,20 @@ public class FileBrowserMainActivity extends AppCompatActivity {
                 if (!mCanSelectMultipleInGallery) {
                     sendBackResult(model);
                 } else {
-                    //Todo manage on item click for user
                     if (model.getType()==FileUtil.TYPE_IMAGE){
                         openImageEditor(model,position);
                     }
                 }
+            }
+        };
+        mOnGalleryItemLongClickListener=new OnItemLongClickListener<GalleryModel>() {
+            @Override
+            public void onLongClicked(GalleryModel model, int position) {
+
+                    if (model.getType()==FileUtil.TYPE_IMAGE){
+                        openImageEditor(model,position);
+                    }
+
             }
         };
         mOnVisibilityChangeListener = new SearchView.OnVisibilityChangeListener() {
@@ -1071,6 +1082,10 @@ public class FileBrowserMainActivity extends AppCompatActivity {
 
     public OnItemChooseListener getOnItemChooseListener() {
         return mOnItemChooseListener;
+    }
+
+    public OnItemLongClickListener<GalleryModel> getOnGalleryItemLongClickListener() {
+        return mOnGalleryItemLongClickListener;
     }
 
     public enum PageType {

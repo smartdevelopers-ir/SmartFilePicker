@@ -35,6 +35,7 @@ import ir.smartdevelopers.smartfilebrowser.customClasses.FileUtil;
 import ir.smartdevelopers.smartfilebrowser.customClasses.GalleyItemDecoration;
 import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemChooseListener;
 import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemClickListener;
+import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemLongClickListener;
 import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemSelectListener;
 import ir.smartdevelopers.smartfilebrowser.models.AlbumModel;
 import ir.smartdevelopers.smartfilebrowser.models.FileModel;
@@ -52,6 +53,7 @@ public class GalleryFragment extends Fragment {
     private SelectionFileViewModel mSelectionFileViewModel;
     private GridLayoutManager mGridLayoutManager;
     private OnItemClickListener<GalleryModel> mGalleryModelItemClickListener;
+    private OnItemLongClickListener<GalleryModel> mGalleryModelItemLongClickListener;
     private OnItemClickListener<GalleryModel> mOnGalleryItemClickListener_m;
     private OnItemChooseListener mOnItemChooseListener;
     private OnItemSelectListener<FileModel> mOnItemSelectListener;
@@ -80,6 +82,7 @@ public class GalleryFragment extends Fragment {
         if (activity!=null){
             mOnItemSelectListener=activity.getOnFileItemSelectListener();
             mOnGalleryItemClickListener_m=activity.getOnGalleryItemClickListener();
+            mGalleryModelItemLongClickListener=activity.getOnGalleryItemLongClickListener();
             mOnItemChooseListener=activity.getOnItemChooseListener();
         }
         Bundle bundle=getArguments();
@@ -116,6 +119,7 @@ public class GalleryFragment extends Fragment {
         mGalleryAdapter.setCanSelectMultiple(mCanSelectMultipleInGallery);
         mGalleryAdapter.setOnItemClickListener(mGalleryModelItemClickListener);
         mGalleryAdapter.setOnItemSelectListener(mOnItemSelectListener);
+        mGalleryAdapter.setOnItemLongClickListener(mGalleryModelItemLongClickListener);
         mGalleryAdapter.setOnItemChooseListener(mOnItemChooseListener);
         mGalleryRecyclerView.setAdapter(mGalleryAdapter);
 

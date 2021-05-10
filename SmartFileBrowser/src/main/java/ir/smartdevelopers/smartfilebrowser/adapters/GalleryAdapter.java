@@ -21,6 +21,7 @@ import ir.smartdevelopers.smartfilebrowser.R;
 import ir.smartdevelopers.smartfilebrowser.customClasses.FileUtil;
 import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemChooseListener;
 import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemClickListener;
+import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemLongClickListener;
 import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemSelectListener;
 import ir.smartdevelopers.smartfilebrowser.customClasses.SFBCountingCheckBox;
 import ir.smartdevelopers.smartfilebrowser.models.FileModel;
@@ -33,6 +34,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     private boolean mCanSelectMultiple=true;
     private OnItemSelectListener<FileModel> mOnItemSelectListener;
     private OnItemClickListener<GalleryModel> mOnItemClickListener;
+    private OnItemLongClickListener<GalleryModel> mOnItemLongClickListener;
     private OnItemChooseListener mOnItemChooseListener;
 
     public GalleryAdapter(List<File> selectedFiles) {
@@ -164,6 +166,10 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         return mGalleryModels.get(editedImagePosition);
     }
 
+    public void setOnItemLongClickListener(OnItemLongClickListener<GalleryModel> onItemLongClickListener) {
+        mOnItemLongClickListener = onItemLongClickListener;
+    }
+
     class CameraViewHolder extends RecyclerView.ViewHolder {
         AppCompatImageView mImageView;
         public CameraViewHolder(@NonNull View itemView) {
@@ -198,13 +204,29 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             }
             mImageView.setOnClickListener(v->{
                 if (mCanSelectMultiple){
-                    if (mOnItemClickListener != null) {
-                        mOnItemClickListener.onItemClicked(mGalleryModels.get(getAdapterPosition()),getAdapterPosition());
+                    if(mGalleryModels.get(getAdapterPosition()).getType()==GalleryModel.TYPE_CAMERA){
+                        if (mOnItemClickListener != null) {
+                            mOnItemClickListener.onItemClicked(mGalleryModels.get(getAdapterPosition()),getAdapterPosition());
+                        }
+                    }else {
+                        setImageSelected(mGalleryModels.get(getAdapterPosition()), !mGalleryModels.get(getAdapterPosition()).isSelected());
                     }
+
+
                 }else {
                     if (mOnItemChooseListener != null) {
                         mOnItemChooseListener.onChoose(mGalleryModels.get(getAdapterPosition()));
                     }
+                }
+            });
+            mImageView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    if (mOnItemLongClickListener != null) {
+                        mOnItemLongClickListener.onLongClicked(mGalleryModels.get(getAdapterPosition()),getAdapterPosition());
+                        return true;
+                    }
+                    return false;
                 }
             });
 
@@ -268,6 +290,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             model.setNumber(mSelectedFiles.size());
             notifyItemChanged(pos,"checked_changed");
         }else {
+            notifyItemChanged(pos,"checked_changed");
             if (model.getNumber()<previousSize){
 
                 int selectionCount=mGalleryModels.size();
