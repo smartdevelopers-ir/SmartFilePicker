@@ -995,7 +995,10 @@ public class FileBrowserMainActivity extends AppCompatActivity {
 
     @Override
     public void finish() {
-        mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+        try {
+            mBottomSheetBehavior.setHideable(true);
+            mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+        }catch (Exception ignore){}
         super.finish();
         overridePendingTransition(R.anim.sfb_not_anim, R.anim.sfb_fade_out);
 
