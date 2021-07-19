@@ -167,7 +167,8 @@ public class Repository {
 
 
         String extraQuery=MediaStore.Files.FileColumns.MIME_TYPE+" IS NOT NULL AND " +
-                MediaStore.Files.FileColumns.DATA+" NOT LIKE '%.thumbnail%'";
+                MediaStore.Files.FileColumns.DATA+" NOT LIKE '%.thumbnail%' AND "+
+                MediaStore.Files.FileColumns.DATA+" NOT LIKE '%Android/%' ";
         selection= TextUtils.isEmpty(selection) ? extraQuery
                 : selection+" AND "+extraQuery;
 

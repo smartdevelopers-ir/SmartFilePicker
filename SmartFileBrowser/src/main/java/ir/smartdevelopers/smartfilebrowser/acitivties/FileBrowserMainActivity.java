@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.res.TypedArray;
@@ -320,24 +321,7 @@ public class FileBrowserMainActivity extends AppCompatActivity {
                 sendBackResult(fileModel);
             }
         };
-//        mOnGalleryItemSelectListener = new OnItemSelectListener<GalleryModel>() {
-//            @Override
-//            public void onItemSelected(GalleryModel model, int position, int selectionCount) {
-//                if (!mCanSelectMultipleInGallery) {
-//                    sendBackResult(model);
-//                    return;
-//                }
-//                if (selectionCount > 0) {
-//                    showSelectionOkButton();
-//                    changeSelectionCount(selectionCount);
-//                    setFileBrowserEnabled(false);
-//                } else {
-//                    hideSelectionOkButton();
-//                    setFileBrowserEnabled(true);
-//                }
-//
-//            }
-//        };
+
         mOnGalleryItemClickListener = new OnItemClickListener<GalleryModel>() {
             @Override
             public void onItemClicked(GalleryModel model, int position) {
