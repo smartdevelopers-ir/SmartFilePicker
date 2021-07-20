@@ -22,7 +22,7 @@
             android:theme="@style/sfb_EditorTheme"
             tools:replace="android:label" />
         <provider
-            android:authorities="${applicationId}.provider"
+            android:authorities="${applicationId}.sfb_provider"
             android:name=".customClasses.SmartFileProvider"
             android:exported="false"
             android:grantUriPermissions="true">

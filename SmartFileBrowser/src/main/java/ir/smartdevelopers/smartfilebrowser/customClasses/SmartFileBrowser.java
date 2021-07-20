@@ -3,9 +3,11 @@ package ir.smartdevelopers.smartfilebrowser.customClasses;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.StateListDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.Nullable;
+import androidx.core.content.FileProvider;
 
 import java.io.File;
 import java.util.Collections;
@@ -109,5 +111,18 @@ public class SmartFileBrowser {
         }
         return null;
 
+    }
+    @Nullable
+    public static Uri[] getResultUris(Context context,Intent data){
+        File[] files=getResult(data);
+        if (files==null){
+            return null;
+        }
+        Uri[] result=new Uri[files.length];
+        for (int i=0;i<files.length;i++){
+            result[i]= FileProvider.getUriForFile(context,
+                    context.getPackageName()+".sfb_provider",files[i]);
+        }
+        return result;
     }
 }
