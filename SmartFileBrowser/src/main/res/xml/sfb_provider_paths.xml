@@ -9,5 +9,6 @@
         path="."
         />
     <external-files-path name="sfb_external_files" path="Pictures" />
+    <external-files-path name="sfb_external_files" path="." />
 
 </paths>
