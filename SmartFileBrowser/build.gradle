@@ -57,9 +57,8 @@ dependencies {
     implementation "androidx.lifecycle:lifecycle-livedata:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-common-java8:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-reactivestreams:$lifecycle_version"
-//    implementation 'com.github.iamutkarshtiwari:Ananas:1.2.4'
-//    implementation 'com.github.smartdevelopers-ir:PhotoEditor:1.0.4'
-    implementation 'ir.smartdevelopers:photo-editor:1.0.8'
+    implementation 'com.github.smartdevelopers-ir:PhotoEditor:1.1.0'
+//    implementation 'ir.smartdevelopers:photo-editor:1.1.0'
 }
 afterEvaluate{
     publishing {
