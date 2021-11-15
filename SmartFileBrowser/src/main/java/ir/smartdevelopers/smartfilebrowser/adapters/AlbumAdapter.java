@@ -7,6 +7,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -60,12 +61,13 @@ public class AlbumAdapter extends RecyclerView.Adapter<AlbumAdapter.AlbumViewHol
             root=itemView.findViewById(R.id.item_album_list_root);
             root.setOnClickListener(v->{
                 if (mOnItemClickListener != null) {
-                    mOnItemClickListener.onItemClicked(mAlbumModels.get(getAdapterPosition()),getAdapterPosition());
+                    mOnItemClickListener.onItemClicked(mAlbumModels.get(getAdapterPosition()),v,getAdapterPosition());
                 }
             });
         }
         void bindView(AlbumModel model){
             Glide.with(itemView).load(model.getImagePath()).into(imgAlbumIcon);
+            ViewCompat.setTransitionName(imgAlbumIcon,"T_N_"+getAdapterPosition());
             txtAlbumName.setText(model.getName());
         }
     }

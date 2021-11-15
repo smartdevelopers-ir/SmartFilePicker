@@ -120,7 +120,7 @@ public class FileBrowserFragment extends Fragment {
     private void initListeners() {
         mOnItemClickListener=new OnItemClickListener<FileBrowserModel>() {
             @Override
-            public void onItemClicked(FileBrowserModel model, int position) {
+            public void onItemClicked(FileBrowserModel model, View view, int position) {
                 if (model.getCurrentFile()!=null){
                        if (model.getCurrentFile().isDirectory()){
                            mFilesViewModel.getFilesList(model, mFileFilter);

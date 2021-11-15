@@ -3,32 +3,40 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="ir.smartdevelopers.smartfilebrowser">
 
+    <uses-feature
+        android:name="android.hardware.camera.any"
+        android:required="false" />
 
-    <uses-feature android:name="android.hardware.camera.any"
-        android:required="false"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         tools:ignore="ScopedStorage" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <application
-        android:requestLegacyExternalStorage="true">
-        <activity android:name=".acitivties.FileBrowserMainActivity"
-            android:theme="@style/sfb_AppTheme"
-            android:configChanges="keyboard|orientation"
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
+    <application android:requestLegacyExternalStorage="true">
+        <activity
+            android:name=".acitivties.PhotoEditorActivity"
+            android:exported="false"
+            android:theme="@style/sfb_EditorTheme"
             />
         <activity
-            android:name="iamutkarshtiwari.github.io.ananas.editimage.EditImageActivity"
-            android:exported="true"
-            android:label="@string/sfb_image_editor_label"
-            android:theme="@style/sfb_EditorTheme"
-            tools:replace="android:label" />
+            android:name=".acitivties.FileBrowserMainActivity"
+            android:configChanges="keyboard|orientation"
+            android:theme="@style/sfb_AppTheme" />
+<!--        <activity-->
+<!--            android:name="iamutkarshtiwari.github.io.ananas.editimage.EditImageActivity"-->
+<!--            android:exported="true"-->
+<!--            android:label="@string/sfb_image_editor_label"-->
+<!--            android:theme="@style/sfb_EditorTheme"-->
+<!--            tools:replace="android:label" />-->
+
         <provider
-            android:authorities="${applicationId}.sfb_provider"
             android:name=".customClasses.SmartFileProvider"
+            android:authorities="${applicationId}.sfb_provider"
             android:exported="false"
             android:grantUriPermissions="true">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/sfb_provider_paths"/>
+                android:resource="@xml/sfb_provider_paths" />
         </provider>
     </application>
 

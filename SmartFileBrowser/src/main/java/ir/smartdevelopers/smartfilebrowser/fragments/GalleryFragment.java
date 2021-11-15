@@ -54,6 +54,7 @@ public class GalleryFragment extends Fragment {
     private GridLayoutManager mGridLayoutManager;
     private OnItemClickListener<GalleryModel> mGalleryModelItemClickListener;
     private OnItemLongClickListener<GalleryModel> mGalleryModelItemLongClickListener;
+    private OnItemClickListener<GalleryModel> mOnZoomOutClickListener;
     private OnItemClickListener<GalleryModel> mOnGalleryItemClickListener_m;
     private OnItemChooseListener mOnItemChooseListener;
     private OnItemSelectListener<FileModel> mOnItemSelectListener;
@@ -84,6 +85,7 @@ public class GalleryFragment extends Fragment {
             mOnGalleryItemClickListener_m=activity.getOnGalleryItemClickListener();
             mGalleryModelItemLongClickListener=activity.getOnGalleryItemLongClickListener();
             mOnItemChooseListener=activity.getOnItemChooseListener();
+            mOnZoomOutClickListener=activity.getOnZoomOutClickListener();
         }
         Bundle bundle=getArguments();
         if (bundle != null) {
@@ -120,13 +122,14 @@ public class GalleryFragment extends Fragment {
         mGalleryAdapter.setOnItemClickListener(mGalleryModelItemClickListener);
         mGalleryAdapter.setOnItemSelectListener(mOnItemSelectListener);
         mGalleryAdapter.setOnItemLongClickListener(mGalleryModelItemLongClickListener);
+        mGalleryAdapter.setOnZoomOutClickListener(mOnZoomOutClickListener);
         mGalleryAdapter.setOnItemChooseListener(mOnItemChooseListener);
         mGalleryRecyclerView.setAdapter(mGalleryAdapter);
 
         LiveData<List<GalleryModel>> allGalleryModels= mGalleryViewModel
                 .getAllGalleryModels(mShowCamera,mShowVideosInGallery,savedInstanceState==null);
 
-        allGalleryModels.observe(this, new Observer<List<GalleryModel>>() {
+        allGalleryModels.observe(getViewLifecycleOwner(), new Observer<List<GalleryModel>>() {
             @Override
             public void onChanged(List<GalleryModel> galleryModels) {
                 mGalleryAdapter.setList(galleryModels);
@@ -145,12 +148,12 @@ public class GalleryFragment extends Fragment {
     private void initListeners() {
         mGalleryModelItemClickListener=new OnItemClickListener<GalleryModel>() {
             @Override
-            public void onItemClicked(GalleryModel model, int position) {
+            public void onItemClicked(GalleryModel model, View view, int position) {
                 if (model.getType()==GalleryModel.TYPE_CAMERA){
                     openCamera();
                 }else {
                     if (mOnGalleryItemClickListener_m != null) {
-                        mOnGalleryItemClickListener_m.onItemClicked(model,position);
+                        mOnGalleryItemClickListener_m.onItemClicked(model,view,position);
                     }
 
                 }
@@ -252,10 +255,10 @@ public class GalleryFragment extends Fragment {
         mGalleryRecyclerView.smoothScrollToPosition(0);
     }
 
-    public void imageUpdated(String sourcePath, String newFilePath, int editedImagePosition) {
+    public void imageUpdated( String newFilePath, int editedImagePosition) {
         if (mGalleryAdapter!=null){
             mGalleryAdapter.getItem(editedImagePosition).setPath(newFilePath);
-            mGalleryAdapter.notifyItemChanged(editedImagePosition);
+//            mGalleryAdapter.notifyItemChanged(editedImagePosition);
         }
     }
 }

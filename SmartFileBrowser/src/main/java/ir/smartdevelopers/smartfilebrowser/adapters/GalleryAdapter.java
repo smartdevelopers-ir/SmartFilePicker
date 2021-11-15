@@ -1,9 +1,11 @@
 package ir.smartdevelopers.smartfilebrowser.adapters;
 
+import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewPropertyAnimator;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
@@ -12,6 +14,9 @@ import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.GlideBuilder;
+import com.bumptech.glide.RequestBuilder;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -34,6 +39,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     private boolean mCanSelectMultiple=true;
     private OnItemSelectListener<FileModel> mOnItemSelectListener;
     private OnItemClickListener<GalleryModel> mOnItemClickListener;
+    private OnItemClickListener<GalleryModel> mOnZoomOutClickListener;
     private OnItemLongClickListener<GalleryModel> mOnItemLongClickListener;
     private OnItemChooseListener mOnItemChooseListener;
 
@@ -128,7 +134,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     public void addNewPic(GalleryModel newPicModel) {
         if (!mCanSelectMultiple){
             if (mOnItemClickListener!=null){
-                mOnItemClickListener.onItemClicked(newPicModel,0);
+                mOnItemClickListener.onItemClicked(newPicModel,null,0);
                 return;
             }
         }
@@ -170,6 +176,10 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         mOnItemLongClickListener = onItemLongClickListener;
     }
 
+    public void setOnZoomOutClickListener(OnItemClickListener<GalleryModel> onZoomOutClickListener) {
+        mOnZoomOutClickListener = onZoomOutClickListener;
+    }
+
     class CameraViewHolder extends RecyclerView.ViewHolder {
         AppCompatImageView mImageView;
         public CameraViewHolder(@NonNull View itemView) {
@@ -177,7 +187,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             mImageView=itemView.findViewById(R.id.item_gallery_camera);
             mImageView.setOnClickListener(v->{
                 if (mOnItemClickListener != null) {
-                    mOnItemClickListener.onItemClicked(mGalleryModels.get(getAdapterPosition()),getAdapterPosition());
+                    mOnItemClickListener.onItemClicked(mGalleryModels.get(getAdapterPosition()),v,getAdapterPosition());
                 }
             });
         }
@@ -187,11 +197,13 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         ImageView mImageView;
         SFBCountingCheckBox chbSelection;
         ImageView imgPlay;
+        ImageButton btnZoomOut;
         public GalleryViewHolder(@NonNull View itemView) {
             super(itemView);
             mImageView=itemView.findViewById(R.id.item_gallery_image);
             imgPlay=itemView.findViewById(R.id.item_gallery_imgPlayIcon);
             chbSelection=itemView.findViewById(R.id.item_gallery_chbSelection);
+            btnZoomOut=itemView.findViewById(R.id.item_gallery_btnZoomOut);
             if (canSelectMultiple()) {
                 chbSelection.setVisibility(View.VISIBLE);
                 chbSelection.setOnClickListener(v -> {
@@ -206,7 +218,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 if (mCanSelectMultiple){
                     if(mGalleryModels.get(getAdapterPosition()).getType()==GalleryModel.TYPE_CAMERA){
                         if (mOnItemClickListener != null) {
-                            mOnItemClickListener.onItemClicked(mGalleryModels.get(getAdapterPosition()),getAdapterPosition());
+                            mOnItemClickListener.onItemClicked(mGalleryModels.get(getAdapterPosition()),v,getAdapterPosition());
                         }
                     }else {
                         setImageSelected(mGalleryModels.get(getAdapterPosition()), !mGalleryModels.get(getAdapterPosition()).isSelected());
@@ -223,17 +235,25 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 @Override
                 public boolean onLongClick(View v) {
                     if (mOnItemLongClickListener != null) {
-                        mOnItemLongClickListener.onLongClicked(mGalleryModels.get(getAdapterPosition()),getAdapterPosition());
+                        mOnItemLongClickListener.onLongClicked(mGalleryModels.get(getAdapterPosition()),v,getAdapterPosition());
                         return true;
                     }
                     return false;
+                }
+            });
+            btnZoomOut.setOnClickListener(v->{
+                if (mOnZoomOutClickListener != null) {
+                    mOnZoomOutClickListener.onItemClicked(mGalleryModels.get(getAdapterPosition()),mImageView,getAdapterPosition());
                 }
             });
 
         }
         void bindView(GalleryModel model){
 //            Picasso.get().load(model.getPath()).into(mImageView);
-            Glide.with(mImageView).load(model.getPath()).placeholder(R.drawable.sfb_placeholder).into(mImageView);
+
+            
+            Glide.with(mImageView).load(model.getPath())
+                    .diskCacheStrategy(DiskCacheStrategy.RESOURCE).into(mImageView);
             if (model.getType()== FileUtil.TYPE_VIDEO){
                 imgPlay.setVisibility(View.VISIBLE);
             }else {

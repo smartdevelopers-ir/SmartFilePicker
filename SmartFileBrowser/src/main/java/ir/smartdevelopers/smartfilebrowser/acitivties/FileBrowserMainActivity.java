@@ -4,19 +4,36 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatTextView;
+import androidx.core.app.ActivityCompat;
+import androidx.core.app.ActivityOptionsCompat;
+import androidx.core.app.SharedElementCallback;
+import androidx.core.content.FileProvider;
+import androidx.core.view.ViewCompat;
+import androidx.exifinterface.media.ExifInterface;
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.res.TypedArray;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.Matrix;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.text.TextUtils;
-import android.util.Log;
+import android.transition.Transition;
+import android.transition.TransitionInflater;
+import android.util.DisplayMetrics;
+import android.util.Size;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -24,6 +41,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewPropertyAnimator;
 import android.view.ViewTreeObserver;
+import android.view.Window;
 import android.view.animation.OvershootInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
@@ -35,16 +53,18 @@ import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationItem;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.transition.MaterialContainerTransform;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
-import iamutkarshtiwari.github.io.ananas.editimage.EditImageActivity;
-import iamutkarshtiwari.github.io.ananas.editimage.ImageEditorIntentBuilder;
 import ir.smartdevelopers.smartfilebrowser.R;
 import ir.smartdevelopers.smartfilebrowser.adapters.AlbumAdapter;
 import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemLongClickListener;
+import ir.smartdevelopers.smartfilebrowser.customClasses.ResultListener;
 import ir.smartdevelopers.smartfilebrowser.models.FileModel;
 import ir.smartdevelopers.smartfilebrowser.customClasses.FileUtil;
 import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemChooseListener;
@@ -71,23 +91,20 @@ public class FileBrowserMainActivity extends AppCompatActivity {
     private RoundLinearLayout mBottomSheetRoot;
     private BottomSheetBehavior<View> mBottomSheetBehavior;
     private AHBottomNavigation mBottomNavigationView;
-    //    private BottomNavigationBar mBottomNavigationView;
-//    private BottomNavigationView mBottomNavigationView;
     private View mMainRootView;
     private int mActionBarSize;
     private float mRadius;
     private View mDraggingLineView;
     private FileFilter mFileFilter;
-    //    private BottomNavigation.OnMenuItemSelectionListener mOnMenuItemSelectionListener;
     private AHBottomNavigation.OnTabSelectedListener mOnMenuItemSelectionListener;
     private View mSelectionContainer;
     private TextView txtSelectionCount;
     private ImageView btnSelectionOk;
     private OnItemSelectListener<FileModel> mOnFileItemSelectListener;
     private OnItemChooseListener mOnItemChooseListener;
-    //    private OnItemSelectListener<GalleryModel> mOnGalleryItemSelectListener;
     private OnItemClickListener<GalleryModel> mOnGalleryItemClickListener;
     private OnItemLongClickListener<GalleryModel> mOnGalleryItemLongClickListener;
+    private OnItemClickListener<GalleryModel> mOnZoomOutClickListener;
 
     private SearchView.OnVisibilityChangeListener mOnVisibilityChangeListener;
     private SelectionFileViewModel mSelectionFileViewModel;
@@ -117,6 +134,8 @@ public class FileBrowserMainActivity extends AppCompatActivity {
     private boolean mShowGalleryTab = true;
     private String mEditedImagePath;
     private int mEditedImagePosition;
+//    private CallbackViewModel mCallbackViewModel;
+    private ResultListener mResultListener;
 
     private void getDataFromIntent() {
         mShowVideosInGallery = getIntent().getBooleanExtra("mShowVideosInGallery", true);
@@ -162,11 +181,34 @@ public class FileBrowserMainActivity extends AppCompatActivity {
     //    private BottomNavigationBar.OnTabSelectedListener mOnTabSelectedListener;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            getWindow().requestFeature(Window.FEATURE_ACTIVITY_TRANSITIONS);
+
+            getWindow().setAllowEnterTransitionOverlap(false);
+            Transition transition=TransitionInflater.from(this).inflateTransition(R.transition.iten_transition_in);
+            getWindow().setSharedElementExitTransition(transition);
+            setExitSharedElementCallback(new SharedElementCallback() {
+                @Override
+                public void onMapSharedElements(List<String> names, Map<String, View> sharedElements) {
+                    for (View view:sharedElements.values()){
+                        if (view instanceof ImageView){
+                            if (mResultListener.getSavedBitmap()!=null){
+                                ((ImageView) view).setImageBitmap(mResultListener.getSavedBitmap());
+                                mResultListener.setSavedBitmap(null);
+                            }
+                        }
+                    }
+                    ActivityCompat.startPostponedEnterTransition(FileBrowserMainActivity.this);
+                }
+            });
+        }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_file_browser_main);
         mSelectionFileViewModel = new ViewModelProvider(this).get(SelectionFileViewModel.class);
         mGalleryViewModel = new ViewModelProvider(this, new ViewModelProvider.AndroidViewModelFactory(getApplication()))
                 .get(GalleryViewModel.class);
+        mResultListener=ResultListener.getInstance();
         if (savedInstanceState == null) {
             if (mShowGalleryTab) {
                 mPageType = PageType.TYPE_GALLERY;
@@ -211,8 +253,25 @@ public class FileBrowserMainActivity extends AppCompatActivity {
         }else {
             showSuitableFragment(mPageType, true, false, true);
         }
+
+        mResultListener.registerResultListener(new ResultListener.OnResult() {
+            @Override
+            public void onResultSet(String path) {
+                if (!TextUtils.isEmpty(path)){
+                    mGalleryFragment.imageUpdated(path,mEditedImagePosition);
+                }
+            }
+        });
+        ActivityCompat.postponeEnterTransition(this);
+
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+//        mCallbackViewModel.clearCallback();
+        mResultListener.clear();
+    }
 
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
@@ -268,19 +327,24 @@ public class FileBrowserMainActivity extends AppCompatActivity {
             public boolean onTabSelected(int position, boolean wasSelected) {
                 String title = mBottomNavigationView.getItem(position).getTitle(getApplicationContext());
 
+                PageType pageType=null;
                 if (title.equals(getString(R.string.sfb_gallery))) {
 
-                    mPageType = PageType.TYPE_GALLERY;
+                    pageType = PageType.TYPE_GALLERY;
 
                 } else if (title.equals(getString(R.string.sfb_file))) {
-                    mPageType = PageType.TYPE_FILE_BROWSER;
+                    pageType = PageType.TYPE_FILE_BROWSER;
                 } else if (title.equals(getString(R.string.sfb_audio))) {
 
-                    mPageType = PageType.TYPE_AUDIO;
+                    pageType = PageType.TYPE_AUDIO;
                 } else if (title.equals(getString(R.string.sfb_PDF))) {
 
-                    mPageType = PageType.TYPE_PDF;
+                    pageType = PageType.TYPE_PDF;
                 }
+                if (mPageType !=null && mPageType == pageType){
+                    return false;
+                }
+                mPageType=pageType;
                 showSuitableFragment(mPageType, false, true, true);
                 return true;
             }
@@ -324,24 +388,22 @@ public class FileBrowserMainActivity extends AppCompatActivity {
 
         mOnGalleryItemClickListener = new OnItemClickListener<GalleryModel>() {
             @Override
-            public void onItemClicked(GalleryModel model, int position) {
+            public void onItemClicked(GalleryModel model, View view, int position) {
                 if (!mCanSelectMultipleInGallery) {
                     sendBackResult(model);
                 } else {
                     if (model.getType()==FileUtil.TYPE_IMAGE){
-                        openImageEditor(model,position);
+                        openImageEditor(model,view,position);
                     }
                 }
             }
         };
-        mOnGalleryItemLongClickListener=new OnItemLongClickListener<GalleryModel>() {
+        mOnZoomOutClickListener=new OnItemClickListener<GalleryModel>() {
             @Override
-            public void onLongClicked(GalleryModel model, int position) {
-
-                    if (model.getType()==FileUtil.TYPE_IMAGE){
-                        openImageEditor(model,position);
-                    }
-
+            public void onItemClicked(GalleryModel galleryModel, View view, int position) {
+                if (galleryModel.getType()==FileUtil.TYPE_IMAGE){
+                    openImageEditor(galleryModel, view, position);
+                }
             }
         };
         mOnVisibilityChangeListener = new SearchView.OnVisibilityChangeListener() {
@@ -360,31 +422,33 @@ public class FileBrowserMainActivity extends AppCompatActivity {
 
     }
 
-    private void openImageEditor(GalleryModel model, int position) {
-        try {
-            mEditedImagePath=FileUtil.getImageTempFile(getApplicationContext()).getPath();
-            mEditedImagePosition=position;
-            Intent intent = new ImageEditorIntentBuilder(this,
-                    model.getPath()
-                    ,mEditedImagePath)
-                    .withAddText() // Add the features you need
-                    .withPaintFeature()
+    private void openImageEditor(GalleryModel model, View view, int position) {
 
-//                            .withFilterFeature()
-                    .withRotateFeature()
-                    .withCropFeature()
-//                            .withBrightnessFeature()
-//                            .withSaturationFeature()
-//                            .withBeautyFeature()
-                    .withStickerFeature()
-                      // Add this to force portrait mode (It's set to false by default)
-                    .build();
+        mEditedImagePath=FileUtil.getImageTempFile(getApplicationContext()).getPath();
+        mEditedImagePosition=position;
 
-            EditImageActivity.start(this, intent, REQ_CODE_EDIT_IMAGE);
-        } catch (Exception e) {
-            Log.e("ttt", e.getMessage()); // This could throw if either `sourcePath` or `outputPath` is blank or Null
+        Uri uri= FileProvider.getUriForFile(this,getPackageName()+".sfb_provider",model.getCurrentFile());
+        Intent editorIntent=new Intent(this,PhotoEditorActivity.class);
+        editorIntent.setData(uri);
+
+        editorIntent.putExtra(PhotoEditorActivity.KEY_SAVE_PATH,mEditedImagePath);
+        Bundle options=null;
+        if (view!=null){
+            String sharedName=ViewCompat.getTransitionName(view);
+            if (sharedName==null){
+                sharedName="T_N_"+position;
+            }
+            options= ActivityOptionsCompat.makeSceneTransitionAnimation(this,view,sharedName).toBundle();
+            editorIntent.putExtra(PhotoEditorActivity.KEY_TRANSITION_NAME, sharedName);
         }
+
+        ActivityCompat.startActivityForResult(this,editorIntent,REQ_CODE_EDIT_IMAGE,
+                options);
+
+
     }
+
+
 
     private boolean mFileBrowserEnabled = true;
 
@@ -746,7 +810,7 @@ public class FileBrowserMainActivity extends AppCompatActivity {
             AlbumAdapter albumAdapter = new AlbumAdapter();
             albumAdapter.setOnItemClickListener(new OnItemClickListener<AlbumModel>() {
                 @Override
-                public void onItemClicked(AlbumModel model, int position) {
+                public void onItemClicked(AlbumModel model, View view, int position) {
                     if (mGalleryFragment != null) {
                         mAlbumListIsShowing = false;
                         mGalleryFragment.updateGallery(model);
@@ -1075,6 +1139,10 @@ public class FileBrowserMainActivity extends AppCompatActivity {
         return mOnGalleryItemLongClickListener;
     }
 
+    public OnItemClickListener<GalleryModel> getOnZoomOutClickListener() {
+        return mOnZoomOutClickListener;
+    }
+
     public enum PageType {
         TYPE_GALLERY, TYPE_FILE_BROWSER, TYPE_PDF, TYPE_AUDIO, TYPE_VIDEO
     }
@@ -1090,12 +1158,18 @@ public class FileBrowserMainActivity extends AppCompatActivity {
         if (requestCode==REQ_CODE_EDIT_IMAGE){
             if (mGalleryFragment!=null){
                 if (data != null) {
-                    boolean isImageEdit = data.getBooleanExtra("is_image_edited", false);
-                    String sourcePath = data.getStringExtra("source_path");
-                    String newFilePath = data.getStringExtra("output_path");
-                   if (isImageEdit){
-                       mGalleryFragment.imageUpdated(sourcePath,newFilePath,mEditedImagePosition);
-                   }
+//                    boolean isImageEdit = data.getBooleanExtra("is_image_edited", false);
+//                    String sourcePath = data.getStringExtra("source_path");
+//                    String newFilePath = data.getStringExtra("output_path");
+//                   if (isImageEdit){
+//                       mGalleryFragment.imageUpdated(sourcePath,newFilePath,mEditedImagePosition);
+//                   }
+
+//                    boolean isImageEdit = data.getBooleanExtra(PhotoEditorActivity.KEY_IS_EDITED, false);
+//                    String newFilePath = data.getStringExtra(PhotoEditorActivity.KEY_SAVE_PATH);
+//                    if (isImageEdit){
+//                       mGalleryFragment.imageUpdated(newFilePath,mEditedImagePosition);
+//                   }
                 }
             }
         }

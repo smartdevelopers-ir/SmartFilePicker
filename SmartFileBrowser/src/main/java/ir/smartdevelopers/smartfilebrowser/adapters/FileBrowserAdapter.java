@@ -188,7 +188,7 @@ public class FileBrowserAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         if (model!=null){
             if (model.getModelType()==FileBrowserModel.MODEL_TYPE_GO_BACK){
                 if (mOnItemClickListener != null) {
-                    mOnItemClickListener.onItemClicked(model,0);
+                    mOnItemClickListener.onItemClicked(model,null,0);
                 }
             }
         }
@@ -226,7 +226,7 @@ public class FileBrowserAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                     return;
                 }
                 if (mOnItemClickListener != null) {
-                    mOnItemClickListener.onItemClicked(model, getAdapterPosition());
+                    mOnItemClickListener.onItemClicked(model,v, getAdapterPosition());
                 }
 //                if (isMultiSelect){
                     if (!FileUtil.isDirectory(model.getCurrentFile())) {

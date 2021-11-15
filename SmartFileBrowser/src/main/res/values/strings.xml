@@ -28,4 +28,5 @@
     <string name="this_device_dose_not_have_camera_app">This device does not have camera app</string>
     <string name="sfb_image_editor_label">Edit</string>
     <string name="sfb_edit">Edit</string>
+    <string name="sfb_permission_denied">permission denied</string>
 </resources>

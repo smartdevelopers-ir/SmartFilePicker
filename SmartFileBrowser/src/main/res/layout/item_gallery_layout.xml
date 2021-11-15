@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:background="#9C9C9C"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 <ImageView
     android:id="@+id/item_gallery_image"
@@ -34,4 +35,16 @@
         app:srcCompat="@drawable/sfb_ic_round_play"
         android:visibility="gone"
         tools:ignore="ContentDescription" />
+    <ImageButton
+        android:id="@+id/item_gallery_btnZoomOut"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        app:srcCompat="@drawable/sfb_ic_resize"
+        android:contentDescription="Resize"
+        tools:ignore="HardcodedText" />
 </androidx.constraintlayout.widget.ConstraintLayout>
