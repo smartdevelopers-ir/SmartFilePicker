@@ -194,7 +194,7 @@ public class FileBrowserMainActivity extends AppCompatActivity {
                     for (View view:sharedElements.values()){
                         if (view instanceof ImageView){
                             if (mResultListener.getSavedBitmap()!=null){
-                                ((ImageView) view).setImageBitmap(mResultListener.getSavedBitmap());
+                                ((ImageView) view).setImageBitmap(mResultListener.getSavedBitmap().copy(Bitmap.Config.ARGB_8888,true));
                                 mResultListener.setSavedBitmap(null);
                             }
                         }

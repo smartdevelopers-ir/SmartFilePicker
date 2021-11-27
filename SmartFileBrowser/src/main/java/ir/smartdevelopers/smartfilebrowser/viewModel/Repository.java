@@ -5,9 +5,14 @@ import android.app.Application;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 
+import androidx.annotation.Nullable;
+import androidx.core.content.ContentResolverCompat;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -31,9 +36,9 @@ import ir.smartdevelopers.smartfilebrowser.models.FileBrowserModel;
 import ir.smartdevelopers.smartfilebrowser.models.GalleryModel;
 
 public class Repository {
-    private ExecutorService mExecutorService;
-    private ContentResolver mContentResolver;
-    private WeakReference<Context> wContext;
+    private final ExecutorService mExecutorService;
+    private final ContentResolver mContentResolver;
+    private final WeakReference<Context> wContext;
     private MutableLiveData<List<GalleryModel>> galleryList;
     public Repository(Application application) {
         mExecutorService= Executors.newCachedThreadPool();
@@ -165,7 +170,7 @@ public class Repository {
 
     /**
      * @param modelType is one of {@link FileBrowserModel} model types
-     * @param filesLiveData */
+     **/
     public void getFirstBrowserPageList(String selection,String[] selectionArgs, int modelType,
                                                          FileFilter fileFilter,
                                                          MutableLiveData<List<FileBrowserModel>> filesLiveData){
@@ -184,8 +189,27 @@ public class Repository {
                     MediaStore.Files.FileColumns.DATA,
                      MediaStore.Files.FileColumns.MIME_TYPE};
 
-            Cursor cursor=mContentResolver.query(MediaStore.Files.getContentUri("external"),projection, finalSelection,
-                    selectionArgs, MediaStore.MediaColumns.DATE_ADDED+" DESC LIMIT 30");
+
+            Cursor cursor=getCursor(MediaStore.Files.getContentUri("external"),
+                   projection,finalSelection,selectionArgs,
+                    MediaStore.MediaColumns.DATE_ADDED+" DESC" ,30);
+//            if (Build.VERSION.SDK_INT>=26){
+//                Bundle args=new Bundle();
+////                args.putInt(ContentResolver.QUERY_ARG_LIMIT,30);
+////                args.putInt(ContentResolver.QUERY_ARG_SORT_DIRECTION,ContentResolver.QUERY_SORT_DIRECTION_DESCENDING);
+////                args.putString(ContentResolver.QUERY_ARG_SORT_COLUMNS,MediaStore.MediaColumns.DATE_ADDED);
+////                args.putString(ContentResolver.Que,MediaStore.MediaColumns.DATE_ADDED);
+//                args.putString(ContentResolver.QUERY_ARG_SQL_SELECTION,finalSelection);
+//                args.putStringArray(ContentResolver.QUERY_ARG_SQL_SELECTION_ARGS,selectionArgs);
+//                cursor=mContentResolver.query(MediaStore.Files.getContentUri("external"),
+//                        projection,args,null);
+//            }else {
+//                cursor =mContentResolver.query(MediaStore.Files.getContentUri("external"),
+//                        projection, finalSelection,
+//                        selectionArgs,
+//                        MediaStore.MediaColumns.DATE_ADDED+" DESC LIMIT 30");
+//            }
+
             int idIndex=cursor.getColumnIndex(projection[0]);
             int pathIndex=cursor.getColumnIndex(projection[1]);
 //            int dateIndex=cursor.getColumnIndex(projection[2]);
@@ -220,5 +244,31 @@ public class Repository {
 
 
 
+    }
+
+    private Cursor getCursor(Uri uri,String[] projection,String selection,
+                             String[] selectionArgs,String sortOrder,@Nullable Integer limit){
+        Cursor cursor;
+        if (Build.VERSION.SDK_INT>=26){
+            Bundle args=new Bundle();
+            args.putString(ContentResolver.QUERY_ARG_SQL_SELECTION,selection);
+            args.putStringArray(ContentResolver.QUERY_ARG_SQL_SELECTION_ARGS,selectionArgs);
+            args.putString(ContentResolver.QUERY_ARG_SQL_SORT_ORDER,sortOrder);
+            if (limit !=null){
+                args.putInt(ContentResolver.QUERY_ARG_LIMIT,limit);
+            }
+            cursor=mContentResolver.query(uri,
+                    projection,args,null);
+        }else {
+            String sOrder=sortOrder;
+            if (limit != null) {
+                sOrder=sortOrder+" LIMIT "+limit;
+            }
+            cursor =mContentResolver.query(uri,
+                    projection, selection,
+                    selectionArgs,
+                    sOrder);
+        }
+        return cursor;
     }
 }
