@@ -103,8 +103,9 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     }
 
     public void setList(List<GalleryModel> galleryModels) {
-        mGalleryModels=galleryModels;
-        for (GalleryModel model:mGalleryModels){
+
+
+        for (GalleryModel model:galleryModels){
             if (model.getCurrentFile()==null){
                 continue;
             }
@@ -112,7 +113,21 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 model.setSelected(true);
             }
         }
-        notifyDataSetChanged();
+        /*if there is just camera item in it*/
+        boolean firstItemIsCamera=false;
+        if (mGalleryModels.size()>0 && mGalleryModels.get(0).getId()==0){
+            notifyItemRangeRemoved(1,mGalleryModels.size()-1);
+            firstItemIsCamera=true;
+        }else if (mGalleryModels.size()>0){
+            notifyItemRangeRemoved(0,mGalleryModels.size());
+        }
+        mGalleryModels=galleryModels;
+        if (firstItemIsCamera){
+            notifyItemRangeInserted(1,galleryModels.size()-1);
+        }else {
+            notifyItemRangeInserted(0,galleryModels.size());
+        }
+
     }
 
     public boolean canSelectMultiple() {

@@ -6,7 +6,7 @@ import java.io.File;
 
 import ir.smartdevelopers.smartfilebrowser.customClasses.FileUtil;
 
-public  class GalleryModel implements FileModel {
+public  class GalleryModel implements FileModel ,Comparable<GalleryModel>{
 
     public static final int TYPE_CAMERA = -102;
     private long id;
@@ -18,6 +18,8 @@ public  class GalleryModel implements FileModel {
     private int mType;
     private boolean mSelected;
     private int mNumber;
+    private String mThumbnailPath;
+    private String mThumbnailId;
 
 
     public String getPath() {
@@ -92,5 +94,26 @@ public  class GalleryModel implements FileModel {
 
     public void setNumber(int number) {
         mNumber = number;
+    }
+
+    public String getThumbnailId() {
+        return mThumbnailId;
+    }
+
+    public void setThumbnailId(String thumbnailId) {
+        mThumbnailId = thumbnailId;
+    }
+
+    public String getThumbnailPath() {
+        return mThumbnailPath;
+    }
+
+    public void setThumbnailPath(String thumbnailPath) {
+        mThumbnailPath = thumbnailPath;
+    }
+
+    @Override
+    public int compareTo(GalleryModel o) {
+        return Long.compare(this.mDateAdded,o.mDateAdded)*-1;
     }
 }

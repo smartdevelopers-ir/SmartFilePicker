@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -49,6 +50,15 @@ public class Repository {
        if (galleryList==null){
            galleryList=new MutableLiveData<>();
        }
+        List<GalleryModel> galleryModelList=new ArrayList<>();
+        if (addCameraItem){
+            GalleryModel cameraModel=new GalleryModel();
+            cameraModel.setDateAdded(Calendar.getInstance().getTimeInMillis());
+            cameraModel.setType(GalleryModel.TYPE_CAMERA);
+            galleryModelList.add(cameraModel);
+            galleryList.setValue(galleryModelList);
+        }
+
         String extraQuery=MediaStore.Files.FileColumns.DATA+" NOT LIKE '%Android/%' ";
         selection= TextUtils.isEmpty(selection) ? extraQuery
                 : selection+" AND "+extraQuery;
@@ -59,9 +69,10 @@ public class Repository {
             String[] imageProjection = {MediaStore.Images.Media._ID,
                     MediaStore.Images.Media.DATA, MediaStore.Images.Media.DATE_ADDED,
                     MediaStore.Images.Media.DISPLAY_NAME, MediaStore.Images.Media.MIME_TYPE};
+
             Cursor externalImageCursor = mContentResolver.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, imageProjection,
                     finalSelection, selectionArgs, MediaStore.Images.Media.DATE_ADDED + " DESC");
-            List<GalleryModel> galleryModelList = new ArrayList<>(getGalleryModel(externalImageCursor, imageProjection));
+            galleryModelList.addAll(getGalleryModel(externalImageCursor, imageProjection));
             // </editor-fold>
 
             // <editor-fold defaultstate="collapsed" desc=" Videos ">
@@ -74,11 +85,7 @@ public class Repository {
                 galleryModelList.addAll(getGalleryModel(externalVideoCursor, videoProjection));
             }
             // </editor-fold>
-            if (addCameraItem){
-                GalleryModel cameraModel=new GalleryModel();
-                cameraModel.setType(GalleryModel.TYPE_CAMERA);
-                galleryModelList.add(0,cameraModel);
-            }
+            Collections.sort(galleryModelList);
             galleryList.postValue(galleryModelList);
 
         });
