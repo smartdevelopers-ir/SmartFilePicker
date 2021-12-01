@@ -40,23 +40,24 @@ public class Repository {
     private final ExecutorService mExecutorService;
     private final ContentResolver mContentResolver;
     private final WeakReference<Context> wContext;
-    private MutableLiveData<List<GalleryModel>> galleryList;
+    private final MutableLiveData<List<GalleryModel>> galleryList;
     public Repository(Application application) {
         mExecutorService= Executors.newCachedThreadPool();
         mContentResolver=application.getContentResolver();
         wContext=new WeakReference<>(application);
+        galleryList=new MutableLiveData<>();
     }
-    public LiveData<List<GalleryModel>> getGalleryMediaList(String selection, String[] selectionArgs, boolean addCameraItem, boolean showVideosInGallery){
-       if (galleryList==null){
-           galleryList=new MutableLiveData<>();
-       }
+    public void getGalleryMediaList(String selection, String[] selectionArgs, boolean addCameraItem, boolean showVideosInGallery){
+//       if (galleryList==null){
+//           galleryList=new MutableLiveData<>();
+//       }
         List<GalleryModel> galleryModelList=new ArrayList<>();
         if (addCameraItem){
             GalleryModel cameraModel=new GalleryModel();
             cameraModel.setDateAdded(Calendar.getInstance().getTimeInMillis());
             cameraModel.setType(GalleryModel.TYPE_CAMERA);
             galleryModelList.add(cameraModel);
-            galleryList.setValue(galleryModelList);
+            galleryList.setValue(new ArrayList<>(galleryModelList));
         }
 
         String extraQuery=MediaStore.Files.FileColumns.DATA+" NOT LIKE '%Android/%' ";
@@ -67,30 +68,29 @@ public class Repository {
         mExecutorService.execute(()->{
             // <editor-fold defaultstate="collapsed" desc=" Images ">
             String[] imageProjection = {MediaStore.Images.Media._ID,
-                    MediaStore.Images.Media.DATA, MediaStore.Images.Media.DATE_ADDED,
+                    MediaStore.Images.Media.DATA, MediaStore.Images.Media.DATE_MODIFIED,
                     MediaStore.Images.Media.DISPLAY_NAME, MediaStore.Images.Media.MIME_TYPE};
 
             Cursor externalImageCursor = mContentResolver.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, imageProjection,
-                    finalSelection, selectionArgs, MediaStore.Images.Media.DATE_ADDED + " DESC");
+                    finalSelection, selectionArgs, MediaStore.Images.Media.DATE_MODIFIED + " DESC");
             galleryModelList.addAll(getGalleryModel(externalImageCursor, imageProjection));
             // </editor-fold>
 
             // <editor-fold defaultstate="collapsed" desc=" Videos ">
             if (showVideosInGallery) {
                 String[] videoProjection = {MediaStore.Video.Media._ID,
-                        MediaStore.Video.Media.DATA, MediaStore.Video.Media.DATE_ADDED,
-                        MediaStore.Video.Media.DISPLAY_NAME, MediaStore.Video.Media.MIME_TYPE};
+                        MediaStore.Video.Media.DATA, MediaStore.Video.Media.DATE_MODIFIED,
+                        MediaStore.Video.Media.DISPLAY_NAME, MediaStore.Video.Media.MIME_TYPE,
+                        MediaStore.Video.Media.DURATION};
                 Cursor externalVideoCursor = mContentResolver.query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, videoProjection,
-                        finalSelection, selectionArgs, MediaStore.Video.Media.DATE_ADDED + " DESC");
+                        finalSelection, selectionArgs, MediaStore.Video.Media.DATE_MODIFIED + " DESC");
                 galleryModelList.addAll(getGalleryModel(externalVideoCursor, videoProjection));
             }
             // </editor-fold>
             Collections.sort(galleryModelList);
-            galleryList.postValue(galleryModelList);
+            galleryList.postValue(new ArrayList<>(galleryModelList));
 
         });
-
-        return galleryList;
     }
     @SuppressLint("InlinedApi")
     public LiveData<List<AlbumModel>> getAlbums(){
@@ -162,6 +162,10 @@ public class Repository {
         int dateIndex=cursor.getColumnIndex(projection[2]);
         int nameIndex=cursor.getColumnIndex(projection[3]);
         int mimeTypeIndex=cursor.getColumnIndex(projection[4]);
+        int durationIndex=-1;
+        if (projection.length==6){
+            durationIndex=cursor.getColumnIndex(projection[5]);
+        }
         while (cursor.moveToNext()){
             GalleryModel model=new GalleryModel();
             model.setId(cursor.getLong(idIndex));
@@ -169,6 +173,9 @@ public class Repository {
             model.setName(cursor.getString(nameIndex));
             model.setDateAdded(cursor.getLong(dateIndex));
             model.setType(FileUtil.getFileTypeCode(cursor.getString(mimeTypeIndex)));
+            if (model.getType()==FileUtil.TYPE_VIDEO && durationIndex!=-1){
+                model.setDuration(cursor.getLong(durationIndex));
+            }
             galleryModelList.add(model);
         }
         cursor.close();
@@ -277,5 +284,9 @@ public class Repository {
                     sOrder);
         }
         return cursor;
+    }
+
+    public MutableLiveData<List<GalleryModel>> getGalleryListLiveData() {
+        return galleryList;
     }
 }

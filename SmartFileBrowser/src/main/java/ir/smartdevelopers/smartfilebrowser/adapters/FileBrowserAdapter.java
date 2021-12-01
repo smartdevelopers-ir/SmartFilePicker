@@ -48,9 +48,21 @@ public class FileBrowserAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     }
 
     public void setList(List<FileBrowserModel> fileBrowserModels) {
+//        notifyItemRangeRemoved(0,mFileBrowserModelsCopy.size());
         mFileBrowserModels = fileBrowserModels;
         mFileBrowserModelsCopy = fileBrowserModels;
+//        notifyItemRangeInserted(0,mFileBrowserModelsCopy.size());
         notifyDataSetChanged();
+    }
+
+    @Override
+    public void setHasStableIds(boolean hasStableIds) {
+        super.setHasStableIds(true);
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return mFileBrowserModels.get(position).getId();
     }
 
     @NonNull
@@ -374,5 +386,8 @@ public class FileBrowserAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             }
             txtTitle.setText(model.getTitle());
         }
+    }
+    public void setSelectedFiles(List<File> selectedFiles) {
+        mSelectedFiles = selectedFiles;
     }
 }

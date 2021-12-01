@@ -9,6 +9,7 @@ import android.os.Environment;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import ir.smartdevelopers.smartfilebrowser.R;
 import ir.smartdevelopers.smartfilebrowser.models.FileBrowserModel;
@@ -75,5 +76,14 @@ public class Utils {
         drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
         drawable.draw(canvas);
         return bitmap;
+    }
+    public static String formatTime(long millis){
+        int minute= (int) (millis/1000/60);
+        int second= (int) ((millis/1000)%60);
+        if (minute>9){
+            return String.format(new Locale("en"),"%02d:%02d",minute,second);
+        }else {
+            return String.format(new Locale("en"),"%2d:%02d",minute,second);
+        }
     }
 }

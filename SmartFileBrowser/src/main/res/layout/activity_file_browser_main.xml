@@ -11,6 +11,7 @@
 
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/fileBrowser_activity_main_contentCoordinatorLayout"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         app:layout_constraintTop_toTopOf="parent"
@@ -22,7 +23,7 @@
         android:layout_marginTop="@dimen/sfb_expanded_margin_top"
         >
 
-        <ir.smartdevelopers.smartfilebrowser.customClasses.RoundLinearLayout
+        <ir.smartdevelopers.smartfilebrowser.customClasses.RoundViewGroup
             android:id="@+id/fileBrowser_activity_main_contentRootLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -32,7 +33,7 @@
             android:bottomRightRadius="0dp"
             android:bottomLeftRadius="0dp"
             android:clickable="true"
-            app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
+            app:layout_behavior="ir.smartdevelopers.smartfilebrowser.customClasses.MyBehavior"
             android:focusable="true">
             <View
                 android:id="@+id/fileBrowser_activity_main_draggingLineView"
@@ -43,13 +44,24 @@
                 android:layout_gravity="center_horizontal"
                 />
             <FrameLayout
-                android:id="@+id/fileBrowser_activity_main_contentFragment"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginTop="16dp"
+                >
+                <include layout="@layout/fragment_file_browser"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    />
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/sfb_fragment_gallery_recyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
 
-                />
-        </ir.smartdevelopers.smartfilebrowser.customClasses.RoundLinearLayout>
+                    />
+
+            </FrameLayout>
+
+        </ir.smartdevelopers.smartfilebrowser.customClasses.RoundViewGroup>
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
@@ -92,26 +104,7 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-<!--    <com.google.android.material.bottomnavigation.BottomNavigationView-->
-<!--        android:id="@+id/fileBrowser_activity_main_bottomNavigation"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        app:layout_constraintEnd_toEndOf="parent"-->
-<!--        app:layout_constraintBottom_toBottomOf="parent"-->
-<!--        app:menu="@menu/sfb_bottombar_menu"-->
-<!--        app:labelVisibilityMode="labeled"-->
 
-<!--        />-->
-<!--    <it.sephiroth.android.library.bottomnavigation.BottomNavigation-->
-<!--        android:id="@+id/fileBrowser_activity_main_bottomNavigation"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        app:layout_constraintEnd_toEndOf="parent"-->
-<!--        app:layout_constraintBottom_toBottomOf="parent"-->
-<!--        app:bbn_entries="@menu/sfb_bottombar_menu"-->
-<!--        />-->
     <com.aurelhubert.ahbottomnavigation.AHBottomNavigation
         android:id="@+id/fileBrowser_activity_main_bottomNavigation"
         android:layout_width="match_parent"

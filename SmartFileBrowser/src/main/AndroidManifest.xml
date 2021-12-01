@@ -12,23 +12,34 @@
         tools:ignore="ScopedStorage" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
+    <queries>
+        <intent>
+            <action android:name="android.media.action.IMAGE_CAPTURE" />
+        </intent>
+    </queries>
+
     <application android:requestLegacyExternalStorage="true">
+        <activity
+            android:name=".acitivties.VideoViewActivity"
+            android:exported="false"
+            android:theme="@style/sfb_EditorTheme"
+            android:screenOrientation="locked"
+            />
         <activity
             android:name=".acitivties.PhotoEditorActivity"
             android:exported="false"
             android:theme="@style/sfb_EditorTheme"
+            android:screenOrientation="locked"
             />
         <activity
             android:name=".acitivties.FileBrowserMainActivity"
             android:configChanges="keyboard|orientation"
-            android:theme="@style/sfb_AppTheme" />
-<!--        <activity-->
-<!--            android:name="iamutkarshtiwari.github.io.ananas.editimage.EditImageActivity"-->
-<!--            android:exported="true"-->
-<!--            android:label="@string/sfb_image_editor_label"-->
-<!--            android:theme="@style/sfb_EditorTheme"-->
-<!--            tools:replace="android:label" />-->
-
+            android:theme="@style/sfb_AppTheme" /> <!-- <activity -->
+        <!-- android:name="iamutkarshtiwari.github.io.ananas.editimage.EditImageActivity" -->
+        <!-- android:exported="true" -->
+        <!-- android:label="@string/sfb_image_editor_label" -->
+        <!-- android:theme="@style/sfb_EditorTheme" -->
+        <!-- tools:replace="android:label" /> -->
         <provider
             android:name=".customClasses.SmartFileProvider"
             android:authorities="${applicationId}.sfb_provider"

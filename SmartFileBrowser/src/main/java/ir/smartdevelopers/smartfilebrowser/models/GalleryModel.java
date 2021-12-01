@@ -5,6 +5,7 @@ import android.net.Uri;
 import java.io.File;
 
 import ir.smartdevelopers.smartfilebrowser.customClasses.FileUtil;
+import ir.smartdevelopers.smartfilebrowser.customClasses.Utils;
 
 public  class GalleryModel implements FileModel ,Comparable<GalleryModel>{
 
@@ -20,6 +21,7 @@ public  class GalleryModel implements FileModel ,Comparable<GalleryModel>{
     private int mNumber;
     private String mThumbnailPath;
     private String mThumbnailId;
+    private long duration;
 
 
     public String getPath() {
@@ -115,5 +117,16 @@ public  class GalleryModel implements FileModel ,Comparable<GalleryModel>{
     @Override
     public int compareTo(GalleryModel o) {
         return Long.compare(this.mDateAdded,o.mDateAdded)*-1;
+    }
+
+    public long getDuration() {
+        return duration;
+    }
+
+    public void setDuration(long duration) {
+        this.duration = duration;
+    }
+    public String getDurationTime(){
+        return Utils.formatTime(duration);
     }
 }
