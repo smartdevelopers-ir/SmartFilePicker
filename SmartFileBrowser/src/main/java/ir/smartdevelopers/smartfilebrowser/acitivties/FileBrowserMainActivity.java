@@ -3,37 +3,41 @@ package ir.smartdevelopers.smartfilebrowser.acitivties;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.appcompat.widget.AppCompatTextView;
+import androidx.constraintlayout.widget.Group;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.app.SharedElementCallback;
 import androidx.core.content.FileProvider;
 import androidx.core.view.ViewCompat;
-import androidx.exifinterface.media.ExifInterface;
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
-import android.content.ContentResolver;
+import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.content.res.TypedArray;
-import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.Matrix;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.text.Html;
 import android.text.TextUtils;
 import android.transition.Transition;
 import android.transition.TransitionInflater;
-import android.util.DisplayMetrics;
-import android.util.Size;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -47,49 +51,57 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationItem;
+
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
-import com.google.android.material.transition.MaterialContainerTransform;
 
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import ir.smartdevelopers.smartfilebrowser.R;
 import ir.smartdevelopers.smartfilebrowser.adapters.AlbumAdapter;
+import ir.smartdevelopers.smartfilebrowser.adapters.FileBrowserAdapter;
+import ir.smartdevelopers.smartfilebrowser.adapters.GalleryAdapter;
+import ir.smartdevelopers.smartfilebrowser.customClasses.GalleyItemDecoration;
+import ir.smartdevelopers.smartfilebrowser.customClasses.MyBehavior;
 import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemLongClickListener;
+import ir.smartdevelopers.smartfilebrowser.customClasses.OnSearchListener;
 import ir.smartdevelopers.smartfilebrowser.customClasses.ResultListener;
+import ir.smartdevelopers.smartfilebrowser.customClasses.SmartFileBrowser;
 import ir.smartdevelopers.smartfilebrowser.models.FileModel;
 import ir.smartdevelopers.smartfilebrowser.customClasses.FileUtil;
 import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemChooseListener;
 import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemClickListener;
 import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemSelectListener;
-import ir.smartdevelopers.smartfilebrowser.customClasses.RoundLinearLayout;
+import ir.smartdevelopers.smartfilebrowser.customClasses.RoundViewGroup;
 import ir.smartdevelopers.smartfilebrowser.customClasses.SFBFileFilter;
 import ir.smartdevelopers.smartfilebrowser.customClasses.SearchView;
-import ir.smartdevelopers.smartfilebrowser.fragments.FileBrowserFragment;
-import ir.smartdevelopers.smartfilebrowser.fragments.GalleryFragment;
 import ir.smartdevelopers.smartfilebrowser.models.AlbumModel;
 import ir.smartdevelopers.smartfilebrowser.models.FileBrowserModel;
 import ir.smartdevelopers.smartfilebrowser.models.GalleryModel;
+import ir.smartdevelopers.smartfilebrowser.viewModel.FilesViewModel;
 import ir.smartdevelopers.smartfilebrowser.viewModel.GalleryViewModel;
 import ir.smartdevelopers.smartfilebrowser.viewModel.SelectionFileViewModel;
 
 public class FileBrowserMainActivity extends AppCompatActivity {
 
     public static final String EXTRA_RESULT = "file_browser_result";
+    public static final String EXTRA_RESULT_URIS = "file_browser_result_uris";
     private static final int REQ_CODE_EDIT_IMAGE = 258;
-    private GalleryFragment mGalleryFragment;
-    private FileBrowserFragment mFileBrowserFragment;
+    public static final int REQ_CODE_TACK_PICTURE = 303;
+    public static final int REQ_CODE_PICK_BY_GALLEY = 305;
     private AppBarLayout mAppBarLayout;
-    private RoundLinearLayout mBottomSheetRoot;
-    private BottomSheetBehavior<View> mBottomSheetBehavior;
+    private RoundViewGroup mBottomSheetRoot;
+    private MyBehavior<View> mBottomSheetBehavior;
     private AHBottomNavigation mBottomNavigationView;
     private View mMainRootView;
     private int mActionBarSize;
@@ -100,18 +112,11 @@ public class FileBrowserMainActivity extends AppCompatActivity {
     private View mSelectionContainer;
     private TextView txtSelectionCount;
     private ImageView btnSelectionOk;
-    private OnItemSelectListener<FileModel> mOnFileItemSelectListener;
     private OnItemChooseListener mOnItemChooseListener;
-    private OnItemClickListener<GalleryModel> mOnGalleryItemClickListener;
-    private OnItemLongClickListener<GalleryModel> mOnGalleryItemLongClickListener;
-    private OnItemClickListener<GalleryModel> mOnZoomOutClickListener;
-
     private SearchView.OnVisibilityChangeListener mOnVisibilityChangeListener;
     private SelectionFileViewModel mSelectionFileViewModel;
-
     private PageType mPageType;
     private GalleryViewModel mGalleryViewModel;
-
     /*toolbars*/
     private View mGalleyToolbar, mFileBrowserToolbar;
     private FrameLayout mToolbarPlaceHolder;
@@ -121,7 +126,6 @@ public class FileBrowserMainActivity extends AppCompatActivity {
     private ImageView btnBack;
     private boolean mSearchViewIsShown = false;
     private String mSearchViewQuery = "";
-
     /*Builder parameters*/
     private FileFilter mFileTabFileFilter;
     private boolean mShowVideosInGallery = true;
@@ -132,10 +136,39 @@ public class FileBrowserMainActivity extends AppCompatActivity {
     private boolean mShowFilesTab = true;
     private boolean mShowAudioTab = true;
     private boolean mShowGalleryTab = true;
+    private boolean mShowPickFromSystemGalleryMenuButton = true;
     private String mEditedImagePath;
     private int mEditedImagePosition;
-//    private CallbackViewModel mCallbackViewModel;
     private ResultListener mResultListener;
+    private OnItemSelectListener<FileModel> mOnFileItemSelectListener;
+    //<editor-fold desc="FileBrowser parameters">
+    private View mFileBrowserContainer;
+    private RecyclerView mFileBrowserRecyclerView;
+    private LinearLayoutManager mFileBrowserLayoutManager;
+    private FileBrowserAdapter mFileBrowserAdapter;
+    private FilesViewModel mFilesViewModel;
+    private OnItemClickListener<FileBrowserModel> mOnFileBrowserItemClickListener;
+    private OnSearchListener mOnFileSearchListener;
+    private Group mFileBrowserNoItemGroup;
+    private TextView txtFileBrowserNotFoundSubTitle;
+    private String mFileBrowserSearchPendingQuery = "";
+    //</editor-fold>
+    //<editor-fold desc="Gallery parameters">
+    private RecyclerView mGalleryRecyclerView;
+    private GalleryAdapter mGalleryAdapter;
+    private GridLayoutManager mGalleryLayoutManager;
+    /**
+     * this listener is user listener
+     */
+    private OnItemClickListener<GalleryModel> mOnGalleryItemClickListener;
+    /**
+     * this listener is for handling camera click or item click internally
+     */
+    private OnItemClickListener<GalleryModel> mGalleryModelItemClickListener;
+    private OnItemLongClickListener<GalleryModel> mOnGalleryItemLongClickListener;
+    private OnItemClickListener<GalleryModel> mOnZoomOutClickListener;
+    private String tackingPictureFilePath;
+    //</editor-fold>
 
     private void getDataFromIntent() {
         mShowVideosInGallery = getIntent().getBooleanExtra("mShowVideosInGallery", true);
@@ -146,6 +179,7 @@ public class FileBrowserMainActivity extends AppCompatActivity {
         mShowFilesTab = getIntent().getBooleanExtra("mShowFilesTab", true);
         mShowAudioTab = getIntent().getBooleanExtra("mShowAudioTab", true);
         mShowGalleryTab = getIntent().getBooleanExtra("mShowGalleryTab", true);
+        mShowPickFromSystemGalleryMenuButton = getIntent().getBooleanExtra("mShowPickFromSystemGalleryMenuButton", true);
         SFBFileFilter sfbFileFilter = (SFBFileFilter) getIntent().getSerializableExtra("mFileTabFileFilter");
         if (sfbFileFilter != null) {
             mFileTabFileFilter = getFileFilterFromSfbFileFilter(sfbFileFilter);
@@ -178,7 +212,6 @@ public class FileBrowserMainActivity extends AppCompatActivity {
         };
     }
 
-    //    private BottomNavigationBar.OnTabSelectedListener mOnTabSelectedListener;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -186,15 +219,15 @@ public class FileBrowserMainActivity extends AppCompatActivity {
             getWindow().requestFeature(Window.FEATURE_ACTIVITY_TRANSITIONS);
 
             getWindow().setAllowEnterTransitionOverlap(false);
-            Transition transition=TransitionInflater.from(this).inflateTransition(R.transition.iten_transition_in);
+            Transition transition = TransitionInflater.from(this).inflateTransition(R.transition.iten_transition_in);
             getWindow().setSharedElementExitTransition(transition);
             setExitSharedElementCallback(new SharedElementCallback() {
                 @Override
                 public void onMapSharedElements(List<String> names, Map<String, View> sharedElements) {
-                    for (View view:sharedElements.values()){
-                        if (view instanceof ImageView){
-                            if (mResultListener.getSavedBitmap()!=null){
-                                ((ImageView) view).setImageBitmap(mResultListener.getSavedBitmap());
+                    for (View view : sharedElements.values()) {
+                        if (view instanceof ImageView) {
+                            if (mResultListener.getSavedBitmap() != null) {
+                                ((ImageView) view).setImageBitmap(mResultListener.getSavedBitmap().copy(Bitmap.Config.ARGB_8888, true));
                                 mResultListener.setSavedBitmap(null);
                             }
                         }
@@ -208,7 +241,10 @@ public class FileBrowserMainActivity extends AppCompatActivity {
         mSelectionFileViewModel = new ViewModelProvider(this).get(SelectionFileViewModel.class);
         mGalleryViewModel = new ViewModelProvider(this, new ViewModelProvider.AndroidViewModelFactory(getApplication()))
                 .get(GalleryViewModel.class);
-        mResultListener=ResultListener.getInstance();
+        mFilesViewModel = new ViewModelProvider(this,
+                new ViewModelProvider.AndroidViewModelFactory(getApplication()))
+                .get(FilesViewModel.class);
+        mResultListener = ResultListener.getInstance();
         if (savedInstanceState == null) {
             if (mShowGalleryTab) {
                 mPageType = PageType.TYPE_GALLERY;
@@ -231,10 +267,67 @@ public class FileBrowserMainActivity extends AppCompatActivity {
         initListeners();
         initViews(savedInstanceState);
 
+        // <editor-fold  desc=" FileBrowser adapter init">
+        if (mShowAudioTab || mShowFilesTab || mShowPDFTab) {
+            mFileBrowserLayoutManager = new LinearLayoutManager(this);
+            mFileBrowserAdapter = new FileBrowserAdapter(mSelectionFileViewModel.getSelectedFiles());
+            mFileBrowserAdapter.setOnItemClickListener(mOnFileBrowserItemClickListener);
+            mFileBrowserAdapter.setOnItemSelectListener(mOnFileItemSelectListener);
+            mFileBrowserAdapter.setOnItemChooseListener(mOnItemChooseListener);
+            mFileBrowserAdapter.setOnSearchListener(mOnFileSearchListener);
+            mFileBrowserAdapter.setCanSelectMultiple(mCanSelectMultipleInFiles);
+            mFileBrowserRecyclerView.setLayoutManager(mFileBrowserLayoutManager);
+            mFileBrowserRecyclerView.setAdapter(mFileBrowserAdapter);
 
+            mFilesViewModel.getFilesLiveData().observe(this, new Observer<List<FileBrowserModel>>() {
+                @Override
+                public void onChanged(List<FileBrowserModel> fileBrowserModels) {
+                    if (fileBrowserModels != null && mFileBrowserAdapter != null) {
+                        mFileBrowserAdapter.setList(fileBrowserModels);
+                        if (!TextUtils.isEmpty(mFileBrowserSearchPendingQuery)) {
+                            mFileBrowserAdapter.getFilter().filter(mFileBrowserSearchPendingQuery);
+                            mFileBrowserSearchPendingQuery = "";
+                        }
+                    }
+                }
+            });
+        }
+        // </editor-fold>
+        // <editor-fold  desc=" FileBrowser adapter init">
+        if (mShowGalleryTab) {
+            int spanCount = getResources().getInteger(R.integer.sfb_gallery_grid);
+            int gapSpace = getResources().getDimensionPixelSize(R.dimen.sfb_gallery_gap_size);
+
+            mGalleryLayoutManager = new GridLayoutManager(this, spanCount);
+            mGalleryAdapter = new GalleryAdapter(mSelectionFileViewModel.getSelectedFiles());
+            mGalleryAdapter.setCanSelectMultiple(mCanSelectMultipleInGallery);
+            mGalleryAdapter.setOnItemClickListener(mGalleryModelItemClickListener);
+            mGalleryAdapter.setOnItemSelectListener(mOnFileItemSelectListener);
+            mGalleryAdapter.setOnItemLongClickListener(mOnGalleryItemLongClickListener);
+            mGalleryAdapter.setOnZoomOutClickListener(mOnZoomOutClickListener);
+            mGalleryAdapter.setOnItemChooseListener(mOnItemChooseListener);
+            int imageHeight = (getResources().getDisplayMetrics().widthPixels / spanCount) - (gapSpace * 2);
+            mGalleryRecyclerView.setItemViewCacheSize(20);
+            mGalleryRecyclerView.setHasFixedSize(true);
+            mGalleryRecyclerView.setLayoutManager(mGalleryLayoutManager);
+            mGalleryRecyclerView.addItemDecoration(new GalleyItemDecoration(spanCount, gapSpace, true));
+            mGalleryRecyclerView.setAdapter(mGalleryAdapter);
+
+            LiveData<List<GalleryModel>> allGalleryModels = mGalleryViewModel.getGalleryModelsLiveData();
+            allGalleryModels.observe(this, new Observer<List<GalleryModel>>() {
+                @Override
+                public void onChanged(List<GalleryModel> galleryModels) {
+
+                    if (galleryModels != null) {
+                        mGalleryAdapter.setList(galleryModels);
+                    }
+                }
+            });
+        }
+        // </editor-fold>
 
         if (savedInstanceState != null) {
-            showSuitableFragment(mPageType, true, false, false);
+            showSuitableFragment(mPageType, true, false);
             int bottomSheetState = savedInstanceState.getInt("bottomSheet_state");
             mBottomSheetBehavior.setState(bottomSheetState);
             if (bottomSheetState == BottomSheetBehavior.STATE_EXPANDED) {
@@ -246,19 +339,20 @@ public class FileBrowserMainActivity extends AppCompatActivity {
                 mBottomNavigationView.setTranslationY(bottomNavTranslationY);
                 mSelectionContainer.setTranslationY(bottomNavTranslationY);
             }
+            tackingPictureFilePath = savedInstanceState.getString("tackingPictureFilePath");
             boolean albumListIsVisible = savedInstanceState.getBoolean("album_list_visibility");
             if (albumListIsVisible) {
                 showAlbumsList(false);
             }
-        }else {
-            showSuitableFragment(mPageType, true, false, true);
+        } else {
+            showSuitableFragment(mPageType, true, false);
         }
 
         mResultListener.registerResultListener(new ResultListener.OnResult() {
             @Override
             public void onResultSet(String path) {
-                if (!TextUtils.isEmpty(path)){
-                    mGalleryFragment.imageUpdated(path,mEditedImagePosition);
+                if (!TextUtils.isEmpty(path)) {
+                    imageUpdated(path, mEditedImagePosition);
                 }
             }
         });
@@ -287,6 +381,7 @@ public class FileBrowserMainActivity extends AppCompatActivity {
                 outState.putString("mSearchViewQuery", searchView.getQuery());
             }
         }
+        outState.putString("tackingPictureFilePath", tackingPictureFilePath);
         AppCompatTextView spnSelectAlbum = findViewById(R.id.fileBrowser_activity_main_spnSelectAlbum);
         if (spnSelectAlbum != null) {
             int[] location = new int[2];
@@ -310,7 +405,12 @@ public class FileBrowserMainActivity extends AppCompatActivity {
         mAlbumPlaceHolder = findViewById(R.id.fileBrowser_activity_main_albumPlaceHolder);
         btnBack = findViewById(R.id.fileBrowser_activity_main_btnBack);
         mMainRootView = findViewById(R.id.fileBrowser_activity_main_windowRoot);
-
+        mFileBrowserRecyclerView = findViewById(R.id.fragment_file_browser_recyclerView);
+        mFileBrowserContainer = findViewById(R.id.fileBrowser_activity_main_fileBrowserContainer);
+//        mGalleryContainer=findViewById(R.id.fileBrowser_activity_main_galleryContainer);
+        mGalleryRecyclerView = findViewById(R.id.sfb_fragment_gallery_recyclerView);
+        mFileBrowserNoItemGroup = findViewById(R.id.fragment_file_browser_noItemGroup);
+        txtFileBrowserNotFoundSubTitle = findViewById(R.id.fragment_file_browser_txtNoItemFoundSubTitle);
     }
 
     private void initListeners() {
@@ -327,7 +427,7 @@ public class FileBrowserMainActivity extends AppCompatActivity {
             public boolean onTabSelected(int position, boolean wasSelected) {
                 String title = mBottomNavigationView.getItem(position).getTitle(getApplicationContext());
 
-                PageType pageType=null;
+                PageType pageType = null;
                 if (title.equals(getString(R.string.sfb_gallery))) {
 
                     pageType = PageType.TYPE_GALLERY;
@@ -341,11 +441,11 @@ public class FileBrowserMainActivity extends AppCompatActivity {
 
                     pageType = PageType.TYPE_PDF;
                 }
-                if (mPageType !=null && mPageType == pageType){
+                if (mPageType != null && mPageType == pageType) {
                     return false;
                 }
-                mPageType=pageType;
-                showSuitableFragment(mPageType, false, true, true);
+                mPageType = pageType;
+                showSuitableFragment(mPageType, false, true);
                 return true;
             }
         };
@@ -362,7 +462,7 @@ public class FileBrowserMainActivity extends AppCompatActivity {
                         setGalleryEnabled(true);
                     }
                 }
-                if (model instanceof GalleryModel){
+                if (model instanceof GalleryModel) {
                     if (!mCanSelectMultipleInGallery) {
                         sendBackResult(model);
                         return;
@@ -392,18 +492,21 @@ public class FileBrowserMainActivity extends AppCompatActivity {
                 if (!mCanSelectMultipleInGallery) {
                     sendBackResult(model);
                 } else {
-                    if (model.getType()==FileUtil.TYPE_IMAGE){
-                        openImageEditor(model,view,position);
+                    if (model.getType() == FileUtil.TYPE_IMAGE) {
+                        openImageEditor(model, view, position);
                     }
                 }
             }
         };
-        mOnZoomOutClickListener=new OnItemClickListener<GalleryModel>() {
+        mOnZoomOutClickListener = new OnItemClickListener<GalleryModel>() {
             @Override
             public void onItemClicked(GalleryModel galleryModel, View view, int position) {
-                if (galleryModel.getType()==FileUtil.TYPE_IMAGE){
+                if (galleryModel.getType() == FileUtil.TYPE_IMAGE) {
                     openImageEditor(galleryModel, view, position);
+                } else if (galleryModel.getType() == FileUtil.TYPE_VIDEO) {
+                    openVideoActivity(galleryModel, view, position);
                 }
+
             }
         };
         mOnVisibilityChangeListener = new SearchView.OnVisibilityChangeListener() {
@@ -418,36 +521,85 @@ public class FileBrowserMainActivity extends AppCompatActivity {
                 }
             }
         };
+        mOnFileBrowserItemClickListener = new OnItemClickListener<FileBrowserModel>() {
+            @Override
+            public void onItemClicked(FileBrowserModel model, View view, int position) {
+                if (model.getCurrentFile() != null) {
+                    if (model.getCurrentFile().isDirectory()) {
+                        mFilesViewModel.getFilesList(model, mFileFilter);
+                    }
 
+                } else {
+                    getFirstPageList();
+                }
+            }
+        };
+        mOnFileSearchListener = new OnSearchListener() {
+            @Override
+            public void onSearch(int count, String searchedText) {
+                if (count == 0) {
+                    showNoItem(searchedText);
+                } else {
+                    hideNoItem();
+                }
+            }
+        };
+        mGalleryModelItemClickListener = new OnItemClickListener<GalleryModel>() {
+            @Override
+            public void onItemClicked(GalleryModel model, View view, int position) {
+                if (model.getType() == GalleryModel.TYPE_CAMERA) {
+                    openCamera();
+                } else {
+                    if (mOnGalleryItemClickListener != null) {
+                        mOnGalleryItemClickListener.onItemClicked(model, view, position);
+                    }
 
+                }
+            }
+        };
+    }
+
+    private void openVideoActivity(GalleryModel model, View view, int position) {
+        Uri uri = FileProvider.getUriForFile(this, getPackageName() + ".sfb_provider", model.getCurrentFile());
+        Intent videoActivityIntent = new Intent(this, VideoViewActivity.class);
+        videoActivityIntent.setData(uri);
+        Bundle options = null;
+        if (view != null) {
+            String sharedName = ViewCompat.getTransitionName(view);
+            if (sharedName == null) {
+                sharedName = "T_N_" + position;
+            }
+            options = ActivityOptionsCompat.makeSceneTransitionAnimation(this, view, sharedName).toBundle();
+            videoActivityIntent.putExtra(VideoViewActivity.KEY_TRANSITION_NAME, sharedName);
+        }
+        ActivityCompat.startActivity(this, videoActivityIntent, options);
     }
 
     private void openImageEditor(GalleryModel model, View view, int position) {
 
-        mEditedImagePath=FileUtil.getImageTempFile(getApplicationContext()).getPath();
-        mEditedImagePosition=position;
+        mEditedImagePath = FileUtil.getImageTempFile(getApplicationContext()).getPath();
+        mEditedImagePosition = position;
 
-        Uri uri= FileProvider.getUriForFile(this,getPackageName()+".sfb_provider",model.getCurrentFile());
-        Intent editorIntent=new Intent(this,PhotoEditorActivity.class);
+        Uri uri = FileProvider.getUriForFile(this, getPackageName() + ".sfb_provider", model.getCurrentFile());
+        Intent editorIntent = new Intent(this, PhotoEditorActivity.class);
         editorIntent.setData(uri);
 
-        editorIntent.putExtra(PhotoEditorActivity.KEY_SAVE_PATH,mEditedImagePath);
-        Bundle options=null;
-        if (view!=null){
-            String sharedName=ViewCompat.getTransitionName(view);
-            if (sharedName==null){
-                sharedName="T_N_"+position;
+        editorIntent.putExtra(PhotoEditorActivity.KEY_SAVE_PATH, mEditedImagePath);
+        Bundle options = null;
+        if (view != null) {
+            String sharedName = ViewCompat.getTransitionName(view);
+            if (sharedName == null) {
+                sharedName = "T_N_" + position;
             }
-            options= ActivityOptionsCompat.makeSceneTransitionAnimation(this,view,sharedName).toBundle();
+            options = ActivityOptionsCompat.makeSceneTransitionAnimation(this, view, sharedName).toBundle();
             editorIntent.putExtra(PhotoEditorActivity.KEY_TRANSITION_NAME, sharedName);
         }
 
-        ActivityCompat.startActivityForResult(this,editorIntent,REQ_CODE_EDIT_IMAGE,
+        ActivityCompat.startActivityForResult(this, editorIntent, REQ_CODE_EDIT_IMAGE,
                 options);
 
 
     }
-
 
 
     private boolean mFileBrowserEnabled = true;
@@ -495,7 +647,6 @@ public class FileBrowserMainActivity extends AppCompatActivity {
         mBottomNavigationView.setUseElevation(true);
         mBottomNavigationView.setTitleState(AHBottomNavigation.TitleState.ALWAYS_SHOW);
 
-//        mBottomNavigationView.setMenuItemSelectionListener(mOnMenuItemSelectionListener);
         int[] res = {R.attr.actionBarSize};
         TypedArray typedArray = obtainStyledAttributes(res);
         mActionBarSize = typedArray.getDimensionPixelSize(0, 56) +
@@ -507,12 +658,10 @@ public class FileBrowserMainActivity extends AppCompatActivity {
         int screenHeight = getResources().getDisplayMetrics().heightPixels;
         mRadius = getResources().getDimension(R.dimen.sfb_bottom_sheet_top_radius);
         mAppBarLayout.setTranslationY(-mActionBarSize);
-        mBottomSheetBehavior = BottomSheetBehavior.from(mBottomSheetRoot);
+        mBottomSheetBehavior = MyBehavior.from(mBottomSheetRoot);
         mBottomSheetBehavior.setHideable(true);
-//        mBottomSheetBehavior.setFitToContents(false);
-//        mBottomSheetBehavior.setHalfExpandedRatio(0.5f);
         mBottomSheetBehavior.setPeekHeight(screenHeight / 2, true);
-        mBottomSheetBehavior.addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+        mBottomSheetBehavior.addBottomSheetCallback(new MyBehavior.BottomSheetCallback() {
             @Override
             public void onStateChanged(@NonNull View bottomSheet, int newState) {
                 if (newState == BottomSheetBehavior.STATE_HIDDEN) {
@@ -528,7 +677,6 @@ public class FileBrowserMainActivity extends AppCompatActivity {
                 if (slideOffset > h && slideOffset <= 1) {
                     // show appbar
                     int currentTranslation = (int) convertOffsetToDimen(h, 1, translation, 0, slideOffset);
-//                    Log.v("TTT", "currentTranslation=" + currentTranslation);
                     float appbarAlpha = convertOffsetToDimen(h, 1, 0, 1, slideOffset);
                     float draggingLineAlpha = convertOffsetToDimen(h, 1, 1, 0, slideOffset);
                     mAppBarLayout.setAlpha(appbarAlpha);
@@ -567,19 +715,14 @@ public class FileBrowserMainActivity extends AppCompatActivity {
         });
 
         if (mSelectionFileViewModel.getSelectionHelperLiveData().getValue().selectionCount > 0) {
-            if (mPageType==PageType.TYPE_GALLERY){
+            if (mPageType == PageType.TYPE_GALLERY) {
                 mOnFileItemSelectListener.onItemSelected(new GalleryModel(), 0,
                         mSelectionFileViewModel.getSelectionHelperLiveData().getValue().selectionCount);
-            }else {
+            } else {
                 mOnFileItemSelectListener.onItemSelected(new FileBrowserModel(), 0,
                         mSelectionFileViewModel.getSelectionHelperLiveData().getValue().selectionCount);
             }
         }
-//        if (savedInstanceState==null){
-//            mBottomSheetRoot.post(()->{
-//                startFirstAnimation();
-//            });
-//        }
         btnBack.setOnClickListener(v -> {
             onBackPressed();
         });
@@ -597,6 +740,25 @@ public class FileBrowserMainActivity extends AppCompatActivity {
                 }
             });
         }
+        if (isShowingGallery()) {
+            mFileBrowserContainer.setVisibility(View.INVISIBLE);
+            mGalleryRecyclerView.setVisibility(View.VISIBLE);
+        } else {
+            mGalleryRecyclerView.setVisibility(View.INVISIBLE);
+            mFileBrowserContainer.setVisibility(View.VISIBLE);
+        }
+
+        mFileBrowserRecyclerView.setItemAnimator(null);
+
+        try {
+            if (mPageType == PageType.TYPE_GALLERY) {
+                MyBehavior.from(mBottomSheetRoot).setScrollingView(mGalleryRecyclerView);
+            } else {
+                MyBehavior.from(mBottomSheetRoot).setScrollingView(mFileBrowserRecyclerView);
+            }
+        } catch (Exception ignore) {
+        }
+
     }
 
     private void sendBackResult(FileModel model) {
@@ -604,7 +766,7 @@ public class FileBrowserMainActivity extends AppCompatActivity {
         File[] resultFiles;
         if (mPageType == PageType.TYPE_GALLERY) {
             if (mCanSelectMultipleInGallery) {
-                resultFiles = mGalleryFragment.getSelectedFiles().toArray(new File[0]);
+                resultFiles = getSelectedFiles().toArray(new File[0]);
             } else {
                 resultFiles = new File[]{model.getCurrentFile()};
             }
@@ -615,12 +777,18 @@ public class FileBrowserMainActivity extends AppCompatActivity {
                 resultFiles = new File[]{model.getCurrentFile()};
             }
         }
-        String[] filesPath=new String[resultFiles.length];
-        for (int i=0;i<resultFiles.length;i++){
-            filesPath[i]=resultFiles[i].getPath();
+        String[] filesPath = new String[resultFiles.length];
+        for (int i = 0; i < resultFiles.length; i++) {
+            filesPath[i] = resultFiles[i].getPath();
         }
-        Bundle bundle=new Bundle();
-        bundle.putStringArray(EXTRA_RESULT,filesPath);
+        Uri[] filesUri = new Uri[resultFiles.length];
+        for (int i = 0; i < resultFiles.length; i++) {
+            filesUri[i] = FileProvider.getUriForFile(getApplicationContext(),
+                    getPackageName() + ".sfb_provider", resultFiles[i]);
+        }
+        Bundle bundle = new Bundle();
+        bundle.putStringArray(EXTRA_RESULT, filesPath);
+        bundle.putParcelableArray(EXTRA_RESULT_URIS, filesUri);
         result.putExtras(bundle);
 
         setResult(RESULT_OK, result);
@@ -663,62 +831,50 @@ public class FileBrowserMainActivity extends AppCompatActivity {
         }
     }
 
-    private void showSuitableFragment(PageType type, boolean selectItem, boolean animate, boolean create) {
+    private boolean isShowingFileBrowser() {
+        return mFileBrowserContainer.getVisibility() == View.VISIBLE;
+    }
+
+    private boolean isShowingGallery() {
+        return mGalleryRecyclerView.getVisibility() == View.VISIBLE;
+    }
+
+    private void showSuitableFragment(PageType type, boolean selectItem, boolean animate) {
+
         switch (type) {
             case TYPE_AUDIO:
-
 
                 if (selectItem) {
                     mBottomNavigationView.setCurrentItem(getNavigationItemPosition(getString(R.string.sfb_audio)), false);
                 }
-                if (create) {
-                    showAudioFragment(animate);
-                } else {
-                    mFileBrowserFragment = (FileBrowserFragment) getSupportFragmentManager().findFragmentByTag(FileBrowserFragment.FRAGMENT_TAG);
-                }
 
-                mGalleryFragment = null;
+                showAudioFragment(animate);
+
                 break;
             case TYPE_PDF:
                 if (selectItem) {
                     mBottomNavigationView.setCurrentItem(getNavigationItemPosition(getString(R.string.sfb_PDF)), false);
                 }
-                if (create) {
-                    showPDFFragment(animate);
-                } else {
-                    mFileBrowserFragment = (FileBrowserFragment) getSupportFragmentManager().findFragmentByTag(FileBrowserFragment.FRAGMENT_TAG);
-                }
 
-                mGalleryFragment = null;
+                showPDFFragment(animate);
 
                 break;
             case TYPE_VIDEO:
-                mGalleryFragment = null;
 
                 break;
             case TYPE_FILE_BROWSER:
                 if (selectItem) {
                     mBottomNavigationView.setCurrentItem(getNavigationItemPosition(getString(R.string.sfb_file)), false);
                 }
-                if (create) {
-                    showFilesFragment(animate);
-                } else {
-                    mFileBrowserFragment = (FileBrowserFragment) getSupportFragmentManager().findFragmentByTag(FileBrowserFragment.FRAGMENT_TAG);
-                }
 
-                mGalleryFragment = null;
+                showFilesFragment(animate);
+
                 break;
             case TYPE_GALLERY:
                 if (selectItem) {
                     mBottomNavigationView.setCurrentItem(getNavigationItemPosition(getString(R.string.sfb_gallery)), false);
                 }
-                if (create) {
-                    showGallery(animate);
-                } else {
-                    mGalleryFragment = (GalleryFragment) getSupportFragmentManager().findFragmentByTag(GalleryFragment.FRAGMENT_TAG);
-                }
-
-                mFileBrowserFragment = null;
+                showGallery(animate);
                 break;
         }
     }
@@ -757,8 +913,8 @@ public class FileBrowserMainActivity extends AppCompatActivity {
         searchView.setOnQueryChangeListener(new SearchView.OnQueryChangeListener() {
             @Override
             public void onQueryChanged(String query) {
-                if (mFileBrowserFragment != null) {
-                    mFileBrowserFragment.search(query);
+                if (isShowingFileBrowser()) {
+                    searchFile(query);
                 }
             }
         });
@@ -783,7 +939,10 @@ public class FileBrowserMainActivity extends AppCompatActivity {
 
     private void initGalleryToolbarViews() {
         AppCompatTextView spnSelectAlbum = findViewById(R.id.fileBrowser_activity_main_spnSelectAlbum);
-        ImageButton btnVerticalDotsMore = findViewById(R.id.fileBrowser_activity_main_imgVerticalDotsMore);
+        ImageButton btnVerticalDotsMore = findViewById(R.id.fileBrowser_activity_main_btnGalleryMenu);
+        if (!mShowPickFromSystemGalleryMenuButton){
+            btnVerticalDotsMore.setVisibility(View.GONE);
+        }
         spnSelectAlbum.setOnClickListener(v -> {
             int[] location = new int[2];
             spnSelectAlbum.getLocationInWindow(location);
@@ -798,7 +957,9 @@ public class FileBrowserMainActivity extends AppCompatActivity {
     }
 
     private void openSystemGalleryApp() {
-
+        Intent galleyIntent = new Intent(Intent.ACTION_PICK);
+        galleyIntent.setType("image/*");
+        startActivityForResult(galleyIntent, REQ_CODE_PICK_BY_GALLEY);
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -811,9 +972,9 @@ public class FileBrowserMainActivity extends AppCompatActivity {
             albumAdapter.setOnItemClickListener(new OnItemClickListener<AlbumModel>() {
                 @Override
                 public void onItemClicked(AlbumModel model, View view, int position) {
-                    if (mGalleryFragment != null) {
+                    if (isShowingGallery()) {
                         mAlbumListIsShowing = false;
-                        mGalleryFragment.updateGallery(model);
+                        updateGallery(model);
                         hideAlbumList(false);
                         AppCompatTextView spnSelectAlbum = findViewById(R.id.fileBrowser_activity_main_spnSelectAlbum);
                         spnSelectAlbum.setText(model.getName());
@@ -822,7 +983,9 @@ public class FileBrowserMainActivity extends AppCompatActivity {
             });
             albumRecyclerView.setLayoutManager(new LinearLayoutManager(this));
             albumRecyclerView.setAdapter(albumAdapter);
-            mGalleryViewModel.getAllImageAlbums().observe(mGalleryFragment, new Observer<List<AlbumModel>>() {
+            LiveData<List<AlbumModel>> allImageAlbumLiveData = mGalleryViewModel.getAllImageAlbums();
+            allImageAlbumLiveData.removeObservers(this);
+            allImageAlbumLiveData.observe(this, new Observer<List<AlbumModel>>() {
                 @Override
                 public void onChanged(List<AlbumModel> albumModels) {
 
@@ -949,6 +1112,9 @@ public class FileBrowserMainActivity extends AppCompatActivity {
     private void showPDFFragment(boolean animate) {
         if (animate) {
             animateBottomSheet();
+            if (isShowingGallery()) {
+                swapContainers(mGalleryRecyclerView, mFileBrowserContainer);
+            }
         }
         mFileFilter = new FileFilter() {
             @Override
@@ -957,20 +1123,19 @@ public class FileBrowserMainActivity extends AppCompatActivity {
                         FileUtil.getMimeTypeFromPath(pathname.getPath()).toLowerCase().contains("pdf");
             }
         };
-        if (mFileBrowserFragment == null) {
-            mFileBrowserFragment = FileBrowserFragment.getInstance(mCanSelectMultipleInFiles);
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fileBrowser_activity_main_contentFragment,
-                            mFileBrowserFragment, FileBrowserFragment.FRAGMENT_TAG)
-                    .commit();
-        } else {
-            mFileBrowserFragment.changePages(mPageType);
-        }
+
+//        initFileBrowserRecyclerView();
+        changePages(mPageType);
+
     }
+
 
     private void showAudioFragment(boolean animate) {
         if (animate) {
             animateBottomSheet();
+            if (isShowingGallery()) {
+                swapContainers(mGalleryRecyclerView, mFileBrowserContainer);
+            }
         }
         mFileFilter = new FileFilter() {
             @Override
@@ -979,20 +1144,18 @@ public class FileBrowserMainActivity extends AppCompatActivity {
                         FileUtil.getMimeTypeFromPath(pathname.getPath()).toLowerCase().contains("audio");
             }
         };
-        if (mFileBrowserFragment == null) {
-            mFileBrowserFragment = FileBrowserFragment.getInstance(mCanSelectMultipleInFiles);
-            getSupportFragmentManager().beginTransaction().replace(R.id.fileBrowser_activity_main_contentFragment,
-                    mFileBrowserFragment, FileBrowserFragment.FRAGMENT_TAG)
-                    .commit();
-        } else {
-            mFileBrowserFragment.changePages(mPageType);
-        }
+//        initFileBrowserRecyclerView();
+        changePages(mPageType);
+
 
     }
 
     private void showFilesFragment(boolean animate) {
         if (animate) {
             animateBottomSheet();
+            if (isShowingGallery()) {
+                swapContainers(mGalleryRecyclerView, mFileBrowserContainer);
+            }
         }
         if (mFileTabFileFilter != null) {
             mFileFilter = mFileTabFileFilter;
@@ -1005,31 +1168,61 @@ public class FileBrowserMainActivity extends AppCompatActivity {
                 }
             };
         }
-        if (mFileBrowserFragment == null) {
-            mFileBrowserFragment = FileBrowserFragment.getInstance(mCanSelectMultipleInFiles);
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fileBrowser_activity_main_contentFragment,
-                            mFileBrowserFragment, FileBrowserFragment.FRAGMENT_TAG)
-                    .commit();
-        } else {
-            mFileBrowserFragment.changePages(mPageType);
+//        initFileBrowserRecyclerView();
+        changePages(mPageType);
+
+    }
+
+    private ValueAnimator mContainerAnimator;
+
+    private void swapContainers(View visibleContainer, View hiddenContainer) {
+        if (mContainerAnimator != null) {
+            mContainerAnimator.cancel();
         }
+        hiddenContainer.setAlpha(0);
+        hiddenContainer.setVisibility(View.VISIBLE);
+        mContainerAnimator = ValueAnimator.ofFloat(0, 1);
+        mContainerAnimator.setDuration(100)
+                .addUpdateListener((animation -> {
+                    float f = (float) animation.getAnimatedValue();
+                    visibleContainer.setAlpha(1 - f);
+                    hiddenContainer.setAlpha(f);
+                }));
+        mContainerAnimator.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                try {
+                    if (hiddenContainer == mGalleryRecyclerView) {
+                        MyBehavior.from(mBottomSheetRoot).setScrollingView(mGalleryRecyclerView);
+                    } else {
+                        MyBehavior.from(mBottomSheetRoot).setScrollingView(mFileBrowserRecyclerView);
+                    }
+                } catch (Exception ignore) {
+                }
+                visibleContainer.setVisibility(View.INVISIBLE);
+            }
+        });
+        mContainerAnimator.start();
 
     }
 
     private void showGallery(boolean animate) {
         if (animate) {
             animateBottomSheet();
+            if (mFileBrowserContainer.getVisibility() == View.VISIBLE) {
+                swapContainers(mFileBrowserContainer, mGalleryRecyclerView);
+            }
         }
-        mGalleryFragment = GalleryFragment.getInstance(mShowVideosInGallery, mShowCamera, mCanSelectMultipleInGallery);
-        getSupportFragmentManager().beginTransaction().replace(R.id.fileBrowser_activity_main_contentFragment,
-                mGalleryFragment, GalleryFragment.FRAGMENT_TAG)
-                .commit();
+        if (mGalleryAdapter.getItemCount() == 0) {
+            mGalleryViewModel
+                    .getAllGalleryModels(mShowCamera, mShowVideosInGallery);
+        }
     }
+
 
     private void animateBottomSheet() {
         mBottomSheetRoot.animate().translationY(100).setInterpolator(new OvershootInterpolator())
-                .setDuration(300).withEndAction(() -> {
+                .setDuration(150).withEndAction(() -> {
             mBottomSheetRoot.animate().translationY(0).setInterpolator(new OvershootInterpolator())
                     .setDuration(300).start();
         }).start();
@@ -1040,13 +1233,153 @@ public class FileBrowserMainActivity extends AppCompatActivity {
         return ((offset * (dimenStart - dimenEnd)) - (offsetEnd * dimenStart) + (offsetStart * dimenEnd)) / (offsetStart - offsetEnd);
     }
 
+    public void scrollGalleryToFirstPos() {
+        mGalleryRecyclerView.smoothScrollToPosition(0);
+    }
 
+    public void scrollFileBrowserToFirstPos() {
+        mFileBrowserRecyclerView.smoothScrollToPosition(0);
+    }
+
+    //<editor-fold desc="FileBrowser codes">
+    public boolean isFileBrowserInSubDirectory() {
+        return mFileBrowserAdapter.isInSubDirectory();
+    }
+
+    public void goBackToFileBrowserParentDirectory() {
+        mFileBrowserAdapter.goBackToParentDirectory();
+    }
+
+    private void hideNoItem() {
+        mFileBrowserNoItemGroup.setVisibility(View.GONE);
+        mFileBrowserRecyclerView.setVisibility(View.VISIBLE);
+    }
+
+    private void showNoItem(String searchedText) {
+        mFileBrowserRecyclerView.setVisibility(View.GONE);
+        mFileBrowserNoItemGroup.setVisibility(View.VISIBLE);
+        CharSequence text = Html.fromHtml(getString(R.string.sfb_no_results_found_sub_title, searchedText));
+        txtFileBrowserNotFoundSubTitle.setText(text);
+    }
+
+
+    public void changePages(FileBrowserMainActivity.PageType pageType) {
+        mPageType = pageType;
+        getFirstPageList();
+    }
+
+    private void getFirstPageList() {
+
+        switch (mPageType) {
+            case TYPE_FILE_BROWSER:
+                mFilesViewModel.getFirstPageFilesLiveData(mFileFilter);
+                break;
+            case TYPE_VIDEO:
+                mFilesViewModel.getFirstPageVideosLiveData(mFileFilter);
+                break;
+            case TYPE_PDF:
+                mFilesViewModel.getFirstPagePdfLiveData(mFileFilter);
+                break;
+            case TYPE_AUDIO:
+                mFilesViewModel.getFirstPageAudiosLiveData(mFileFilter);
+                break;
+        }
+
+    }
+
+    public void removeAllFileBrowserSelection() {
+        mFileBrowserAdapter.removeAllSelection();
+    }
+
+
+    public void searchFile(String query) {
+        if (mFileBrowserAdapter == null) {
+            mFileBrowserSearchPendingQuery = query;
+        } else {
+            mFileBrowserAdapter.getFilter().filter(query);
+        }
+    }
+    //</editor-fold>
+
+
+    //<editor-fold desc="Gallery codes">
+    private void openCamera() {
+
+        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        File newPic = null;
+        try {
+            newPic = FileUtil.getImageFile(getApplicationContext());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (newPic != null) {
+            tackingPictureFilePath = newPic.getAbsolutePath();
+            Uri uri = FileProvider.getUriForFile(getApplicationContext(),
+                    getPackageName() + ".provider",
+                    newPic);
+            cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+            cameraIntent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+            cameraIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            if (cameraIntent.resolveActivity(getPackageManager()) == null) {
+                Toast.makeText(this, R.string.this_device_dose_not_have_camera_app, Toast.LENGTH_SHORT).show();
+                return;
+            }
+            List<ResolveInfo> resolveInfos = getPackageManager().queryIntentActivities(cameraIntent,
+                    PackageManager.MATCH_DEFAULT_ONLY);
+            for (ResolveInfo info : resolveInfos) {
+                String packageName = info.activityInfo.packageName;
+                grantUriPermission(packageName, uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION |
+                        Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            }
+
+            startActivityForResult(cameraIntent, REQ_CODE_TACK_PICTURE);
+        }
+    }
+
+    public void updateGallery(AlbumModel albumModel) {
+        if (albumModel.getId() == -1) {
+            mGalleryViewModel.getAllGalleryModels(mShowCamera, mShowVideosInGallery);
+        } else {
+            mGalleryViewModel.getGalleryModelsByAlbumName(albumModel.getName(), mShowVideosInGallery);
+        }
+    }
+
+    public List<File> getSelectedFiles() {
+        if (mGalleryAdapter == null) {
+            return Collections.emptyList();
+        }
+        return mSelectionFileViewModel.getSelectedFiles();
+    }
+
+    public void removeAllGallerySelections() {
+        mGalleryAdapter.removeAllSelections();
+    }
+
+    public int getGalleryItemSelectionCount() {
+        if (mGalleryAdapter != null) {
+            return mGalleryAdapter.getSelectionCount();
+        }
+        return 0;
+    }
+
+
+    public void imageUpdated(String newFilePath, int editedImagePosition) {
+        if (mGalleryAdapter != null) {
+            mGalleryAdapter.getItem(editedImagePosition).setPath(newFilePath);
+            if (Build.VERSION.SDK_INT <21){
+                mGalleryAdapter.notifyItemChanged(editedImagePosition);
+            }
+        }
+    }
+
+    //</editor-fold>
     @Override
     public void finish() {
         try {
             mBottomSheetBehavior.setHideable(true);
-            mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
-        }catch (Exception ignore){}
+            mBottomSheetBehavior.setState(MyBehavior.STATE_HIDDEN);
+        } catch (Exception ignore) {
+        }
         super.finish();
         overridePendingTransition(R.anim.sfb_not_anim, R.anim.sfb_fade_out);
 
@@ -1061,46 +1394,47 @@ public class FileBrowserMainActivity extends AppCompatActivity {
                 searchView.close(true);
                 return;
             }
-            if (mFileBrowserFragment != null) {
-                if (mFileBrowserFragment.isInSubDirectory()) {
-                    mFileBrowserFragment.goBackToParentDirectory();
+            if (isShowingFileBrowser()) {
+                if (isFileBrowserInSubDirectory()) {
+                    goBackToFileBrowserParentDirectory();
                     return;
                 }
             }
         }
-        if (mBottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
-            if (mGalleryFragment != null) {
-                mGalleryFragment.scrollToFirstPos();
-            } else if (mFileBrowserFragment != null) {
-                mFileBrowserFragment.scrollToFirstPos();
+        if (mBottomSheetBehavior.getState() == MyBehavior.STATE_EXPANDED) {
+            if (isShowingGallery()) {
+                scrollGalleryToFirstPos();
+            } else {
+                scrollFileBrowserToFirstPos();
             }
-            mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_HALF_EXPANDED);
+            mBottomSheetBehavior.setState(MyBehavior.STATE_HALF_EXPANDED);
             return;
         }
+        //noinspection ConstantConditions
         if (mSelectionFileViewModel.getSelectionHelperLiveData().getValue().selectionCount > 0) {
 
             mSelectionFileViewModel.removeAllSelections();
-            if (mFileBrowserFragment != null) {
+            if (isShowingFileBrowser()) {
                 mOnFileItemSelectListener.onItemSelected(new FileBrowserModel(), 0, 0);
-                mFileBrowserFragment.removeAllSelection();
+                removeAllFileBrowserSelection();
             }
 
             return;
         }
 
-        if (mGalleryFragment != null) {
-            if (mGalleryFragment.getSelectionCount() > 0) {
+        if (isShowingGallery()) {
+            if (getGalleryItemSelectionCount() > 0) {
 
                 mOnFileItemSelectListener.onItemSelected(new GalleryModel(), 0, 0);
-                mGalleryFragment.removeAllSelections();
+                removeAllGallerySelections();
                 return;
             }
         }
-        if (!TextUtils.isEmpty(mEditedImagePath)){
-            File editedImageTempFile=new File(mEditedImagePath);
-        if (editedImageTempFile.exists()){
-            editedImageTempFile.delete();
-        }
+        if (!TextUtils.isEmpty(mEditedImagePath)) {
+            File editedImageTempFile = new File(mEditedImagePath);
+            if (editedImageTempFile.exists()) {
+                editedImageTempFile.delete();
+            }
         }
         setResult(RESULT_CANCELED);
         super.onBackPressed();
@@ -1122,11 +1456,6 @@ public class FileBrowserMainActivity extends AppCompatActivity {
     public OnItemSelectListener<FileModel> getOnFileItemSelectListener() {
         return mOnFileItemSelectListener;
     }
-
-//    public OnItemSelectListener<GalleryModel> getOnGalleryItemSelectListener() {
-//        return mOnGalleryItemSelectListener;
-//    }
-
     public OnItemClickListener<GalleryModel> getOnGalleryItemClickListener() {
         return mOnGalleryItemClickListener;
     }
@@ -1150,27 +1479,30 @@ public class FileBrowserMainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == GalleryFragment.REQ_CODE_TACK_PICTURE) {
-            if (mGalleryFragment != null) {
-                mGalleryFragment.onActivityResult(requestCode, resultCode, data);
-            }
-        }
-        if (requestCode==REQ_CODE_EDIT_IMAGE){
-            if (mGalleryFragment!=null){
-                if (data != null) {
-//                    boolean isImageEdit = data.getBooleanExtra("is_image_edited", false);
-//                    String sourcePath = data.getStringExtra("source_path");
-//                    String newFilePath = data.getStringExtra("output_path");
-//                   if (isImageEdit){
-//                       mGalleryFragment.imageUpdated(sourcePath,newFilePath,mEditedImagePosition);
-//                   }
+        if (requestCode == REQ_CODE_TACK_PICTURE) {
+            if (resultCode == Activity.RESULT_OK) {
+                File takenPic = new File(tackingPictureFilePath);
+                if (takenPic.isFile()) {
+                    FileUtil.scanMediaFile(this, takenPic);
+                    GalleryModel newPicModel = new GalleryModel();
+                    newPicModel.setType(FileUtil.TYPE_IMAGE);
+                    newPicModel.setSelected(true);
+                    newPicModel.setName(takenPic.getName());
+                    newPicModel.setPath(takenPic.getPath());
+                    mGalleryAdapter.addNewPic(newPicModel);
 
-//                    boolean isImageEdit = data.getBooleanExtra(PhotoEditorActivity.KEY_IS_EDITED, false);
-//                    String newFilePath = data.getStringExtra(PhotoEditorActivity.KEY_SAVE_PATH);
-//                    if (isImageEdit){
-//                       mGalleryFragment.imageUpdated(newFilePath,mEditedImagePosition);
-//                   }
                 }
+            }
+        } else if (requestCode == REQ_CODE_PICK_BY_GALLEY) {
+            if (resultCode == RESULT_OK && data != null) {
+                Uri selectedImageUri = data.getData();
+                Uri[] result = {selectedImageUri};
+                Bundle bundle = new Bundle();
+                bundle.putParcelableArray(EXTRA_RESULT_URIS, result);
+                Intent resultIntent = new Intent();
+                resultIntent.putExtras(bundle);
+                setResult(RESULT_OK, resultIntent);
+                finish();
             }
         }
     }

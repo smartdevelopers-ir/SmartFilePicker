@@ -18,17 +18,20 @@
         android:textAppearance="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"
         app:drawableEndCompat="@drawable/sfb_ic_arrow_drop_down"
         />
-    <ImageButton
-        android:id="@+id/fileBrowser_activity_main_imgVerticalDotsMore"
+
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/fileBrowser_activity_main_btnGalleryMenu"
         android:layout_width="24dp"
         android:layout_height="24dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        app:srcCompat="@drawable/sfb_ic_vertical_more_dots"
         android:layout_marginEnd="16dp"
-        android:visibility="gone"
-        android:contentDescription="@string/sfb_pick_from_gallery" />
+        app:srcCompat="@drawable/sfb_ic_vertical_more_dots"
+        android:tint="#000000"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        app:tooltipText="@string/sfb_pick_from_gallery"
+        android:contentDescription="@string/sfb_pick_from_gallery"
+        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

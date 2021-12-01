@@ -7,6 +7,7 @@ import android.provider.MediaStore;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 
 import java.util.List;
 
@@ -14,21 +15,33 @@ import ir.smartdevelopers.smartfilebrowser.models.AlbumModel;
 import ir.smartdevelopers.smartfilebrowser.models.GalleryModel;
 
 public class GalleryViewModel extends AndroidViewModel {
-    private  LiveData<List<GalleryModel>> mGalleryModelsLiveData;
+    private MutableLiveData<List<GalleryModel>> mGalleryModelsLiveData;
     private  LiveData<List<AlbumModel>> mAlbumLiveData;
     private Repository mRepository;
     public GalleryViewModel(@NonNull Application application) {
         super(application);
         mRepository = new Repository(application);
+        mGalleryModelsLiveData=mRepository.getGalleryListLiveData();
 
     }
 
-    public LiveData<List<GalleryModel>> getAllGalleryModels(boolean addCamera, boolean showVideosInGallery, boolean fetchNewData){
-
-        if (fetchNewData) {
-            mGalleryModelsLiveData=mRepository.getGalleryMediaList(null,null,addCamera,showVideosInGallery);
+    private boolean mustFetchNewData(){
+        if (mGalleryModelsLiveData==null){
+            return true;
         }
-        return mGalleryModelsLiveData;
+        if (mGalleryModelsLiveData.getValue()==null){
+            return true;
+        }
+        return  mGalleryModelsLiveData.getValue().size() == 0;
+    }
+    public void getAllGalleryModels(boolean addCamera, boolean showVideosInGallery){
+
+        if (mustFetchNewData()) {
+            mRepository.getGalleryMediaList(null,null,addCamera,showVideosInGallery);
+        }else {
+            mGalleryModelsLiveData.setValue(mRepository.getGalleryListLiveData().getValue());
+        }
+
     }
     public void  getGalleryModelsByAlbumName(String albumName,boolean showVideosInGallery) {
         @SuppressLint("InlinedApi")
@@ -41,6 +54,10 @@ public class GalleryViewModel extends AndroidViewModel {
             mAlbumLiveData=mRepository.getAlbums();
         }
         return mAlbumLiveData;
+    }
+
+    public LiveData<List<GalleryModel>> getGalleryModelsLiveData() {
+        return mGalleryModelsLiveData;
     }
 
     public void insertModel(GalleryModel newPicModel) {

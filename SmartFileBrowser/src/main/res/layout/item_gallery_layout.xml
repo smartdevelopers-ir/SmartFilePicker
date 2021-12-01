@@ -1,50 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ir.smartdevelopers.smartfilebrowser.customClasses.SquareLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="#9C9C9C"
+
     xmlns:app="http://schemas.android.com/apk/res-auto">
-<ImageView
+<ir.smartdevelopers.smartfilebrowser.customClasses.SquareImageView
     android:id="@+id/item_gallery_image"
     android:layout_width="match_parent"
-    android:layout_height="0dp"
+    android:layout_height="match_parent"
     android:scaleType="centerCrop"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintTop_toTopOf="parent"
-    app:layout_constraintDimensionRatio="1:1"
+    android:background="#9C9C9C"
     tools:ignore="ContentDescription" />
     <ir.smartdevelopers.smartfilebrowser.customClasses.SFBCountingCheckBox
         android:id="@+id/item_gallery_chbSelection"
         android:layout_width="24dp"
         android:layout_height="24dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_margin="8dp"
+
+        android:layout_gravity="end|top"
+        android:layout_margin="4dp"
 
         />
-    <ImageView
-        android:id="@+id/item_gallery_imgPlayIcon"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/sfb_ic_round_play"
-        android:visibility="gone"
-        tools:ignore="ContentDescription" />
+
     <ImageButton
         android:id="@+id/item_gallery_btnZoomOut"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="8dp"
-        android:background="?attr/selectableItemBackgroundBorderless"
+        android:layout_width="28dp"
+        android:layout_height="28dp"
+        android:padding="4dp"
+        android:scaleType="centerInside"
+        android:layout_gravity="end|bottom"
+        android:layout_marginEnd="4dp"
+        android:layout_marginBottom="4dp"
+        android:background="@drawable/sfb_round_rectangle_transparent_gray"
         app:srcCompat="@drawable/sfb_ic_resize"
         android:contentDescription="Resize"
-        tools:ignore="HardcodedText" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+        tools:ignore="HardcodedText"
+
+        />
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/item_gallery_txtVideoDuration"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|start"
+        android:textColor="@color/white"
+        android:background="@drawable/sfb_round_rectangle_transparent_black"
+        tools:text="0:20"
+        android:layout_marginStart="4dp"
+        android:layout_marginBottom="4dp"
+        android:paddingTop="1dp"
+        android:paddingBottom="1dp"
+        android:paddingStart="4dp"
+        android:paddingEnd="4dp"
+        android:visibility="gone"
+        tools:visibility="visible"
+        android:textSize="11sp"
+        />
+</ir.smartdevelopers.smartfilebrowser.customClasses.SquareLayout>

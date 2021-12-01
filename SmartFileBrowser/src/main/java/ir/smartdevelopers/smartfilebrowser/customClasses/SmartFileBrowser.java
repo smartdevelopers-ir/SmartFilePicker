@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.graphics.drawable.StateListDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcelable;
 
 import androidx.annotation.Nullable;
 import androidx.core.content.FileProvider;
@@ -28,6 +29,7 @@ public class SmartFileBrowser {
         private boolean showFilesTab=true;
         private boolean showAudioTab=true;
         private boolean showGalleryTab=true;
+        private boolean showPickFromSystemGalleyMenu=true;
 
         public IntentBuilder setShowVideosInGallery(boolean showVideosInGallery) {
             this.showVideosInGallery = showVideosInGallery;
@@ -83,11 +85,17 @@ public class SmartFileBrowser {
             filePickerIntent.putExtra("mShowAudioTab",showAudioTab);
             filePickerIntent.putExtra("mShowGalleryTab",showGalleryTab);
             filePickerIntent.putExtra("mFileTabFileFilter",mFileFilter);
+            filePickerIntent.putExtra("mShowPickFromSystemGalleryMenuButton",showPickFromSystemGalleyMenu);
             return filePickerIntent;
         }
 
         public IntentBuilder setFileFilter(SFBFileFilter fileFilter) {
             mFileFilter = fileFilter;
+            return this;
+        }
+
+        public IntentBuilder setShowPickFromSystemGalleyMenu(boolean showPickFromSystemGalleyMenu) {
+            this.showPickFromSystemGalleyMenu = showPickFromSystemGalleyMenu;
             return this;
         }
     }
@@ -113,15 +121,19 @@ public class SmartFileBrowser {
 
     }
     @Nullable
-    public static Uri[] getResultUris(Context context,Intent data){
-        File[] files=getResult(data);
-        if (files==null){
-            return null;
-        }
-        Uri[] result=new Uri[files.length];
-        for (int i=0;i<files.length;i++){
-            result[i]= FileProvider.getUriForFile(context,
-                    context.getPackageName()+".sfb_provider",files[i]);
+    public static Uri[] getResultUris(Intent data){
+        Uri[] result=null;
+        if (data!=null){
+            Bundle bundle=data.getExtras();
+            if (bundle != null) {
+                Parcelable[] parcelables= bundle.getParcelableArray(FileBrowserMainActivity.EXTRA_RESULT_URIS);
+                if (parcelables!=null){
+                    result=new Uri[parcelables.length];
+                    for (int i=0;i<parcelables.length;i++){
+                        result[i]= (Uri) parcelables[i];
+                    }
+                }
+            }
         }
         return result;
     }

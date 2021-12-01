@@ -43,11 +43,9 @@ import ir.smartdevelopers.smartphotoeditor.photoeditor.PhotoEditor;
 
 public class PhotoEditorActivity extends AppCompatActivity {
 
-    public static final String KEY_PHOTO_URI = "photo_uri";
     public static final String KEY_TRANSITION_NAME = "transition_name";
     public static final String KEY_SAVE_PATH = "save_path";
-    public static final String KEY_IS_EDITED = "is_edited";
-    public static final String KEY_THUMBNAIL = "thumbnail";
+
 
     private PhotoEditorFragment mPhotoEditorFragment;
     private ImageButton btnDone;

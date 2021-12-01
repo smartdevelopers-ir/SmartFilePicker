@@ -9,29 +9,30 @@ import android.widget.LinearLayout;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import ir.smartdevelopers.smartfilebrowser.R;
 
-public class RoundLinearLayout extends LinearLayout {
+public class RoundViewGroup extends LinearLayout {
     private SmartRoundDrawable mSmartRoundDrawable;
     private int mBackgroundColor=Color.WHITE;
-    public RoundLinearLayout(Context context) {
+    public RoundViewGroup(Context context) {
         super(context);
         init(context, null);
     }
 
-    public RoundLinearLayout(Context context, @Nullable AttributeSet attrs) {
+    public RoundViewGroup(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         init(context,attrs);
     }
 
-    public RoundLinearLayout(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+    public RoundViewGroup(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(context, attrs);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    public RoundLinearLayout(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public RoundViewGroup(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         init(context, attrs);
     }
