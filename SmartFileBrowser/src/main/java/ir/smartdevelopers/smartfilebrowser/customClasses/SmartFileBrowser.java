@@ -30,6 +30,7 @@ public class SmartFileBrowser {
         private boolean showAudioTab=true;
         private boolean showGalleryTab=true;
         private boolean showPickFromSystemGalleyMenu=true;
+        private Bundle mExtra;
 
         public IntentBuilder setShowVideosInGallery(boolean showVideosInGallery) {
             this.showVideosInGallery = showVideosInGallery;
@@ -86,6 +87,7 @@ public class SmartFileBrowser {
             filePickerIntent.putExtra("mShowGalleryTab",showGalleryTab);
             filePickerIntent.putExtra("mFileTabFileFilter",mFileFilter);
             filePickerIntent.putExtra("mShowPickFromSystemGalleryMenuButton",showPickFromSystemGalleyMenu);
+            filePickerIntent.putExtra("sfb_extra",mExtra);
             return filePickerIntent;
         }
 
@@ -96,6 +98,11 @@ public class SmartFileBrowser {
 
         public IntentBuilder setShowPickFromSystemGalleyMenu(boolean showPickFromSystemGalleyMenu) {
             this.showPickFromSystemGalleyMenu = showPickFromSystemGalleyMenu;
+            return this;
+        }
+
+        public IntentBuilder setExtra(Bundle extra) {
+            mExtra = extra;
             return this;
         }
     }
@@ -136,5 +143,15 @@ public class SmartFileBrowser {
             }
         }
         return result;
+    }
+    public static Bundle getExtra(Intent data){
+        if (data==null){
+            return null;
+        }
+        Bundle bundle=data.getExtras();
+        if (bundle==null){
+            return  null;
+        }
+        return bundle.getBundle("sfb_extra");
     }
 }

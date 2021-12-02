@@ -789,6 +789,10 @@ public class FileBrowserMainActivity extends AppCompatActivity {
         Bundle bundle = new Bundle();
         bundle.putStringArray(EXTRA_RESULT, filesPath);
         bundle.putParcelableArray(EXTRA_RESULT_URIS, filesUri);
+        Bundle sfbExtra=getIntent().getBundleExtra("sfb_extra");
+        if (sfbExtra!=null){
+            bundle.putBundle("sfb_extra",sfbExtra);
+        }
         result.putExtras(bundle);
 
         setResult(RESULT_OK, result);
