@@ -177,10 +177,7 @@ public class PhotoEditorActivity extends AppCompatActivity {
     }
 
     private void saveEditedFile() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            Toast.makeText(this, R.string.sfb_permission_denied, Toast.LENGTH_SHORT).show();
-            return;
-        }
+
         saving=true;
         Uri saveUri = FileProvider.getUriForFile(getApplicationContext(),
                 getPackageName() + ".sfb_provider", new File(mSavePath));
