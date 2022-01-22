@@ -4,10 +4,10 @@ import android.net.Uri;
 
 import java.io.File;
 
-import ir.smartdevelopers.smartfilebrowser.customClasses.FileModel;
 import ir.smartdevelopers.smartfilebrowser.customClasses.FileUtil;
+import ir.smartdevelopers.smartfilebrowser.customClasses.Utils;
 
-public  class GalleryModel implements FileModel {
+public  class GalleryModel implements FileModel ,Comparable<GalleryModel>{
 
     public static final int TYPE_CAMERA = -102;
     private long id;
@@ -19,6 +19,9 @@ public  class GalleryModel implements FileModel {
     private int mType;
     private boolean mSelected;
     private int mNumber;
+    private String mThumbnailPath;
+    private String mThumbnailId;
+    private long duration;
 
 
     public String getPath() {
@@ -93,5 +96,37 @@ public  class GalleryModel implements FileModel {
 
     public void setNumber(int number) {
         mNumber = number;
+    }
+
+    public String getThumbnailId() {
+        return mThumbnailId;
+    }
+
+    public void setThumbnailId(String thumbnailId) {
+        mThumbnailId = thumbnailId;
+    }
+
+    public String getThumbnailPath() {
+        return mThumbnailPath;
+    }
+
+    public void setThumbnailPath(String thumbnailPath) {
+        mThumbnailPath = thumbnailPath;
+    }
+
+    @Override
+    public int compareTo(GalleryModel o) {
+        return Long.compare(this.mDateAdded,o.mDateAdded)*-1;
+    }
+
+    public long getDuration() {
+        return duration;
+    }
+
+    public void setDuration(long duration) {
+        this.duration = duration;
+    }
+    public String getDurationTime(){
+        return Utils.formatTime(duration);
     }
 }

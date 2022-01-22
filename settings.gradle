@@ -1,0 +1,3 @@
+include ':SmartFileBrowser'
+include ':app'
+rootProject.name = "FileBrowser"

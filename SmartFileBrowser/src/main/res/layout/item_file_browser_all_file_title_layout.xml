@@ -28,7 +28,7 @@
         android:layout_marginBottom="8dp"
         app:layout_constraintHorizontal_bias="0"
         android:textSize="14sp"
-        android:textColor="@color/colorFileBrowserAllFileText"
+        android:textColor="@color/sfb_colorFileBrowserAllFileText"
         />
 
 

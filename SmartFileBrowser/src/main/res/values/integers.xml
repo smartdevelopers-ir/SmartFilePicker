@@ -2,4 +2,5 @@
 <resources>
     <integer name="sfb_gallery_grid">3</integer>
     <integer name="sfb_bottom_navigation_animation_duration">150</integer>
+    <integer name="sfb_checkbox_anim_duration">300</integer>
 </resources>

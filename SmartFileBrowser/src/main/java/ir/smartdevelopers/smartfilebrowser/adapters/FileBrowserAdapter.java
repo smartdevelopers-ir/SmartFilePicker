@@ -3,14 +3,12 @@ package ir.smartdevelopers.smartfilebrowser.adapters;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.widget.AppCompatCheckBox;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -23,12 +21,12 @@ import ir.smartdevelopers.smartfilebrowser.R;
 import ir.smartdevelopers.smartfilebrowser.customClasses.FileUtil;
 import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemChooseListener;
 import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemClickListener;
-import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemLongClickListener;
 import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemSelectListener;
 import ir.smartdevelopers.smartfilebrowser.customClasses.OnSearchListener;
 import ir.smartdevelopers.smartfilebrowser.customClasses.SFBCheckBoxWithTick;
 import ir.smartdevelopers.smartfilebrowser.customClasses.Utils;
 import ir.smartdevelopers.smartfilebrowser.models.FileBrowserModel;
+import ir.smartdevelopers.smartfilebrowser.models.FileModel;
 
 public class FileBrowserAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements Filterable {
 
@@ -40,8 +38,8 @@ public class FileBrowserAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     private OnItemClickListener<FileBrowserModel> mOnItemClickListener;
     private OnItemChooseListener mOnItemChooseListener;
     private OnSearchListener mOnSearchListener;
-    private OnItemSelectListener<FileBrowserModel> mOnItemSelectListener;
-    private boolean isMultiSelect=false;
+    private OnItemSelectListener<FileModel> mOnItemSelectListener;
+//    private boolean isMultiSelect=false;
     private  List<File> mSelectedFiles;
     private boolean mCanSelectMultiple=true;
 
@@ -50,9 +48,21 @@ public class FileBrowserAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     }
 
     public void setList(List<FileBrowserModel> fileBrowserModels) {
+//        notifyItemRangeRemoved(0,mFileBrowserModelsCopy.size());
         mFileBrowserModels = fileBrowserModels;
         mFileBrowserModelsCopy = fileBrowserModels;
+//        notifyItemRangeInserted(0,mFileBrowserModelsCopy.size());
         notifyDataSetChanged();
+    }
+
+    @Override
+    public void setHasStableIds(boolean hasStableIds) {
+        super.setHasStableIds(true);
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return mFileBrowserModels.get(position).getId();
     }
 
     @NonNull
@@ -111,7 +121,7 @@ public class FileBrowserAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
 
 
 
-    public void setOnItemSelectListener(OnItemSelectListener<FileBrowserModel> onItemSelectListener) {
+    public void setOnItemSelectListener(OnItemSelectListener<FileModel> onItemSelectListener) {
         mOnItemSelectListener = onItemSelectListener;
     }
 
@@ -123,13 +133,13 @@ public class FileBrowserAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         mCanSelectMultiple = canSelectMultiple;
     }
 
-    public void setMultiSelectEnabled(boolean isMultiSelectionEnabled) {
-        isMultiSelect=isMultiSelectionEnabled;
-    }
-
-    public boolean isMultiSelectEnabled() {
-        return isMultiSelect;
-    }
+//    public void setMultiSelectEnabled(boolean isMultiSelectionEnabled) {
+//        isMultiSelect=isMultiSelectionEnabled;
+//    }
+//
+//    public boolean isMultiSelectEnabled() {
+//        return isMultiSelect;
+//    }
 
     public void removeAllSelection() {
         for (FileBrowserModel model:mFileBrowserModels){
@@ -190,7 +200,7 @@ public class FileBrowserAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         if (model!=null){
             if (model.getModelType()==FileBrowserModel.MODEL_TYPE_GO_BACK){
                 if (mOnItemClickListener != null) {
-                    mOnItemClickListener.onItemClicked(model,0);
+                    mOnItemClickListener.onItemClicked(model,null,0);
                 }
             }
         }
@@ -207,6 +217,7 @@ public class FileBrowserAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         View divider;
         View root;
         SFBCheckBoxWithTick chbSelected;
+        TextView txtExtension;
 
         public FileBrowserViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -215,39 +226,41 @@ public class FileBrowserAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             txtSubTitle = itemView.findViewById(R.id.item_file_browser_txtSubTitle);
             divider = itemView.findViewById(R.id.item_file_browser_divider);
             root = itemView.findViewById(R.id.item_file_browser_root);
+            txtExtension = itemView.findViewById(R.id.item_file_browser_txtExtension);
             chbSelected = itemView.findViewById(R.id.item_file_browser_chbSelected);
             root.setOnClickListener(v -> {
                 FileBrowserModel model=mFileBrowserModels.get(getAdapterPosition());
                 if (!mCanSelectMultiple && model.getCurrentFile()!=null && model.getCurrentFile().isFile()){
                     if (mOnItemChooseListener != null) {
                         mOnItemChooseListener.onChoose(model);
-                        return;
+
                     }
+                    return;
                 }
                 if (mOnItemClickListener != null) {
-                    mOnItemClickListener.onItemClicked(model, getAdapterPosition());
+                    mOnItemClickListener.onItemClicked(model,v, getAdapterPosition());
                 }
-                if (isMultiSelect){
+//                if (isMultiSelect){
                     if (!FileUtil.isDirectory(model.getCurrentFile())) {
                         addSelection(model, !model.isSelected());
                     }
-                }
+//                }
             });
             root.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
-                    if (!mCanSelectMultiple){
-                        return false;
-                    }
-                    FileBrowserModel model=mFileBrowserModels.get(getAdapterPosition());
-                    if (!FileUtil.isDirectory(model.getCurrentFile())){
-                        if (!isMultiSelect){
-                            isMultiSelect=true;
-                            addSelection(model,true);
-                            return true;
-                        }
-                    }
-                    return false;
+//                    if (!mCanSelectMultiple){
+//                        return false;
+//                    }
+//                    FileBrowserModel model=mFileBrowserModels.get(getAdapterPosition());
+//                    if (!FileUtil.isDirectory(model.getCurrentFile())){
+//                        if (!isMultiSelect){
+//                            isMultiSelect=true;
+//                            addSelection(model,true);
+//                            return true;
+//                        }
+//                    }
+                    return true;
                 }
             });
         }
@@ -261,33 +274,46 @@ public class FileBrowserAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             }
             switch (model.getModelType()) {
                 case FileBrowserModel.MODEL_TYPE_EXTERNAL_STORAGE:
-                    imgIcon.setImageResource(R.drawable.ic_drive);
+                    imgIcon.setImageResource(R.drawable.sfb_ic_sdcard);
+                    hideExtensionText();
                     break;
                 case FileBrowserModel.MODEL_TYPE_INTERNAL_STORAGE:
-                    imgIcon.setImageResource(R.drawable.ic_drive);
+                    imgIcon.setImageResource(R.drawable.sfb_ic_storage);
+                    hideExtensionText();
                     break;
                 case FileBrowserModel.MODEL_TYPE_DOWNLOAD_FOLDER:
-                    imgIcon.setImageResource(R.drawable.ic_download_folder);
+                    imgIcon.setImageResource(R.drawable.sfb_ic_download_folder);
                     divider.setVisibility(View.GONE);
+                    hideExtensionText();
                     break;
                 case FileBrowserModel.MODEL_TYPE_FOLDER:
-                    imgIcon.setImageResource(R.drawable.ic_folder);
+                    imgIcon.setImageResource(R.drawable.sfb_ic_folder_circle_blue);
+                    hideExtensionText();
                     break;
                 case FileBrowserModel.MODEL_TYPE_IMAGE:
                 case FileBrowserModel.MODEL_TYPE_VIDEO:
                     Glide.with(imgIcon).load(model.getPath()).into(imgIcon);
+                    hideExtensionText();
                     break;
                 case FileBrowserModel.MODEL_TYPE_AUDIO:
-                    imgIcon.setImageResource(R.drawable.ic_audio);
+                    imgIcon.setImageResource(R.drawable.sfb_ic_file_icon_blue_audio);
+                    showExtensionText(model.getExtension());
                     break;
                 case FileBrowserModel.MODEL_TYPE_FILE:
-                    imgIcon.setImageResource(R.drawable.ic_file);
+                    if ("apk".equalsIgnoreCase(model.getExtension())){
+                        imgIcon.setImageResource(R.drawable.sfb_ic_file_icon_green);
+                    }else {
+                        imgIcon.setImageResource(R.drawable.sfb_ic_file_icon_cerulean_file);
+                    }
+                    showExtensionText(model.getExtension());
                     break;
                 case FileBrowserModel.MODEL_TYPE_PDF:
-                    imgIcon.setImageResource(R.drawable.sfb_ic_pdf);
+                    imgIcon.setImageResource(R.drawable.sfb_ic_file_icon_red_pdf);
+                    showExtensionText(model.getExtension());
                     break;
                 case FileBrowserModel.MODEL_TYPE_GO_BACK:
-                    imgIcon.setImageResource(R.drawable.ic_folder_back);
+                    imgIcon.setImageResource(R.drawable.sfb_ic_folder_back_blue);
+                    hideExtensionText();
                     break;
             }
             txtTitle.setText(model.getTitle());
@@ -297,7 +323,13 @@ public class FileBrowserAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
                itemSelected(model,false);
            }
         }
-
+        public void showExtensionText(String ext){
+            txtExtension.setVisibility(View.VISIBLE);
+            txtExtension.setText(ext);
+        }
+        public void hideExtensionText(){
+            txtExtension.setVisibility(View.GONE);
+        }
         public void itemSelected(FileBrowserModel model,boolean animate) {
             if (mSelectedFiles.contains(model.getCurrentFile())){
                 chbSelected.setVisibility(View.VISIBLE);
@@ -331,9 +363,9 @@ public class FileBrowserAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         if (mOnItemSelectListener!=null){
             mOnItemSelectListener.onItemSelected(model,pos,size);
         }
-        if (size==0){
-            isMultiSelect=false;
-        }
+//        if (size==0){
+//            isMultiSelect=false;
+//        }
         notifyItemChanged(pos,"item_selected");
     }
 
@@ -354,5 +386,8 @@ public class FileBrowserAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
             }
             txtTitle.setText(model.getTitle());
         }
+    }
+    public void setSelectedFiles(List<File> selectedFiles) {
+        mSelectedFiles = selectedFiles;
     }
 }

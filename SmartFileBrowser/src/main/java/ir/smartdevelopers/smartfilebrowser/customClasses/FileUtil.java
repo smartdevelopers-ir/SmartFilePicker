@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.Environment;
 import android.os.storage.StorageManager;
 import android.provider.MediaStore;
+import android.text.TextUtils;
 import android.util.Log;
 import android.webkit.MimeTypeMap;
 
@@ -92,7 +93,17 @@ public class FileUtil {
     }
     public static String getFileExtensionFromPath(String path){
         String uri=Uri.encode(path);
-        return MimeTypeMap.getFileExtensionFromUrl(uri);
+        String extension= MimeTypeMap.getFileExtensionFromUrl(uri);
+        if (TextUtils.isEmpty(extension)){
+            int index = uri.lastIndexOf(".");
+            if (index!=-1) {
+                extension = uri.substring(index + 1);
+            }
+            if (TextUtils.isEmpty(extension)){
+                extension="";
+            }
+        }
+        return extension;
     }
     public static boolean isDirectory(File file){
         if (file==null){
@@ -102,6 +113,13 @@ public class FileUtil {
     }
     public static File getImageFile(Context context) throws IOException {
         File folder= Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+        DateFormat dateFormat=new SimpleDateFormat("yyyyMMdd-HHmmss",new Locale("en"));
+        String name="JPEG_"+dateFormat.format(new Date());
+//        return File.createTempFile(name,".jpg",folder);
+        return new File(folder,name+".jpg");
+    }
+    public static File getImageTempFile(Context context)  {
+        File folder= context.getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         DateFormat dateFormat=new SimpleDateFormat("yyyyMMdd-HHmmss",new Locale("en"));
         String name="JPEG_"+dateFormat.format(new Date());
 //        return File.createTempFile(name,".jpg",folder);

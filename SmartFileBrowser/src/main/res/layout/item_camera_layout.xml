@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ir.smartdevelopers.smartfilebrowser.customClasses.SquareLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -7,16 +7,12 @@
 <androidx.appcompat.widget.AppCompatImageView
     android:id="@+id/item_gallery_camera"
     android:layout_width="match_parent"
-    android:layout_height="0dp"
+    android:layout_height="match_parent"
     android:scaleType="center"
     app:srcCompat="@drawable/sfb_ic_camera"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:layout_constraintTop_toTopOf="parent"
-    app:layout_constraintDimensionRatio="1:1"
     tools:ignore="ContentDescription"
-    app:tint="#2B2B2B"
-    android:background="#979797"
+    app:tint="@color/white"
+    android:background="#373737"
     />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</ir.smartdevelopers.smartfilebrowser.customClasses.SquareLayout>

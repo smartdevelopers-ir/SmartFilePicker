@@ -3,7 +3,6 @@ package ir.smartdevelopers.smartfilebrowser.customClasses;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.StateListDrawable;
-import android.os.Build;
 import android.util.AttributeSet;
 
 import androidx.annotation.NonNull;
@@ -30,19 +29,19 @@ public class SFBCheckBox extends AppCompatCheckBox {
         init(context, attrs);
     }
     void init(@NonNull Context context, @Nullable AttributeSet attrs){
-        if (Build.VERSION.SDK_INT>=21){
+//        if (Build.VERSION.SDK_INT>=21){
             AnimatedStateListDrawableCompat animatedStateListDrawableCompat=
-                    AnimatedStateListDrawableCompat.create(context,R.drawable.check_box_drawable_without_tick,context.getTheme());
+                    AnimatedStateListDrawableCompat.create(context,R.drawable.sfb_check_box_drawable_without_tick,context.getTheme());
             setButtonDrawable(animatedStateListDrawableCompat);
-        }else {
-            StateListDrawable stateListDrawable=new StateListDrawable();
-            Drawable checkedDrawable= VectorDrawableCompat.create(getResources(),R.drawable.check_box_checked_without_tick,context.getTheme());
-            Drawable uncheckedDrawable= VectorDrawableCompat.create(getResources(),R.drawable.chech_box_unchecked_without_tick,context.getTheme());
-            stateListDrawable.addState(new int[]{android.R.attr.state_checked},checkedDrawable);
-            stateListDrawable.addState(new int[]{},uncheckedDrawable);
-
-            setButtonDrawable(stateListDrawable);
-        }
+//        }else {
+//            StateListDrawable stateListDrawable=new StateListDrawable();
+//            Drawable checkedDrawable= VectorDrawableCompat.create(getResources(),R.drawable.sfb_check_box_checked_without_tick,context.getTheme());
+//            Drawable uncheckedDrawable= VectorDrawableCompat.create(getResources(),R.drawable.sfb_chech_box_unchecked_without_tick,context.getTheme());
+//            stateListDrawable.addState(new int[]{android.R.attr.state_checked},checkedDrawable);
+//            stateListDrawable.addState(new int[]{},uncheckedDrawable);
+//
+//            setButtonDrawable(stateListDrawable);
+//        }
 
     }
 }

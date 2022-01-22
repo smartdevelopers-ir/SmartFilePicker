@@ -7,7 +7,6 @@ import android.graphics.Rect;
 import android.view.View;
 
 import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.RecyclerView;
 
 import ir.smartdevelopers.smartfilebrowser.R;
@@ -29,7 +28,7 @@ public class FileBrowserItemDecoration extends RecyclerView.ItemDecoration {
                                @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
         RecyclerView.ViewHolder viewHolder=parent.getChildViewHolder(view);
         if (viewHolder.getItemViewType()== FileBrowserAdapter.VIEW_TYPE_ALL_FILE_TEXT){
-            outRect.top= view.getResources().getDimensionPixelSize(R.dimen.fileBrowserListSpliterSize);
+            outRect.top= view.getResources().getDimensionPixelSize(R.dimen.sfb_fileBrowserListSpliterSize);
         }
     }
 
@@ -37,7 +36,7 @@ public class FileBrowserItemDecoration extends RecyclerView.ItemDecoration {
     public void onDraw(@NonNull Canvas c, @NonNull RecyclerView parent, @NonNull RecyclerView.State state) {
         c.save();
         int chileCount=parent.getChildCount();
-        int size=parent.getResources().getDimensionPixelSize(R.dimen.fileBrowserListSpliterSize);
+        int size=parent.getResources().getDimensionPixelSize(R.dimen.sfb_fileBrowserListSpliterSize);
         int left=0;
         int right=parent.getWidth();
         for (int i=0;i<chileCount;i++){

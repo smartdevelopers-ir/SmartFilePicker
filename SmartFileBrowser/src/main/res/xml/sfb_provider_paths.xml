@@ -4,4 +4,15 @@
     name="sfb_images"
     path="Pictures"
     />
+    <external-path
+        name="sfb_files"
+        path="."
+        />
+    <external-files-path name="sfb_external_pictures" path="Pictures" />
+    <external-files-path name="sfb_external_files" path="." />
+    <root-path
+        name="root"
+        path="/storage/" />
+
+
 </paths>
