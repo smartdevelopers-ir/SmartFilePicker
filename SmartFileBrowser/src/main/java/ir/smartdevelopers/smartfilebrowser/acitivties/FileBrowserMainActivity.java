@@ -3,10 +3,8 @@ package ir.smartdevelopers.smartfilebrowser.acitivties;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.constraintlayout.widget.Group;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.app.SharedElementCallback;
@@ -25,6 +23,7 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.ClipData;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -44,9 +43,11 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewPropertyAnimator;
+import android.view.ViewStub;
 import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.animation.OvershootInterpolator;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -63,6 +64,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -76,7 +78,7 @@ import ir.smartdevelopers.smartfilebrowser.customClasses.MyBehavior;
 import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemLongClickListener;
 import ir.smartdevelopers.smartfilebrowser.customClasses.OnSearchListener;
 import ir.smartdevelopers.smartfilebrowser.customClasses.ResultListener;
-import ir.smartdevelopers.smartfilebrowser.customClasses.SmartFileBrowser;
+import ir.smartdevelopers.smartfilebrowser.customClasses.Utils;
 import ir.smartdevelopers.smartfilebrowser.models.FileModel;
 import ir.smartdevelopers.smartfilebrowser.customClasses.FileUtil;
 import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemChooseListener;
@@ -99,6 +101,7 @@ public class FileBrowserMainActivity extends AppCompatActivity {
     private static final int REQ_CODE_EDIT_IMAGE = 258;
     public static final int REQ_CODE_TACK_PICTURE = 303;
     public static final int REQ_CODE_PICK_BY_GALLEY = 305;
+    private static final int REQ_CODE_SYSTEM_FILE_BROWSER = 6354;
     private AppBarLayout mAppBarLayout;
     private RoundViewGroup mBottomSheetRoot;
     private MyBehavior<View> mBottomSheetBehavior;
@@ -168,6 +171,7 @@ public class FileBrowserMainActivity extends AppCompatActivity {
     private OnItemLongClickListener<GalleryModel> mOnGalleryItemLongClickListener;
     private OnItemClickListener<GalleryModel> mOnZoomOutClickListener;
     private String tackingPictureFilePath;
+    private View mSystemBrowserButtonView;
     //</editor-fold>
 
     private void getDataFromIntent() {
@@ -175,10 +179,14 @@ public class FileBrowserMainActivity extends AppCompatActivity {
         mShowCamera = getIntent().getBooleanExtra("mShowCamera", true);
         mCanSelectMultipleInGallery = getIntent().getBooleanExtra("mCanSelectMultipleInGallery", true);
         mCanSelectMultipleInFiles = getIntent().getBooleanExtra("mCanSelectMultipleInFiles", true);
-        mShowPDFTab = getIntent().getBooleanExtra("mShowPDFTab", true);
+
         mShowFilesTab = getIntent().getBooleanExtra("mShowFilesTab", true);
-        mShowAudioTab = getIntent().getBooleanExtra("mShowAudioTab", true);
         mShowGalleryTab = getIntent().getBooleanExtra("mShowGalleryTab", true);
+
+        mShowPDFTab = getIntent().getBooleanExtra("mShowPDFTab", true);
+        mShowAudioTab = getIntent().getBooleanExtra("mShowAudioTab", true);
+
+
         mShowPickFromSystemGalleryMenuButton = getIntent().getBooleanExtra("mShowPickFromSystemGalleryMenuButton", true);
         SFBFileFilter sfbFileFilter = (SFBFileFilter) getIntent().getSerializableExtra("mFileTabFileFilter");
         if (sfbFileFilter != null) {
@@ -789,9 +797,9 @@ public class FileBrowserMainActivity extends AppCompatActivity {
         Bundle bundle = new Bundle();
         bundle.putStringArray(EXTRA_RESULT, filesPath);
         bundle.putParcelableArray(EXTRA_RESULT_URIS, filesUri);
-        Bundle sfbExtra=getIntent().getBundleExtra("sfb_extra");
-        if (sfbExtra!=null){
-            bundle.putBundle("sfb_extra",sfbExtra);
+        Bundle sfbExtra = getIntent().getBundleExtra("sfb_extra");
+        if (sfbExtra != null) {
+            bundle.putBundle("sfb_extra", sfbExtra);
         }
         result.putExtras(bundle);
 
@@ -833,6 +841,13 @@ public class FileBrowserMainActivity extends AppCompatActivity {
                 showGalleryToolbar();
                 break;
         }
+    }
+
+    private boolean shouldShowSystemFileBrowser() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            return mPageType == PageType.TYPE_PDF || mPageType == PageType.TYPE_FILE_BROWSER;
+        }
+        return false;
     }
 
     private boolean isShowingFileBrowser() {
@@ -906,18 +921,25 @@ public class FileBrowserMainActivity extends AppCompatActivity {
         if (txtToolbarTitle != null) {
             txtToolbarTitle.setText(toolbarTitle);
         }
+        ImageView btnSearch = findViewById(R.id.fileBrowser_activity_main_btnSearch);
+        if (!shouldShowSystemFileBrowser()) {
+            btnSearch.setVisibility(View.VISIBLE);
+        } else {
+            btnSearch.setVisibility(View.GONE);
+        }
     }
 
     private void initFileBrowserToolbar() {
         ImageView btnSearch = findViewById(R.id.fileBrowser_activity_main_btnSearch);
         SearchView searchView = findViewById(R.id.fileBrowser_activity_main_searchView);
+
         btnSearch.setOnClickListener(v -> {
             searchView.show();
         });
         searchView.setOnQueryChangeListener(new SearchView.OnQueryChangeListener() {
             @Override
             public void onQueryChanged(String query) {
-                if (isShowingFileBrowser()) {
+                if (isShowingFileBrowser() && !shouldShowSystemFileBrowser()) {
                     searchFile(query);
                 }
             }
@@ -927,6 +949,7 @@ public class FileBrowserMainActivity extends AppCompatActivity {
             searchView.setQuery(mSearchViewQuery);
         }
         searchView.setOnVisibilityChangeListener(mOnVisibilityChangeListener);
+
 
     }
 
@@ -944,7 +967,7 @@ public class FileBrowserMainActivity extends AppCompatActivity {
     private void initGalleryToolbarViews() {
         AppCompatTextView spnSelectAlbum = findViewById(R.id.fileBrowser_activity_main_spnSelectAlbum);
         ImageButton btnVerticalDotsMore = findViewById(R.id.fileBrowser_activity_main_btnGalleryMenu);
-        if (!mShowPickFromSystemGalleryMenuButton){
+        if (!mShowPickFromSystemGalleryMenuButton) {
             btnVerticalDotsMore.setVisibility(View.GONE);
         }
         spnSelectAlbum.setOnClickListener(v -> {
@@ -1221,6 +1244,9 @@ public class FileBrowserMainActivity extends AppCompatActivity {
             mGalleryViewModel
                     .getAllGalleryModels(mShowCamera, mShowVideosInGallery);
         }
+//        if (mSystemBrowserButtonView != null) {
+//            mSystemBrowserButtonView.setVisibility(View.GONE);
+//        }
     }
 
 
@@ -1247,7 +1273,7 @@ public class FileBrowserMainActivity extends AppCompatActivity {
 
     //<editor-fold desc="FileBrowser codes">
     public boolean isFileBrowserInSubDirectory() {
-        return mFileBrowserAdapter.isInSubDirectory();
+        return mFileBrowserAdapter != null && mFileBrowserAdapter.isInSubDirectory();
     }
 
     public void goBackToFileBrowserParentDirectory() {
@@ -1273,22 +1299,73 @@ public class FileBrowserMainActivity extends AppCompatActivity {
     }
 
     private void getFirstPageList() {
-
+        String[] mimeTypes;
         switch (mPageType) {
             case TYPE_FILE_BROWSER:
-                mFilesViewModel.getFirstPageFilesLiveData(mFileFilter);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    mimeTypes = new String[]{"*/*"};
+                    showSystemFileBrowserPage(mimeTypes, R.string.sfb_files, R.string.openSystemFileBrowser_file);
+                } else {
+                    mFilesViewModel.getFirstPageFilesLiveData(mFileFilter);
+                }
                 break;
             case TYPE_VIDEO:
                 mFilesViewModel.getFirstPageVideosLiveData(mFileFilter);
                 break;
             case TYPE_PDF:
-                mFilesViewModel.getFirstPagePdfLiveData(mFileFilter);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    mimeTypes = new String[]{"application/pdf"};
+                    showSystemFileBrowserPage(mimeTypes, R.string.sfb_pdfs, R.string.openSystemFileBrowser_pdfs);
+                } else {
+                    mFilesViewModel.getFirstPagePdfLiveData(mFileFilter);
+                }
                 break;
             case TYPE_AUDIO:
+//                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+//                    mimeTypes = new String[]{"application/pdf"};
+//                    showSystemFileBrowserPage(mimeTypes, R.string.sfb_audios, R.string.openSystemFileBrowser_audios);
+//                } else {
                 mFilesViewModel.getFirstPageAudiosLiveData(mFileFilter);
+                hideSystemFileBrowserPage();
+//                }
                 break;
         }
 
+    }
+
+    private void hideSystemFileBrowserPage() {
+        if (mSystemBrowserButtonView != null) {
+
+            mSystemBrowserButtonView.setVisibility(View.GONE);
+            mFileBrowserRecyclerView.setVisibility(View.VISIBLE);
+        }
+
+    }
+
+    private void showSystemFileBrowserPage(String[] mimeTypes, int typeTextRes, int buttonTextRes) {
+        if (mSystemBrowserButtonView == null) {
+            ViewStub viewStub = findViewById(R.id.fileBrowser_activity_main_openSystemFileBrowserViewStub);
+            mSystemBrowserButtonView = viewStub.inflate();
+        }
+        mSystemBrowserButtonView.setVisibility(View.VISIBLE);
+        mFileBrowserRecyclerView.setVisibility(View.GONE);
+        mBottomSheetBehavior.setState(MyBehavior.STATE_EXPANDED);
+        TextView txtMessage = mSystemBrowserButtonView.findViewById(R.id.sfb_system_file_browser_txtMessage);
+        Button btnShowSystemFileBrowser = mSystemBrowserButtonView.findViewById(R.id.sfb_system_file_browser_btnOpenSystemFileBrowser);
+        btnShowSystemFileBrowser.setOnClickListener(v -> {
+            openSystemFileBrowser(mimeTypes);
+        });
+        btnShowSystemFileBrowser.setText(buttonTextRes);
+        txtMessage.setText(getString(R.string.sfb_android11_storage_restrict_message, getString(typeTextRes)));
+    }
+
+    private void openSystemFileBrowser(String[] mimeTypes) {
+        Intent systemFileBrowserIntent = new Intent(Intent.ACTION_GET_CONTENT);
+        systemFileBrowserIntent.setType("*/*");
+        systemFileBrowserIntent.addCategory(Intent.CATEGORY_OPENABLE);
+        systemFileBrowserIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+        systemFileBrowserIntent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
+        startActivityForResult(systemFileBrowserIntent, REQ_CODE_SYSTEM_FILE_BROWSER);
     }
 
     public void removeAllFileBrowserSelection() {
@@ -1370,7 +1447,7 @@ public class FileBrowserMainActivity extends AppCompatActivity {
     public void imageUpdated(String newFilePath, int editedImagePosition) {
         if (mGalleryAdapter != null) {
             mGalleryAdapter.getItem(editedImagePosition).setPath(newFilePath);
-            if (Build.VERSION.SDK_INT <21){
+            if (Build.VERSION.SDK_INT < 21) {
                 mGalleryAdapter.notifyItemChanged(editedImagePosition);
             }
         }
@@ -1398,7 +1475,7 @@ public class FileBrowserMainActivity extends AppCompatActivity {
                 searchView.close(true);
                 return;
             }
-            if (isShowingFileBrowser()) {
+            if (isShowingFileBrowser() && !shouldShowSystemFileBrowser()) {
                 if (isFileBrowserInSubDirectory()) {
                     goBackToFileBrowserParentDirectory();
                     return;
@@ -1460,6 +1537,7 @@ public class FileBrowserMainActivity extends AppCompatActivity {
     public OnItemSelectListener<FileModel> getOnFileItemSelectListener() {
         return mOnFileItemSelectListener;
     }
+
     public OnItemClickListener<GalleryModel> getOnGalleryItemClickListener() {
         return mOnGalleryItemClickListener;
     }
@@ -1507,6 +1585,36 @@ public class FileBrowserMainActivity extends AppCompatActivity {
                 resultIntent.putExtras(bundle);
                 setResult(RESULT_OK, resultIntent);
                 finish();
+            }
+        }else if (requestCode == REQ_CODE_SYSTEM_FILE_BROWSER){
+            if (resultCode == RESULT_OK && data !=null){
+                    ClipData clipData= data.getClipData();
+                   List<Uri> uris=new ArrayList<>();
+                    List<File> selectedFiles= mSelectionFileViewModel.getSelectedFiles();
+                    if (selectedFiles!=null){
+                        for (File file:selectedFiles){
+                            uris.add(FileProvider.getUriForFile(getApplicationContext(),
+                                    getPackageName()+".sfb_provider",file));
+                        }
+                    }
+                    if (clipData!=null){
+                        int count=clipData.getItemCount();
+                        for (int i=0;i<count;i++){
+                            uris.add(clipData.getItemAt(i).getUri());
+                        }
+                    }else {
+                        Uri uri=data.getData();
+                        if (uri!=null){
+                            uris.add(uri);
+                        }
+                    }
+                Bundle bundle = new Bundle();
+                bundle.putParcelableArray(EXTRA_RESULT_URIS, uris.toArray(new Uri[]{}));
+                Intent resultIntent = new Intent();
+                resultIntent.putExtras(bundle);
+                setResult(RESULT_OK, resultIntent);
+                finish();
+
             }
         }
     }
