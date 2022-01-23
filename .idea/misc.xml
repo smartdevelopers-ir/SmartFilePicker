@@ -3,11 +3,24 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/Mostafa/AndroidStudioProjects/FileBrowser/SmartFileBrowser/src/main/res/drawable/sfb_button_bg.xml" value="0.25833333333333336" />
         <entry key="..\:/Users/Mostafa/AndroidStudioProjects/FileBrowser/SmartFileBrowser/src/main/res/drawable/sfb_ic_resize.xml" value="0.2" />
         <entry key="..\:/Users/Mostafa/AndroidStudioProjects/FileBrowser/SmartFileBrowser/src/main/res/drawable/sfb_ic_round_done.xml" value="0.25833333333333336" />
+        <entry key="..\:/Users/Mostafa/AndroidStudioProjects/FileBrowser/SmartFileBrowser/src/main/res/drawable/sfb_round_rectangle_transparent_gray.xml" value="0.25833333333333336" />
+        <entry key="..\:/Users/Mostafa/AndroidStudioProjects/FileBrowser/SmartFileBrowser/src/main/res/drawable/sfp_round_rectangle_transparent_black.xml" value="0.25833333333333336" />
+        <entry key="..\:/Users/Mostafa/AndroidStudioProjects/FileBrowser/SmartFileBrowser/src/main/res/layout/activity_file_browser_main.xml" value="0.264" />
         <entry key="..\:/Users/Mostafa/AndroidStudioProjects/FileBrowser/SmartFileBrowser/src/main/res/layout/activity_photo_editor.xml" value="0.2753108348134991" />
+        <entry key="..\:/Users/Mostafa/AndroidStudioProjects/FileBrowser/SmartFileBrowser/src/main/res/layout/activity_video_view.xml" value="0.264" />
         <entry key="..\:/Users/Mostafa/AndroidStudioProjects/FileBrowser/SmartFileBrowser/src/main/res/layout/file_browser_toolbar_layout.xml" value="0.1640625" />
-        <entry key="..\:/Users/Mostafa/AndroidStudioProjects/FileBrowser/SmartFileBrowser/src/main/res/layout/item_gallery_layout.xml" value="0.2" />
+        <entry key="..\:/Users/Mostafa/AndroidStudioProjects/FileBrowser/SmartFileBrowser/src/main/res/layout/fragment_file_browser.xml" value="0.2421875" />
+        <entry key="..\:/Users/Mostafa/AndroidStudioProjects/FileBrowser/SmartFileBrowser/src/main/res/layout/fragment_gallery_layout.xml" value="0.2421875" />
+        <entry key="..\:/Users/Mostafa/AndroidStudioProjects/FileBrowser/SmartFileBrowser/src/main/res/layout/gallery_toolbar_layout.xml" value="0.264" />
+        <entry key="..\:/Users/Mostafa/AndroidStudioProjects/FileBrowser/SmartFileBrowser/src/main/res/layout/item_camera_layout.xml" value="0.2421875" />
+        <entry key="..\:/Users/Mostafa/AndroidStudioProjects/FileBrowser/SmartFileBrowser/src/main/res/layout/item_file_browser_all_file_title_layout.xml" value="0.2421875" />
+        <entry key="..\:/Users/Mostafa/AndroidStudioProjects/FileBrowser/SmartFileBrowser/src/main/res/layout/item_file_browser_layout.xml" value="0.536" />
+        <entry key="..\:/Users/Mostafa/AndroidStudioProjects/FileBrowser/SmartFileBrowser/src/main/res/layout/item_file_browser_layout2.xml" value="0.536" />
+        <entry key="..\:/Users/Mostafa/AndroidStudioProjects/FileBrowser/SmartFileBrowser/src/main/res/layout/item_gallery_layout.xml" value="0.264" />
+        <entry key="..\:/Users/Mostafa/AndroidStudioProjects/FileBrowser/SmartFileBrowser/src/main/res/layout/sfb_open_system_file_browser_layout.xml" value="0.264" />
         <entry key="..\:/Users/Mostafa/AndroidStudioProjects/FileBrowser/app/src/main/res/layout/activity_main.xml" value="0.15572916666666667" />
         <entry key="..\:/Users/Mostafa/AndroidStudioProjects/FileBrowser/app/src/main/res/layout/activity_test.xml" value="0.15572916666666667" />
       </map>

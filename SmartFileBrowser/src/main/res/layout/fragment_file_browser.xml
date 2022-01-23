@@ -64,4 +64,12 @@
         android:visibility="gone"
         tools:visibility="visible"
         />
+    <ViewStub
+        android:id="@+id/fileBrowser_activity_main_openSystemFileBrowserViewStub"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:layout="@layout/sfb_open_system_file_browser_layout"
+        android:inflatedId="@+id/fileBrowser_activity_main_openSystemFileBrowserView"
+        />
 </androidx.constraintlayout.widget.ConstraintLayout>

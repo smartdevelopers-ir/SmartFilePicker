@@ -29,4 +29,12 @@
     <string name="sfb_image_editor_label">Edit</string>
     <string name="sfb_edit">Edit</string>
     <string name="sfb_permission_denied">permission denied</string>
+    <string name="sfb_android11_storage_restrict_message">Because of Storage restrictions in Android 11 and above, we can not browse files. You can choose %s from system file browser instead.</string>
+    <string name="openSystemFileBrowser">open system file browser</string>
+    <string name="sfb_files">files</string>
+    <string name="openSystemFileBrowser_file">Choose Files</string>
+    <string name="sfb_audios">audios</string>
+    <string name="openSystemFileBrowser_audios">Choose Audio</string>
+    <string name="sfb_pdfs">PDFs</string>
+    <string name="openSystemFileBrowser_pdfs">Choose PDF</string>
 </resources>
