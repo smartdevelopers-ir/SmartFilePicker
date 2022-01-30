@@ -34,7 +34,8 @@ public class Utils {
     public static List<FileBrowserModel> generateFirstPageList(Context context,List<FileBrowserModel> recentList){
         List<FileBrowserModel> fileBrowserModels=new ArrayList<>();
         /*Internal*/
-        FileBrowserModel internalStorage=new FileBrowserModel(-1,context.getResources().getString(R.string.internal_storage),
+        FileBrowserModel internalStorage=new FileBrowserModel(FileBrowserModel.ID_INTERNAL_STORAGE
+                ,context.getResources().getString(R.string.internal_storage),
                 context.getString(R.string.internal_storage_subTitle),FileBrowserModel.MODEL_TYPE_INTERNAL_STORAGE,
                 null, FileUtil.getInternalStoragePath(context),null);
         fileBrowserModels.add(internalStorage);
@@ -42,7 +43,7 @@ public class Utils {
         /*External if exists*/
         String externalPath=FileUtil.getExternalStoragePath(context);
         if (externalPath!=null) {
-            FileBrowserModel externalStorage = new FileBrowserModel(-2, context.getResources().getString(R.string.external_storage),
+            FileBrowserModel externalStorage = new FileBrowserModel(FileBrowserModel.ID_EXTERNAL_STORAGE, context.getResources().getString(R.string.external_storage),
                     context.getString(R.string.external_storage_subTitle), FileBrowserModel.MODEL_TYPE_EXTERNAL_STORAGE,
                     null, externalPath, null);
             fileBrowserModels.add(externalStorage);
@@ -51,7 +52,7 @@ public class Utils {
         /*Download*/
         File downloadFolderFile= Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
         int downloadedFileCount=FileUtil.getChildFileCount(downloadFolderFile);
-        FileBrowserModel downloadFolder = new FileBrowserModel(-3, context.getResources().getString(R.string.download_folder),
+        FileBrowserModel downloadFolder = new FileBrowserModel(FileBrowserModel.ID_DOWNLOAD_FOLDER, context.getResources().getString(R.string.download_folder),
                 context.getString(R.string.download_folder_subTitle,downloadedFileCount), FileBrowserModel.MODEL_TYPE_DOWNLOAD_FOLDER,
                 null, downloadFolderFile.getPath(), null);
         fileBrowserModels.add(downloadFolder);

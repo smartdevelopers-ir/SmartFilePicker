@@ -7,4 +7,13 @@
         <attr name="android:bottomRightRadius"/>
         <attr name="android:bottomLeftRadius"/>
     </declare-styleable>
+    <declare-styleable name="SFBCheckboxWithNumber">
+        <attr name="strokeColor"/>
+        <attr name="strokeWidth"/>
+        <attr name="fillColor" format="color"/>
+        <attr name="android:animationDuration"/>
+        <attr name="android:textSize"/>
+        <attr name="android:textColor"/>
+        <attr name="android:checked"/>
+    </declare-styleable>
 </resources>

@@ -26,6 +26,7 @@ import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemChooseListener;
 import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemClickListener;
 import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemLongClickListener;
 import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemSelectListener;
+import ir.smartdevelopers.smartfilebrowser.customClasses.SFBCheckboxWithNumber;
 import ir.smartdevelopers.smartfilebrowser.customClasses.SFBCountingCheckBox;
 import ir.smartdevelopers.smartfilebrowser.models.FileModel;
 import ir.smartdevelopers.smartfilebrowser.models.GalleryModel;
@@ -84,7 +85,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 return;
             }else if (command.equals("remove_all_selections")){
                 if (holder instanceof GalleryViewHolder){
-                    ((GalleryViewHolder) holder).chbSelection.setChecked(false);
+                    ((GalleryViewHolder) holder).chbSelection.setChecked(false,true);
                     ((GalleryViewHolder) holder).scaleImageView(false,true);
                 }
                 return;
@@ -221,7 +222,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     class GalleryViewHolder extends RecyclerView.ViewHolder {
         ImageView mImageView;
-        SFBCountingCheckBox chbSelection;
+        SFBCheckboxWithNumber chbSelection;
         ImageButton btnZoomOut;
         AppCompatTextView txtVideoDuration;
         public GalleryViewHolder(@NonNull View itemView) {
@@ -229,14 +230,15 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             mImageView=itemView.findViewById(R.id.item_gallery_image);
             chbSelection=itemView.findViewById(R.id.item_gallery_chbSelection);
             btnZoomOut=itemView.findViewById(R.id.item_gallery_btnZoomOut);
+
             txtVideoDuration=itemView.findViewById(R.id.item_gallery_txtVideoDuration);
             if (canSelectMultiple()) {
                 chbSelection.setVisibility(View.VISIBLE);
-                chbSelection.setOnClickListener(v -> {
-//                    GalleryModel model=mGalleryModels.get(getAdapterPosition());
-                    setImageSelected(mGalleryModels.get(getAdapterPosition()), chbSelection.isChecked());
-
-                });
+//                chbSelection.setOnClickListener(v -> {
+////                    GalleryModel model=mGalleryModels.get(getAdapterPosition());
+//                    setImageSelected(mGalleryModels.get(getAdapterPosition()), chbSelection.isChecked());
+//
+//                });
             }else {
                 chbSelection.setVisibility(View.GONE);
             }
@@ -272,17 +274,20 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                     mOnZoomOutClickListener.onItemClicked(mGalleryModels.get(getAdapterPosition()),mImageView,getAdapterPosition());
                 }
             });
-
+            //chbSelection.setVisibility(View.GONE);
+            //btnZoomOut.setVisibility(View.GONE);
         }
         void bindView(GalleryModel model){
-//            Picasso.get().load(model.getPath()).into(mImageView);
 
             
-            Glide.with(mImageView.getContext().getApplicationContext()).load(model.getPath())
-//                    .override(THUMBNAIL_SIZE,THUMBNAIL_SIZE)
-                    .dontAnimate()
-                    .encodeQuality(40)
+            Glide.with(mImageView.getContext().getApplicationContext()).load(model.getUri())
+                    .override(THUMBNAIL_SIZE,THUMBNAIL_SIZE)
+                    //.dontAnimate()
+                    //.thumbnail(0.2f)
+                    .encodeQuality(30)
+
                     .into(mImageView);
+
 
             if (model.getType()== FileUtil.TYPE_VIDEO){
                 txtVideoDuration.setVisibility(View.VISIBLE);
@@ -299,12 +304,10 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         }
 
         public void checkSelection(GalleryModel model, boolean animate) {
-            chbSelection.setCounter(model.getNumber());
-            chbSelection.setChecked(model.isSelected());
+            chbSelection.setNumber(model.getNumber());
+            chbSelection.setChecked(model.isSelected(),animate);
 
-            if (!animate){
-                chbSelection.jumpDrawablesToCurrentState();
-            }
+
             scaleImageView(model.isSelected(),animate);
 
         }

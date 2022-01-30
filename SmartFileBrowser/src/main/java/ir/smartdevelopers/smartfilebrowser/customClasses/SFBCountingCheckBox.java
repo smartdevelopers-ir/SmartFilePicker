@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.view.LayoutInflater;
 import android.widget.CompoundButton;
 import android.widget.FrameLayout;
 import android.widget.TextView;
@@ -20,27 +21,25 @@ public class SFBCountingCheckBox extends FrameLayout {
 
     private CompoundButton.OnCheckedChangeListener mOnCheckedChangeListener;
     public SFBCountingCheckBox(@NonNull Context context) {
-        super(context);
-        init(context, null);
+        this(context,null);
+
     }
 
     public SFBCountingCheckBox(@NonNull Context context, @Nullable AttributeSet attrs) {
-        super(context, attrs);
-        init(context, attrs);
+        this(context, attrs,0);
+
     }
 
     public SFBCountingCheckBox(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-        init(context, attrs);
+
+            super(context, attrs, defStyleAttr);
+            init(context, attrs);
+
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    public SFBCountingCheckBox(@NonNull Context context, @Nullable AttributeSet attrs, int defStyleAttr, int defStyleRes) {
-        super(context, attrs, defStyleAttr, defStyleRes);
-        init(context, attrs);
-    }
+
     private void init(@NonNull Context context, @Nullable AttributeSet attrs){
-        inflate(context, R.layout.sfb_countering_check_box_layout,this);
+        LayoutInflater.from(context).inflate( R.layout.sfb_countering_check_box_layout,this);
         mCheckBox=findViewById(R.id.sfb_counting_checkbox_checkBox);
         mTextView=findViewById(R.id.sfb_counting_checkbox_txtCounter);
         mTextView.setVisibility(INVISIBLE);
