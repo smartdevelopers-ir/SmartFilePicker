@@ -12,11 +12,11 @@
     android:scaleType="centerCrop"
     android:background="#9C9C9C"
     tools:ignore="ContentDescription" />
-    <ir.smartdevelopers.smartfilebrowser.customClasses.SFBCountingCheckBox
+    <ir.smartdevelopers.smartfilebrowser.customClasses.SFBCheckboxWithNumber
         android:id="@+id/item_gallery_chbSelection"
         android:layout_width="24dp"
         android:layout_height="24dp"
-
+        app:strokeWidth="2dp"
         android:layout_gravity="end|top"
         android:layout_margin="4dp"
 

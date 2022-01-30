@@ -44,7 +44,9 @@
             android:name=".customClasses.SmartFileProvider"
             android:authorities="${applicationId}.sfb_provider"
             android:exported="false"
-            android:grantUriPermissions="true">
+            android:grantUriPermissions="true"
+
+            >
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/sfb_provider_paths" />

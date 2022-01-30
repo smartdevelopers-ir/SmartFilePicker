@@ -3,6 +3,7 @@ package ir.smartdevelopers.smartfilebrowser.viewModel;
 import android.annotation.SuppressLint;
 import android.app.Application;
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
@@ -47,6 +48,7 @@ public class Repository {
         wContext=new WeakReference<>(application);
         galleryList=new MutableLiveData<>();
     }
+
     public void getGalleryMediaList(String selection, String[] selectionArgs, boolean addCameraItem, boolean showVideosInGallery){
 //       if (galleryList==null){
 //           galleryList=new MutableLiveData<>();
@@ -151,6 +153,7 @@ public class Repository {
         cursor.close();
         return albumModels;
     }
+
     private List<GalleryModel> getGalleryModel(Cursor cursor,String[] projection){
 
         List<GalleryModel> galleryModelList=new ArrayList<>();
@@ -173,8 +176,12 @@ public class Repository {
             model.setName(cursor.getString(nameIndex));
             model.setDateAdded(cursor.getLong(dateIndex));
             model.setType(FileUtil.getFileTypeCode(cursor.getString(mimeTypeIndex)));
+
             if (model.getType()==FileUtil.TYPE_VIDEO && durationIndex!=-1){
                 model.setDuration(cursor.getLong(durationIndex));
+                model.setUri(ContentUris.withAppendedId(MediaStore.Video.Media.EXTERNAL_CONTENT_URI,model.getId()));
+            }else {
+                model.setUri(ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,model.getId()));
             }
             galleryModelList.add(model);
         }

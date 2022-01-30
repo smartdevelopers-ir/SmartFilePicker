@@ -19,6 +19,9 @@ public class FileBrowserModel implements FileModel {
     public static final int MODEL_TYPE_FILE=8;
     public static final int MODEL_TYPE_ALL_FILE_TITLE = 9;
     public static final int MODEL_TYPE_GO_BACK = 10;
+    public static final int ID_EXTERNAL_STORAGE = -2;
+    public static final int ID_INTERNAL_STORAGE = -1;
+    public static final int ID_DOWNLOAD_FOLDER = -3;
 
 
     private long id;
