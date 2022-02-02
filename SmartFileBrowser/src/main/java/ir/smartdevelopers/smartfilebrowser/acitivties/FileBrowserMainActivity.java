@@ -679,7 +679,7 @@ public class FileBrowserMainActivity extends AppCompatActivity {
         mBottomNavigationView.setUseElevation(true);
         mBottomNavigationView.setTitleState(AHBottomNavigation.TitleState.ALWAYS_SHOW);
 
-        int[] res = {R.attr.actionBarSize};
+        int[] res = {android.R.attr.actionBarSize};
         TypedArray typedArray = obtainStyledAttributes(res);
         mActionBarSize = typedArray.getDimensionPixelSize(0, 56) +
                 (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24, getResources().getDisplayMetrics());
@@ -1002,9 +1002,10 @@ public class FileBrowserMainActivity extends AppCompatActivity {
     }
 
     private void openSystemGalleryApp() {
-        Intent galleyIntent = new Intent(Intent.ACTION_PICK);
+        Intent galleyIntent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         galleyIntent.setType("image/*");
         galleyIntent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, mCanSelectMultipleInGallery);
+        galleyIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
         startActivityForResult(galleyIntent, REQ_CODE_PICK_BY_GALLEY);
     }
 
