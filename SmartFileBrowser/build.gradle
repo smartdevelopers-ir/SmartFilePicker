@@ -31,7 +31,7 @@ android {
     }
 }
 group = 'ir.smartdevelopers'
-version = '1.4.4'
+version = '1.4.6'
 task sourcesJar(type: Jar) {
     archiveClassifier.set("sources")
     from android.sourceSets.main.java.srcDirs
