@@ -1,5 +1,6 @@
 package ir.smartdevelopers.smartfilebrowser.adapters;
 
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,10 +38,13 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     private List<GalleryModel> mGalleryModels;
     private List<File> mSelectedFiles;
     private boolean mCanSelectMultiple=true;
+    /**Listener for selecting multiple image or tick checkboxes*/
     private OnItemSelectListener<FileModel> mOnItemSelectListener;
+    /** This listener is for handling clicks for images or camera icon*/
     private OnItemClickListener<GalleryModel> mOnItemClickListener;
     private OnItemClickListener<GalleryModel> mOnZoomOutClickListener;
     private OnItemLongClickListener<GalleryModel> mOnItemLongClickListener;
+    /**If can not select multiple image when clicking on image it choose as only image this listener send result back*/
     private OnItemChooseListener mOnItemChooseListener;
 
 
@@ -204,6 +208,18 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     public List<GalleryModel> getGalleryModels() {
         return mGalleryModels;
+    }
+
+    public void updateSelectedFile(String newFilePath, int editedImagePosition, Uri updatedFileUri) {
+        File previousFile=getItem(editedImagePosition).getCurrentFile();
+        if (previousFile!=null){
+            int selectedFilePos=mSelectedFiles.indexOf(previousFile);
+            if (selectedFilePos!=-1){
+                mSelectedFiles.set(selectedFilePos,new File(newFilePath));
+            }
+        }
+        getItem(editedImagePosition).setPath(newFilePath);
+        getItem(editedImagePosition).setUri(updatedFileUri);
     }
 
     class CameraViewHolder extends RecyclerView.ViewHolder {

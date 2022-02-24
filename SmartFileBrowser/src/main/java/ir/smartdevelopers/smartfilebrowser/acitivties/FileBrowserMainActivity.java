@@ -1445,11 +1445,9 @@ public class FileBrowserMainActivity extends AppCompatActivity {
 
     public void imageUpdated(String newFilePath, int editedImagePosition) {
         if (mGalleryAdapter != null) {
-            mGalleryAdapter.getItem(editedImagePosition).setPath(newFilePath);
-            mGalleryAdapter.getItem(editedImagePosition)
-                    .setUri(FileProvider.getUriForFile(getApplicationContext(),
-                            getPackageName()+".sfb_provider",new File(newFilePath)));
-
+            Uri updatedFileUri=FileProvider.getUriForFile(getApplicationContext(),
+                    getPackageName()+".sfb_provider",new File(newFilePath));
+            mGalleryAdapter.updateSelectedFile(newFilePath,editedImagePosition,updatedFileUri);
             if (Build.VERSION.SDK_INT < 21) {
                 mGalleryAdapter.notifyItemChanged(editedImagePosition);
             }
