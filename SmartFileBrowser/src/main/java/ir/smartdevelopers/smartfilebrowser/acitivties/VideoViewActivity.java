@@ -41,6 +41,7 @@ import com.google.android.material.slider.LabelFormatter;
 import com.google.android.material.slider.Slider;
 import java.util.Locale;
 import ir.smartdevelopers.smartfilebrowser.R;
+import ir.smartdevelopers.smartfilebrowser.customClasses.MyVideoView;
 
 public class VideoViewActivity extends AppCompatActivity {
 
@@ -48,7 +49,7 @@ public class VideoViewActivity extends AppCompatActivity {
     private Uri mVideoUri;
     private ImageView imgThumbnailHolder;
 
-    private VideoView mVideoView;
+    private MyVideoView mVideoView;
     private boolean isExiting=false;
     private AppCompatImageView btnPlay;
     private AppCompatTextView txtVideoLength,txtCurrentTime;
@@ -186,11 +187,19 @@ public class VideoViewActivity extends AppCompatActivity {
             }
         };
         mSlider.setLabelFormatter(labelFormatter);
+        mSlider.addOnChangeListener(new Slider.OnChangeListener() {
+            @Override
+            public void onValueChange(@NonNull Slider slider, float value, boolean fromUser) {
+                if (fromUser){
+                    mVideoView.seekTo((int) slider.getValue());
+                }
+            }
+        });
         mSlider.addOnSliderTouchListener(new Slider.OnSliderTouchListener() {
             boolean lastPlayingStateIsPlaying=false;
             @Override
             public void onStartTrackingTouch(@NonNull Slider slider) {
-                lastPlayingStateIsPlaying=isPlaying;
+                lastPlayingStateIsPlaying=isPlaying || btnPlay.getVisibility()!=View.VISIBLE;
                 mVideoView.pause();
                 isPlaying=false;
                 mTimerHandler.removeCallbacks(mTimerRunnable);
@@ -204,6 +213,7 @@ public class VideoViewActivity extends AppCompatActivity {
                     playVideo();
                 }
             }
+
         });
 
     }
@@ -213,6 +223,7 @@ public class VideoViewActivity extends AppCompatActivity {
         retriever.setDataSource(this,mVideoUri);
         Bitmap bitmap=retriever.getFrameAtTime();
         imgThumbnailHolder.setImageBitmap(bitmap);
+
         String durationSt=retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
         if (durationSt!=null){
             long duration=Long.parseLong(durationSt);

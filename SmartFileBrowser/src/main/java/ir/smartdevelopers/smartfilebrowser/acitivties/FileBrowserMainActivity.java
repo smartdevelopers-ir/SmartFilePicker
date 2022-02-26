@@ -72,6 +72,7 @@ import ir.smartdevelopers.smartfilebrowser.R;
 import ir.smartdevelopers.smartfilebrowser.adapters.AlbumAdapter;
 import ir.smartdevelopers.smartfilebrowser.adapters.FileBrowserAdapter;
 import ir.smartdevelopers.smartfilebrowser.adapters.GalleryAdapter;
+import ir.smartdevelopers.smartfilebrowser.customClasses.GalleryLayoutManager;
 import ir.smartdevelopers.smartfilebrowser.customClasses.GalleyItemDecoration;
 import ir.smartdevelopers.smartfilebrowser.customClasses.MyBehavior;
 import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemLongClickListener;
@@ -157,7 +158,7 @@ public class FileBrowserMainActivity extends AppCompatActivity {
     //<editor-fold desc="Gallery parameters">
     private RecyclerView mGalleryRecyclerView;
     private GalleryAdapter mGalleryAdapter;
-    private GridLayoutManager mGalleryLayoutManager;
+    private GalleryLayoutManager mGalleryLayoutManager;
     /**
      * this listener is user listener
      */
@@ -304,7 +305,7 @@ public class FileBrowserMainActivity extends AppCompatActivity {
             int spanCount = getResources().getInteger(R.integer.sfb_gallery_grid);
             int gapSpace = getResources().getDimensionPixelSize(R.dimen.sfb_gallery_gap_size);
 
-            mGalleryLayoutManager = new GridLayoutManager(this, spanCount);
+            mGalleryLayoutManager = new GalleryLayoutManager(this, spanCount);
             mGalleryAdapter = new GalleryAdapter(mSelectionFileViewModel.getSelectedFiles());
             mGalleryAdapter.setCanSelectMultiple(mCanSelectMultipleInGallery);
             mGalleryAdapter.setOnItemClickListener(mGalleryModelItemClickListener);
@@ -1262,7 +1263,7 @@ public class FileBrowserMainActivity extends AppCompatActivity {
         }
         if (mGalleryAdapter.getItemCount() == 0) {
             mGalleryViewModel
-                    .getAllGalleryModels(mShowCamera, mShowVideosInGallery);
+                    .getAllGalleryModels(mShowCamera, mShowVideosInGallery,false);
         }
 
     }
@@ -1416,12 +1417,17 @@ public class FileBrowserMainActivity extends AppCompatActivity {
         }
     }
 
+    private long lastAlbumId=-1;
     public void updateGallery(AlbumModel albumModel) {
+        if (albumModel.getId()==lastAlbumId){
+            return;
+        }
         if (albumModel.getId() == -1) {
-            mGalleryViewModel.getAllGalleryModels(mShowCamera, mShowVideosInGallery);
+            mGalleryViewModel.getAllGalleryModels(mShowCamera, mShowVideosInGallery,true);
         } else {
             mGalleryViewModel.getGalleryModelsByAlbumName(albumModel.getName(), mShowVideosInGallery);
         }
+        lastAlbumId=albumModel.getId();
     }
 
     public List<File> getSelectedGalleryFiles() {

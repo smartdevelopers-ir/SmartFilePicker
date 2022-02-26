@@ -1,13 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="180dp"
     android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@color/white"
     android:maxWidth="180dp"
-    android:maxHeight="200dp">
+    android:maxHeight="500dp">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/fileBrowser_activity_main_albumRecyclerView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-</FrameLayout>
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHeight_max="500dp"
+        app:layout_constrainedHeight="true"
+        />
+</androidx.constraintlayout.widget.ConstraintLayout>
