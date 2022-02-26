@@ -34,9 +34,9 @@ public class GalleryViewModel extends AndroidViewModel {
         }
         return  mGalleryModelsLiveData.getValue().size() == 0;
     }
-    public void getAllGalleryModels(boolean addCamera, boolean showVideosInGallery){
+    public void getAllGalleryModels(boolean addCamera, boolean showVideosInGallery,boolean forceFetchNewData){
 
-        if (mustFetchNewData()) {
+        if (mustFetchNewData() || forceFetchNewData) {
             mRepository.getGalleryMediaList(null,null,addCamera,showVideosInGallery);
         }else {
             mGalleryModelsLiveData.setValue(mRepository.getGalleryListLiveData().getValue());

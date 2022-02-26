@@ -169,6 +169,7 @@
        android:layout_width="match_parent"
        android:layout_height="match_parent"
        android:visibility="gone"
+       tools:visibility="visible"
        android:translationZ="16dp"
 
        >
@@ -176,14 +177,18 @@
            android:id="@+id/fileBrowser_activity_main_albumPlaceHolder"
            android:layout_width="180dp"
            android:layout_height="wrap_content"
-           android:maxHeight="300dp"
+           tools:layout_height="300dp"
+           android:maxHeight="500dp"
            android:background="@color/white"
 
            android:transformPivotX="0dp"
            android:transformPivotY="0dp"
            android:scaleX="0"
            android:scaleY="0"
+           tools:scaleX="1"
+           tools:scaleY="1"
            android:visibility="invisible"
+           tools:visibility="visible"
            android:focusable="true"
            android:translationZ="16dp"
            />
