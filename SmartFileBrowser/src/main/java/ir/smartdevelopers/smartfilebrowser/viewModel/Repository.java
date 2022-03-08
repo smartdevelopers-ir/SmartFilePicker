@@ -42,6 +42,8 @@ public class Repository {
     private final ContentResolver mContentResolver;
     private final WeakReference<Context> wContext;
     private final MutableLiveData<List<GalleryModel>> galleryList;
+    private List<FileBrowserModel> mCurrentFirstFiles;
+    private int mCurrentModelType;
     public Repository(Application application) {
         mExecutorService= Executors.newCachedThreadPool();
         mContentResolver=application.getContentResolver();
@@ -195,8 +197,14 @@ public class Repository {
     public void getFirstBrowserPageList(String selection,String[] selectionArgs, int modelType,
                                                          FileFilter fileFilter,
                                                          MutableLiveData<List<FileBrowserModel>> filesLiveData){
-
-
+        if (mCurrentFirstFiles==null){
+            filesLiveData.setValue(Utils.generateFirstPageList(wContext.get(),Collections.emptyList()));
+        }else {
+            if (mCurrentModelType == modelType){
+                filesLiveData.setValue(mCurrentFirstFiles);
+                return;
+            }
+        }
         String extraQuery=MediaStore.Files.FileColumns.MIME_TYPE+" IS NOT NULL AND " +
                 MediaStore.Files.FileColumns.DATA+" NOT LIKE '%.thumbnail%' AND "+
                 MediaStore.Files.FileColumns.DATA+" NOT LIKE '%Android/%' ";
@@ -259,7 +267,8 @@ public class Repository {
             }
             cursor.close();
             if (wContext.get()==null){return;}
-            filesLiveData.postValue(Utils.generateFirstPageList(wContext.get(),fileBrowserModels));
+            mCurrentFirstFiles=Utils.generateFirstPageList(wContext.get(),fileBrowserModels);
+            filesLiveData.postValue(mCurrentFirstFiles);
 
         });
 

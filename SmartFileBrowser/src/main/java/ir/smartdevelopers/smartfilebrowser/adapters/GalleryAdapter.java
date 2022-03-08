@@ -19,6 +19,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.GlideBuilder;
 import com.bumptech.glide.Priority;
 import com.bumptech.glide.load.engine.executor.GlideExecutor;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -303,8 +304,9 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                     .override(THUMBNAIL_SIZE,THUMBNAIL_SIZE)
                     //.dontAnimate()
                     //.thumbnail(0.2f)
-                    .encodeQuality(30)
+                    .encodeQuality(50)
                     .priority(Priority.LOW)
+                    .transition(DrawableTransitionOptions.withCrossFade())
                     .into(mImageView);
 
 

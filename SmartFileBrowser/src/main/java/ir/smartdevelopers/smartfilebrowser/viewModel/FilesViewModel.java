@@ -54,7 +54,7 @@ public class FilesViewModel extends AndroidViewModel {
             String selection= MediaStore.Files.FileColumns.MIME_TYPE+" LIKE ?";
             String[] selectionArgs=new String[]{"%pdf%"};
             mRepository.getFirstBrowserPageList(selection, selectionArgs,
-                    FileBrowserModel.MODEL_TYPE_FILE, fileFilter, mFilesLiveData);
+                    FileBrowserModel.MODEL_TYPE_PDF, fileFilter, mFilesLiveData);
 //            mAllLiveData.put("pdf", mFirstPagePdfLiveData);
 //        }
 
@@ -65,7 +65,7 @@ public class FilesViewModel extends AndroidViewModel {
             String selection= MediaStore.Files.FileColumns.MIME_TYPE+" LIKE ?";
             String[] selectionArgs=new String[]{"%audio%"};
            mRepository.getFirstBrowserPageList(selection,selectionArgs,
-                    FileBrowserModel.MODEL_TYPE_FILE,fileFilter, mFilesLiveData);
+                    FileBrowserModel.MODEL_TYPE_AUDIO,fileFilter, mFilesLiveData);
 //            mAllLiveData.put("audio", mFirstPageAudiosLiveData);
 //        }
 
@@ -76,7 +76,7 @@ public class FilesViewModel extends AndroidViewModel {
             String selection= MediaStore.Files.FileColumns.MIME_TYPE+" LIKE ?";
             String[] selectionArgs=new String[]{"%video%"};
             mRepository.getFirstBrowserPageList(selection,selectionArgs,
-                    FileBrowserModel.MODEL_TYPE_FILE,fileFilter, mFilesLiveData);
+                    FileBrowserModel.MODEL_TYPE_VIDEO,fileFilter, mFilesLiveData);
 //            mAllLiveData.put("video", mFirstPageVideosLiveData);
 //        }
 

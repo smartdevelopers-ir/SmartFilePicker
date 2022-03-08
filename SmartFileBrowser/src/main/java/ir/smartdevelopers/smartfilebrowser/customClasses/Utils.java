@@ -58,7 +58,7 @@ public class Utils {
         fileBrowserModels.add(downloadFolder);
 
         /*Recent file*/
-        FileBrowserModel recent=new FileBrowserModel(-4,context.getString(R.string.recent),"",FileBrowserModel.MODEL_TYPE_ALL_FILE_TITLE,
+        FileBrowserModel recent=new FileBrowserModel(FileBrowserModel.ID_RECENT_FILES,context.getString(R.string.recent),"",FileBrowserModel.MODEL_TYPE_ALL_FILE_TITLE,
                 null,"",null);
         fileBrowserModels.add(recent);
 

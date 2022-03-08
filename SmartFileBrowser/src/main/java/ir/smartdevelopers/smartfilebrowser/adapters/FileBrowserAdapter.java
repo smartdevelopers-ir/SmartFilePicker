@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -16,6 +17,7 @@ import com.bumptech.glide.Glide;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import ir.smartdevelopers.smartfilebrowser.R;
 import ir.smartdevelopers.smartfilebrowser.customClasses.FileUtil;
@@ -47,12 +49,48 @@ public class FileBrowserAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         mSelectedFiles=selectedFiles;
     }
 
+    class DiffCallback extends DiffUtil.Callback{
+        List<FileBrowserModel> oldList;
+        List<FileBrowserModel> newList;
+
+        public DiffCallback(List<FileBrowserModel> oldList, List<FileBrowserModel> newList) {
+            this.oldList = oldList;
+            this.newList = newList;
+        }
+
+        @Override
+        public int getOldListSize() {
+            return oldList.size();
+        }
+
+        @Override
+        public int getNewListSize() {
+            return newList.size();
+        }
+
+        @Override
+        public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+            if (oldList.get(oldItemPosition).getId()==FileBrowserModel.ID_RECENT_FILES ||
+                    newList.get(newItemPosition).getId() == FileBrowserModel.ID_RECENT_FILES){
+                return false;
+            }
+            return Objects.equals(oldList.get(oldItemPosition),newList.get(newItemPosition));
+        }
+
+        @Override
+        public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
+            return Objects.equals(oldList.get(oldItemPosition),newList.get(newItemPosition));
+        }
+    }
     public void setList(List<FileBrowserModel> fileBrowserModels) {
 //        notifyItemRangeRemoved(0,mFileBrowserModelsCopy.size());
+
+//        notifyItemRangeInserted(0,mFileBrowserModelsCopy.size());
+        DiffUtil.DiffResult result=DiffUtil.calculateDiff(new DiffCallback(mFileBrowserModelsCopy,fileBrowserModels),false);
         mFileBrowserModels = fileBrowserModels;
         mFileBrowserModelsCopy = fileBrowserModels;
-//        notifyItemRangeInserted(0,mFileBrowserModelsCopy.size());
-        notifyDataSetChanged();
+        result.dispatchUpdatesTo(this);
+        //notifyDataSetChanged();
     }
 
     @Override
