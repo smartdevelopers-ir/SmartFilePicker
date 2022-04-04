@@ -317,8 +317,8 @@ public class FileBrowserMainActivity extends AppCompatActivity {
             int imageHeight = (getResources().getDisplayMetrics().widthPixels / spanCount) - (gapSpace * 2);
             mGalleryRecyclerView.setItemViewCacheSize(20);
             mGalleryRecyclerView.setHasFixedSize(true);
-            mGalleryLayoutManager.setItemPrefetchEnabled(true);
-            mGalleryLayoutManager.setInitialPrefetchItemCount(15);
+//            mGalleryLayoutManager.setItemPrefetchEnabled(true);
+//            mGalleryLayoutManager.setInitialPrefetchItemCount(15);
             mGalleryRecyclerView.setLayoutManager(mGalleryLayoutManager);
             mGalleryRecyclerView.addItemDecoration(new GalleyItemDecoration(spanCount, gapSpace, true));
             mGalleryRecyclerView.setAdapter(mGalleryAdapter);

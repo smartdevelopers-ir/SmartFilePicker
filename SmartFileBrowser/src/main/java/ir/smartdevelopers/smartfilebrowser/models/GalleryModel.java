@@ -3,6 +3,7 @@ package ir.smartdevelopers.smartfilebrowser.models;
 import android.net.Uri;
 
 import java.io.File;
+import java.util.Objects;
 
 import ir.smartdevelopers.smartfilebrowser.customClasses.FileUtil;
 import ir.smartdevelopers.smartfilebrowser.customClasses.Utils;
@@ -128,5 +129,18 @@ public  class GalleryModel implements FileModel ,Comparable<GalleryModel>{
     }
     public String getDurationTime(){
         return Utils.formatTime(duration);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        GalleryModel that = (GalleryModel) o;
+        return id == that.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

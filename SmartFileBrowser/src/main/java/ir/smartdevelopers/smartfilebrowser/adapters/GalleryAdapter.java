@@ -13,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -24,6 +25,7 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import ir.smartdevelopers.smartfilebrowser.R;
 import ir.smartdevelopers.smartfilebrowser.customClasses.FileUtil;
@@ -33,6 +35,7 @@ import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemLongClickListener
 import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemSelectListener;
 import ir.smartdevelopers.smartfilebrowser.customClasses.SFBCheckboxWithNumber;
 import ir.smartdevelopers.smartfilebrowser.customClasses.SFBCountingCheckBox;
+import ir.smartdevelopers.smartfilebrowser.models.FileBrowserModel;
 import ir.smartdevelopers.smartfilebrowser.models.FileModel;
 import ir.smartdevelopers.smartfilebrowser.models.GalleryModel;
 
@@ -50,7 +53,8 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     private OnItemLongClickListener<GalleryModel> mOnItemLongClickListener;
     /**If can not select multiple image when clicking on image it choose as only image this listener send result back*/
     private OnItemChooseListener mOnItemChooseListener;
-
+    /**For preventing multiple btnZoom click*/
+    private boolean mZoomButtonClicked=false;
 
     public GalleryAdapter(List<File> selectedFiles) {
        mGalleryModels=new ArrayList<>();
@@ -116,7 +120,36 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     public int getItemCount() {
         return mGalleryModels.size();
     }
+    class DiffCallback extends DiffUtil.Callback{
+        List<GalleryModel> oldList;
+        List<GalleryModel> newList;
 
+        public DiffCallback(List<GalleryModel> oldList, List<GalleryModel> newList) {
+            this.oldList = oldList;
+            this.newList = newList;
+        }
+
+        @Override
+        public int getOldListSize() {
+            return oldList.size();
+        }
+
+        @Override
+        public int getNewListSize() {
+            return newList.size();
+        }
+
+        @Override
+        public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+
+            return Objects.equals(oldList.get(oldItemPosition),newList.get(newItemPosition));
+        }
+
+        @Override
+        public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
+            return Objects.equals(oldList.get(oldItemPosition),newList.get(newItemPosition));
+        }
+    }
     public void setList(List<GalleryModel> galleryModels) {
 
 
@@ -128,6 +161,9 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 model.setSelected(true);
             }
         }
+//        DiffUtil.DiffResult result=DiffUtil.calculateDiff(new DiffCallback(mGalleryModels,galleryModels),true);
+//        mGalleryModels = galleryModels;
+//        result.dispatchUpdatesTo(this);
         /*if there is just camera item in it*/
         boolean firstItemIsCamera=false;
         if (mGalleryModels.size()>0 && mGalleryModels.get(0).getId()==0){
@@ -290,6 +326,13 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 }
             });
             btnZoomOut.setOnClickListener(v->{
+                if (mZoomButtonClicked){
+                    return;
+                }
+                mZoomButtonClicked=true;
+                btnZoomOut.postDelayed(()->{
+                    mZoomButtonClicked=false;
+                },300);
                 if (mOnZoomOutClickListener != null) {
                     mOnZoomOutClickListener.onItemClicked(mGalleryModels.get(getAdapterPosition()),mImageView,getAdapterPosition());
                 }
