@@ -1,6 +1,8 @@
 # SmartFilePicker
 This is Telegram like File Picker for android .
 
+<img src="files/file%20picker.gif" width="250">
+
 # Usage 
 * open File Picker
 ``` java
