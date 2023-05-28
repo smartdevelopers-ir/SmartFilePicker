@@ -39,6 +39,8 @@ import android.widget.TextView;
 import android.widget.VideoView;
 import com.google.android.material.slider.LabelFormatter;
 import com.google.android.material.slider.Slider;
+
+import java.io.IOException;
 import java.util.Locale;
 import ir.smartdevelopers.smartfilebrowser.R;
 import ir.smartdevelopers.smartfilebrowser.customClasses.MyVideoView;
@@ -233,7 +235,11 @@ public class VideoViewActivity extends AppCompatActivity {
 
         setTime(0,txtCurrentTime);
         ActivityCompat.startPostponedEnterTransition(VideoViewActivity.this);
-        retriever.release();
+        try {
+            retriever.release();
+        } catch (IOException e) {
+            Log.e(getPackageName(),e.getMessage(),e);
+        }
     }
 
 

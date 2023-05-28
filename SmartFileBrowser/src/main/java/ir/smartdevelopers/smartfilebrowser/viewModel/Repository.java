@@ -52,9 +52,7 @@ public class Repository {
     }
 
     public void getGalleryMediaList(String selection, String[] selectionArgs, boolean addCameraItem, boolean showVideosInGallery){
-//       if (galleryList==null){
-//           galleryList=new MutableLiveData<>();
-//       }
+
         List<GalleryModel> galleryModelList=new ArrayList<>();
         if (addCameraItem){
             GalleryModel cameraModel=new GalleryModel();
@@ -120,13 +118,16 @@ public class Repository {
             /*get newest item to set its path for allMedia item*/
             List<AlbumModel> temp=new ArrayList<>(imageModelSet);
             temp.addAll(videoModelSet);
-            AlbumModel newest= Collections.max(temp, new Comparator<AlbumModel>() {
-                @Override
-                public int compare(AlbumModel o1, AlbumModel o2) {
-                    return Long.compare(o1.getTimeTaken(),o2.getTimeTaken());
-                }
-            });
-            AlbumModel allMedia=new AlbumModel(-1,wContext.get().getString(R.string.sfb_all_media),newest.getImagePath(),0);
+            AlbumModel newest= null;
+            if (temp.size() > 0){
+                newest = Collections.max(temp, new Comparator<AlbumModel>() {
+                    @Override
+                    public int compare(AlbumModel o1, AlbumModel o2) {
+                        return Long.compare(o1.getTimeTaken(),o2.getTimeTaken());
+                    }
+                });
+            }
+            AlbumModel allMedia=new AlbumModel(-1,wContext.get().getString(R.string.sfb_all_media),newest != null ? newest.getImagePath() : "",0);
             Set<AlbumModel> albumModelSet=new HashSet<>(temp);
             List<AlbumModel> albumModelList=new ArrayList<>(albumModelSet);
             albumModelList.add(0,allMedia);

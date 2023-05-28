@@ -14,6 +14,7 @@ import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelStoreOwner;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -247,10 +248,10 @@ public class FileBrowserMainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_file_browser_main);
         mSelectionFileViewModel = new ViewModelProvider(this).get(SelectionFileViewModel.class);
-        mGalleryViewModel = new ViewModelProvider(this, new ViewModelProvider.AndroidViewModelFactory(getApplication()))
+        mGalleryViewModel = new ViewModelProvider( this, (ViewModelProvider.Factory) new ViewModelProvider.AndroidViewModelFactory(getApplication()))
                 .get(GalleryViewModel.class);
         mFilesViewModel = new ViewModelProvider(this,
-                new ViewModelProvider.AndroidViewModelFactory(getApplication()))
+                (ViewModelProvider.Factory) new ViewModelProvider.AndroidViewModelFactory(getApplication()))
                 .get(FilesViewModel.class);
         mResultListener = ResultListener.getInstance();
         if (savedInstanceState == null) {
@@ -314,11 +315,8 @@ public class FileBrowserMainActivity extends AppCompatActivity {
             mGalleryAdapter.setOnItemLongClickListener(mOnGalleryItemLongClickListener);
             mGalleryAdapter.setOnZoomOutClickListener(mOnZoomOutClickListener);
             mGalleryAdapter.setOnItemChooseListener(mOnItemChooseListener);
-            int imageHeight = (getResources().getDisplayMetrics().widthPixels / spanCount) - (gapSpace * 2);
             mGalleryRecyclerView.setItemViewCacheSize(20);
             mGalleryRecyclerView.setHasFixedSize(true);
-//            mGalleryLayoutManager.setItemPrefetchEnabled(true);
-//            mGalleryLayoutManager.setInitialPrefetchItemCount(15);
             mGalleryRecyclerView.setLayoutManager(mGalleryLayoutManager);
             mGalleryRecyclerView.addItemDecoration(new GalleyItemDecoration(spanCount, gapSpace, true));
             mGalleryRecyclerView.setAdapter(mGalleryAdapter);
@@ -682,6 +680,7 @@ public class FileBrowserMainActivity extends AppCompatActivity {
         mBottomNavigationView.setTitleState(AHBottomNavigation.TitleState.ALWAYS_SHOW);
 
         int[] res = {android.R.attr.actionBarSize};
+        @SuppressLint("ResourceType")
         TypedArray typedArray = obtainStyledAttributes(res);
         mActionBarSize = typedArray.getDimensionPixelSize(0, 56) +
                 (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24, getResources().getDisplayMetrics());
