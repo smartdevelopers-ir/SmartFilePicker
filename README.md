@@ -1,7 +1,29 @@
+
+[![donate](https://img.shields.io/badge/Donate-Crypto-yellow.svg)](#)
 # SmartFilePicker
 This is Telegram like File Picker for android .
 
 <img src="files/file%20picker.gif" width="250">
+
+# Installation
+
+* Add it in your root build.gradle at the end of repositories:
+
+``` gradel
+	allprojects {
+		repositories {
+			...
+			maven { url 'https://jitpack.io' }
+		}
+	}
+```
+* Add the dependency
+
+``` gradel
+	dependencies {
+	        implementation 'com.github.smartdevelopers-ir:SmartFilePicker:1.5.1'
+	}
+```
 
 # Usage 
 * open File Picker
