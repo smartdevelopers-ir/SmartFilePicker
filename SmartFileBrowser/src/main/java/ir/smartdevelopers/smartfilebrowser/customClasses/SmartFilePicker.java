@@ -2,23 +2,18 @@ package ir.smartdevelopers.smartfilebrowser.customClasses;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.drawable.StateListDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 
 import androidx.annotation.Nullable;
-import androidx.core.content.FileProvider;
 
 import java.io.File;
-import java.util.Collections;
-import java.util.List;
 
 import ir.smartdevelopers.smartfilebrowser.acitivties.FileBrowserMainActivity;
 import ir.smartdevelopers.smartfilebrowser.models.GalleryModel;
 
-public class SmartFileBrowser {
-    public static OnItemClickListener<GalleryModel> sOnGalleryModelClickListener;
+public class SmartFilePicker {
     public static class IntentBuilder{
         private SFBFileFilter mFileFilter;
         private boolean showVideosInGallery=true;
@@ -37,44 +32,41 @@ public class SmartFileBrowser {
             return this;
         }
 
-        public IntentBuilder setShowCamera(boolean showCamera) {
+        public IntentBuilder showCamera(boolean showCamera) {
             this.showCamera = showCamera;
             return this;
         }
 
-        public IntentBuilder setCanSelectMultipleInGallery(boolean canSelectMultipleInGallery) {
+        public IntentBuilder canSelectMultipleInGallery(boolean canSelectMultipleInGallery) {
             this.canSelectMultipleInGallery = canSelectMultipleInGallery;
             return this;
         }
 
-        public IntentBuilder setCanSelectMultipleInFiles(boolean canSelectMultipleInFiles) {
+        public IntentBuilder canSelectMultipleInFiles(boolean canSelectMultipleInFiles) {
             this.canSelectMultipleInFiles = canSelectMultipleInFiles;
             return this;
         }
 
-        public IntentBuilder setShowPDFTab(boolean showPDFTab) {
+        public IntentBuilder showPDFTab(boolean showPDFTab) {
             this.showPDFTab = showPDFTab;
             return this;
         }
 
-        public IntentBuilder setShowFilesTab(boolean showFilesTab) {
+        public IntentBuilder showFilesTab(boolean showFilesTab) {
             this.showFilesTab = showFilesTab;
             return this;
         }
 
-        public IntentBuilder setShowAudioTab(boolean showAudioTab) {
+        public IntentBuilder showAudioTab(boolean showAudioTab) {
             this.showAudioTab = showAudioTab;
             return this;
         }
 
-        public IntentBuilder setShowGalleryTab(boolean showGalleryTab) {
+        public IntentBuilder showGalleryTab(boolean showGalleryTab) {
             this.showGalleryTab = showGalleryTab;
             return this;
         }
-        public IntentBuilder setOnGalleryItemClickListener(OnItemClickListener<GalleryModel> onGalleryModelClickListener){
-            sOnGalleryModelClickListener=onGalleryModelClickListener;
-            return this;
-        }
+
         public Intent build(Context context){
             Intent filePickerIntent=new Intent(context, FileBrowserMainActivity.class);
             filePickerIntent.putExtra("mShowVideosInGallery",showVideosInGallery);
@@ -96,7 +88,7 @@ public class SmartFileBrowser {
             return this;
         }
 
-        public IntentBuilder setShowPickFromSystemGalleyMenu(boolean showPickFromSystemGalleyMenu) {
+        public IntentBuilder showPickFromSystemGalleyMenu(boolean showPickFromSystemGalleyMenu) {
             this.showPickFromSystemGalleyMenu = showPickFromSystemGalleyMenu;
             return this;
         }
