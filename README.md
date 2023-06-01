@@ -1,5 +1,5 @@
 
-[![donate](https://img.shields.io/badge/Donate-Crypto-yellow.svg)](#)
+[![donate](https://img.shields.io/badge/Donate-Crypto-yellow.svg)](https://smartdevelopers-ir.github.io/donate)
 # SmartFilePicker
 This is Telegram like File Picker for android .
 
