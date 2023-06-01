@@ -62,6 +62,6 @@ protected void onActivityResult(int requestCode, int resultCode, @Nullable Inten
 ```
 
 # Donation
-You can support me by donating me with cryptocurrency :)
+You can support me by donating with cryptocurrency :)
 
 [I glad to support you](https://smartdevelopers-ir.github.io/donate)
