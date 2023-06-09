@@ -14,9 +14,6 @@ import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelStoreOwner;
-import androidx.recyclerview.widget.DiffUtil;
-import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -248,12 +245,14 @@ public class FileBrowserMainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_file_browser_main);
         mSelectionFileViewModel = new ViewModelProvider(this).get(SelectionFileViewModel.class);
-        mGalleryViewModel = new ViewModelProvider( this, (ViewModelProvider.Factory) new ViewModelProvider.AndroidViewModelFactory(getApplication()))
+        mGalleryViewModel = new ViewModelProvider(this, (ViewModelProvider.Factory) new ViewModelProvider.AndroidViewModelFactory(getApplication()))
                 .get(GalleryViewModel.class);
         mFilesViewModel = new ViewModelProvider(this,
                 (ViewModelProvider.Factory) new ViewModelProvider.AndroidViewModelFactory(getApplication()))
                 .get(FilesViewModel.class);
         mResultListener = ResultListener.getInstance();
+        findViews();
+        getDataFromIntent();
         if (savedInstanceState == null) {
             if (mShowGalleryTab) {
                 mPageType = PageType.TYPE_GALLERY;
@@ -265,14 +264,14 @@ public class FileBrowserMainActivity extends AppCompatActivity {
                 mPageType = PageType.TYPE_FILE_BROWSER;
             } else {
                 finish();
+                return;
             }
 
         } else {
             mPageType = (PageType) savedInstanceState.getSerializable("page_type");
 
         }
-        findViews();
-        getDataFromIntent();
+
         initListeners();
         initViews(savedInstanceState);
 
@@ -534,29 +533,29 @@ public class FileBrowserMainActivity extends AppCompatActivity {
             public void onItemClicked(FileBrowserModel model, View view, int position) {
                 if (model.getCurrentFile() != null) {
                     if (model.getCurrentFile().isDirectory()) {
-                        if (isAndroid30AndAbove()){
-                            if (model.getId() == FileBrowserModel.ID_EXTERNAL_STORAGE || model.getId() == FileBrowserModel.ID_INTERNAL_STORAGE){
+                        if (isAndroid30AndAbove()) {
+                            if (model.getId() == FileBrowserModel.ID_EXTERNAL_STORAGE || model.getId() == FileBrowserModel.ID_INTERNAL_STORAGE) {
                                 String[] mimeTypes;
-                                switch (mPageType){
+                                switch (mPageType) {
                                     case TYPE_PDF:
-                                        mimeTypes=new String[]{"application/pdf"};
+                                        mimeTypes = new String[]{"application/pdf"};
                                         break;
                                     case TYPE_AUDIO:
-                                        mimeTypes=new String[]{"audio/*"};
+                                        mimeTypes = new String[]{"audio/*"};
                                         break;
                                     case TYPE_VIDEO:
-                                        mimeTypes=new String[]{"video/*"};
+                                        mimeTypes = new String[]{"video/*"};
                                         break;
                                     case TYPE_FILE_BROWSER:
                                     default:
-                                        mimeTypes=new String[]{"*/*"};
+                                        mimeTypes = new String[]{"*/*"};
 
                                 }
                                 openSystemFileBrowser(mimeTypes);
-                            }else {
+                            } else {
                                 mFilesViewModel.getFilesList(model, mFileFilter);
                             }
-                        }else {
+                        } else {
                             mFilesViewModel.getFilesList(model, mFileFilter);
                         }
                     }
@@ -870,7 +869,7 @@ public class FileBrowserMainActivity extends AppCompatActivity {
     }
 
 
-    private boolean isAndroid30AndAbove(){
+    private boolean isAndroid30AndAbove() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.R;
     }
 
@@ -891,7 +890,7 @@ public class FileBrowserMainActivity extends AppCompatActivity {
                     mBottomNavigationView.setCurrentItem(getNavigationItemPosition(getString(R.string.sfb_audio)), false);
                 }
 
-                showAudioFragment(animate);
+                showAudioPage(animate);
 
                 break;
             case TYPE_PDF:
@@ -899,7 +898,7 @@ public class FileBrowserMainActivity extends AppCompatActivity {
                     mBottomNavigationView.setCurrentItem(getNavigationItemPosition(getString(R.string.sfb_PDF)), false);
                 }
 
-                showPDFFragment(animate);
+                showPDFPage(animate);
 
                 break;
             case TYPE_VIDEO:
@@ -910,7 +909,7 @@ public class FileBrowserMainActivity extends AppCompatActivity {
                     mBottomNavigationView.setCurrentItem(getNavigationItemPosition(getString(R.string.sfb_file)), false);
                 }
 
-                showFilesFragment(animate);
+                showFilesPage(animate);
 
                 break;
             case TYPE_GALLERY:
@@ -1157,12 +1156,14 @@ public class FileBrowserMainActivity extends AppCompatActivity {
                 }).start();
     }
 
-    private void showPDFFragment(boolean animate) {
+    private void showPDFPage(boolean animate) {
         if (animate) {
             animateBottomSheet();
             if (isShowingGallery()) {
                 swapContainers(mGalleryRecyclerView, mFileBrowserContainer);
             }
+        } else {
+            mFileBrowserContainer.setVisibility(View.VISIBLE);
         }
         mFileFilter = new FileFilter() {
             @Override
@@ -1178,12 +1179,14 @@ public class FileBrowserMainActivity extends AppCompatActivity {
     }
 
 
-    private void showAudioFragment(boolean animate) {
+    private void showAudioPage(boolean animate) {
         if (animate) {
             animateBottomSheet();
             if (isShowingGallery()) {
                 swapContainers(mGalleryRecyclerView, mFileBrowserContainer);
             }
+        } else {
+            mFileBrowserContainer.setVisibility(View.VISIBLE);
         }
         mFileFilter = new FileFilter() {
             @Override
@@ -1198,12 +1201,14 @@ public class FileBrowserMainActivity extends AppCompatActivity {
 
     }
 
-    private void showFilesFragment(boolean animate) {
+    private void showFilesPage(boolean animate) {
         if (animate) {
             animateBottomSheet();
             if (isShowingGallery()) {
                 swapContainers(mGalleryRecyclerView, mFileBrowserContainer);
             }
+        } else {
+            mFileBrowserContainer.setVisibility(View.VISIBLE);
         }
         if (mFileTabFileFilter != null) {
             mFileFilter = mFileTabFileFilter;
@@ -1263,7 +1268,7 @@ public class FileBrowserMainActivity extends AppCompatActivity {
         }
         if (mGalleryAdapter.getItemCount() == 0) {
             mGalleryViewModel
-                    .getAllGalleryModels(mShowCamera, mShowVideosInGallery,false);
+                    .getAllGalleryModels(mShowCamera, mShowVideosInGallery, false);
         }
 
     }
@@ -1272,9 +1277,9 @@ public class FileBrowserMainActivity extends AppCompatActivity {
     private void animateBottomSheet() {
         mBottomSheetRoot.animate().translationY(100).setInterpolator(new OvershootInterpolator())
                 .setDuration(150).withEndAction(() -> {
-            mBottomSheetRoot.animate().translationY(0).setInterpolator(new OvershootInterpolator())
-                    .setDuration(300).start();
-        }).start();
+                    mBottomSheetRoot.animate().translationY(0).setInterpolator(new OvershootInterpolator())
+                            .setDuration(300).start();
+                }).start();
     }
 
 
@@ -1285,12 +1290,15 @@ public class FileBrowserMainActivity extends AppCompatActivity {
     public void scrollGalleryToFirstPos() {
         mGalleryRecyclerView.smoothScrollToPosition(0);
     }
-    private boolean canGalleryScrollUp(){
+
+    private boolean canGalleryScrollUp() {
         return mGalleryRecyclerView.canScrollVertically(-1);
     }
-    private boolean canFileBrowserScrollUp(){
+
+    private boolean canFileBrowserScrollUp() {
         return mFileBrowserRecyclerView.canScrollVertically(-1);
     }
+
     public void scrollFileBrowserToFirstPos() {
         mFileBrowserRecyclerView.smoothScrollToPosition(0);
     }
@@ -1326,14 +1334,14 @@ public class FileBrowserMainActivity extends AppCompatActivity {
         switch (mPageType) {
             case TYPE_FILE_BROWSER:
 
-                    mFilesViewModel.getFirstPageFilesLiveData(mFileFilter);
+                mFilesViewModel.getFirstPageFilesLiveData(mFileFilter);
                 break;
             case TYPE_VIDEO:
                 mFilesViewModel.getFirstPageVideosLiveData(mFileFilter);
                 break;
             case TYPE_PDF:
 
-                    mFilesViewModel.getFirstPagePdfLiveData(mFileFilter);
+                mFilesViewModel.getFirstPagePdfLiveData(mFileFilter);
 
                 break;
             case TYPE_AUDIO:
@@ -1354,7 +1362,6 @@ public class FileBrowserMainActivity extends AppCompatActivity {
         }
 
     }
-
 
 
     private void openSystemFileBrowser(String[] mimeTypes) {
@@ -1417,17 +1424,18 @@ public class FileBrowserMainActivity extends AppCompatActivity {
         }
     }
 
-    private long lastAlbumId=-1;
+    private long lastAlbumId = -1;
+
     public void updateGallery(AlbumModel albumModel) {
-        if (albumModel.getId()==lastAlbumId){
+        if (albumModel.getId() == lastAlbumId) {
             return;
         }
         if (albumModel.getId() == -1) {
-            mGalleryViewModel.getAllGalleryModels(mShowCamera, mShowVideosInGallery,true);
+            mGalleryViewModel.getAllGalleryModels(mShowCamera, mShowVideosInGallery, true);
         } else {
             mGalleryViewModel.getGalleryModelsByAlbumName(albumModel.getName(), mShowVideosInGallery);
         }
-        lastAlbumId=albumModel.getId();
+        lastAlbumId = albumModel.getId();
     }
 
     public List<File> getSelectedGalleryFiles() {
@@ -1451,9 +1459,9 @@ public class FileBrowserMainActivity extends AppCompatActivity {
 
     public void imageUpdated(String newFilePath, int editedImagePosition) {
         if (mGalleryAdapter != null) {
-            Uri updatedFileUri=FileProvider.getUriForFile(getApplicationContext(),
-                    getPackageName()+".sfb_provider",new File(newFilePath));
-            mGalleryAdapter.updateSelectedFile(newFilePath,editedImagePosition,updatedFileUri);
+            Uri updatedFileUri = FileProvider.getUriForFile(getApplicationContext(),
+                    getPackageName() + ".sfb_provider", new File(newFilePath));
+            mGalleryAdapter.updateSelectedFile(newFilePath, editedImagePosition, updatedFileUri);
             if (Build.VERSION.SDK_INT < 21) {
                 mGalleryAdapter.notifyItemChanged(editedImagePosition);
             }
@@ -1493,7 +1501,7 @@ public class FileBrowserMainActivity extends AppCompatActivity {
             if (isShowingGallery() && canGalleryScrollUp()) {
                 scrollGalleryToFirstPos();
                 return;
-            } else if (isShowingFileBrowser() && canFileBrowserScrollUp()){
+            } else if (isShowingFileBrowser() && canFileBrowserScrollUp()) {
                 scrollFileBrowserToFirstPos();
                 return;
             }
@@ -1581,28 +1589,28 @@ public class FileBrowserMainActivity extends AppCompatActivity {
                     newPicModel.setName(takenPic.getName());
                     newPicModel.setPath(takenPic.getPath());
                     newPicModel.setUri(FileProvider.getUriForFile(getApplicationContext(),
-                            getPackageName()+".sfb_provider",takenPic));
+                            getPackageName() + ".sfb_provider", takenPic));
                     mGalleryAdapter.addNewPic(newPicModel);
 
                 }
             }
         } else if (requestCode == REQ_CODE_PICK_BY_GALLEY) {
             if (resultCode == RESULT_OK && data != null) {
-                List<File> selectedFiles= getSelectedGalleryFiles();
+                List<File> selectedFiles = getSelectedGalleryFiles();
                 Bundle bundle = new Bundle();
-                bundle.putParcelableArray(EXTRA_RESULT_URIS, getSelectedFilesUriFromIntent(selectedFiles,data));
+                bundle.putParcelableArray(EXTRA_RESULT_URIS, getSelectedFilesUriFromIntent(selectedFiles, data));
                 Intent resultIntent = new Intent();
                 resultIntent.putExtras(bundle);
                 setResult(RESULT_OK, resultIntent);
                 finish();
             }
-        }else if (requestCode == REQ_CODE_SYSTEM_FILE_BROWSER){
-            if (resultCode == RESULT_OK && data !=null){
+        } else if (requestCode == REQ_CODE_SYSTEM_FILE_BROWSER) {
+            if (resultCode == RESULT_OK && data != null) {
 
-                List<File> selectedFiles= mSelectionFileViewModel.getSelectedFiles();
+                List<File> selectedFiles = mSelectionFileViewModel.getSelectedFiles();
 
                 Bundle bundle = new Bundle();
-                bundle.putParcelableArray(EXTRA_RESULT_URIS, getSelectedFilesUriFromIntent(selectedFiles,data));
+                bundle.putParcelableArray(EXTRA_RESULT_URIS, getSelectedFilesUriFromIntent(selectedFiles, data));
                 Intent resultIntent = new Intent();
                 resultIntent.putExtras(bundle);
                 setResult(RESULT_OK, resultIntent);
@@ -1611,34 +1619,35 @@ public class FileBrowserMainActivity extends AppCompatActivity {
             }
         }
     }
-    private Uri[] getSelectedFilesUriFromIntent(List<File> selectedFiles,Intent data){
-        ClipData clipData= data.getClipData();
-        List<Uri> uris=new ArrayList<>();
-        if (selectedFiles!=null){
-            for (File file:selectedFiles){
+
+    private Uri[] getSelectedFilesUriFromIntent(List<File> selectedFiles, Intent data) {
+        ClipData clipData = data.getClipData();
+        List<Uri> uris = new ArrayList<>();
+        if (selectedFiles != null) {
+            for (File file : selectedFiles) {
                 uris.add(FileProvider.getUriForFile(getApplicationContext(),
-                        getPackageName()+".sfb_provider",file));
+                        getPackageName() + ".sfb_provider", file));
             }
         }
-        if (clipData!=null){
-            int count=clipData.getItemCount();
-            for (int i=0;i<count;i++){
-                Uri uri=clipData.getItemAt(i).getUri();
+        if (clipData != null) {
+            int count = clipData.getItemCount();
+            for (int i = 0; i < count; i++) {
+                Uri uri = clipData.getItemAt(i).getUri();
                 try {
-                    getContentResolver().takePersistableUriPermission(uri,Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                }catch (Exception e){
-                    Log.e("TTT",e.getMessage(),e);
+                    getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                } catch (Exception e) {
+                    Log.e("TTT", e.getMessage(), e);
                 }
                 uris.add(uri);
             }
-        }else {
-            Uri uri=data.getData();
-            if (uri!=null){
+        } else {
+            Uri uri = data.getData();
+            if (uri != null) {
                 try {
-                    getContentResolver().takePersistableUriPermission(uri,Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                    getContentResolver().takePersistableUriPermission(uri,Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-                }catch (Exception e){
-                    Log.e("TTT",e.getMessage(),e);
+                    getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                } catch (Exception e) {
+                    Log.e("TTT", e.getMessage(), e);
                 }
                 uris.add(uri);
             }
