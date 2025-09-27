@@ -43,12 +43,45 @@
                 android:layout_marginTop="16dp"
                 android:layout_gravity="center_horizontal"
                 />
+            <LinearLayout
+                android:id="@+id/sfb_partialSelectionContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:background="@drawable/sfb_round_rectangle_transparent_black"
+                android:backgroundTint="?attr/colorTertiaryFixed"
+                android:layout_marginTop="16dp"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:gravity="center_vertical"
+                >
+                <com.google.android.material.textview.MaterialTextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textColor="?attr/colorOnTertiaryFixed"
+                    android:text="@string/partial_selection_warning"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"
+                    />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/sfb_btnManagePartialPermission"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="4dp"
+                    android:text="@string/sfb_manage"
+                    android:textColor="?attr/colorOnTertiaryFixed"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    />
+            </LinearLayout>
             <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginTop="16dp"
                 >
-                <include layout="@layout/fragment_file_browser"
+                <include layout="@layout/container_file_browser"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     />
@@ -113,6 +146,8 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
+
+
         />
    <androidx.constraintlayout.widget.ConstraintLayout
        android:id="@+id/fileBrowser_activity_main_selectionContainer"

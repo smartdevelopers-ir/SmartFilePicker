@@ -37,4 +37,6 @@
     <string name="openSystemFileBrowser_audios">Choose Audio</string>
     <string name="sfb_pdfs">PDFs</string>
     <string name="openSystemFileBrowser_pdfs">Choose PDF</string>
+    <string name="partial_selection_warning">You\'ve given access to a selected number of photos and videos</string>
+    <string name="sfb_manage">Manage</string>
 </resources>

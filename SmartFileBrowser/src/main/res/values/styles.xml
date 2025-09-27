@@ -1,31 +1,35 @@
 <resources>
     <!-- Base application theme. -->
-    <style name="sfb_AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar.Bridge">
+    <style name="sfb_AppTheme" parent="AppTheme">
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/sfb_colorPrimary</item>
-        <item name="colorPrimaryDark">@color/sfb_colorPrimaryDark</item>
-        <item name="colorAccent">@color/sfb_colorAccent</item>
+<!--        <item name="colorPrimary">@color/sfb_colorPrimary</item>-->
+<!--        <item name="colorPrimaryDark">@color/sfb_colorPrimaryDark</item>-->
+<!--        <item name="colorAccent">@color/sfb_colorAccent</item>-->
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:backgroundDimEnabled">true</item>
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:windowTranslucentStatus">true</item>
+<!--        <item name="android:fitsSystemWindows">true</item>-->
+        <item name="android:windowTranslucentNavigation">true</item>
         <item name="android:windowDisablePreview">false</item>
         <item name="android:windowCloseOnTouchOutside">true</item>
         <item name="android:windowAnimationStyle">@style/sfb_windowAnimationStyle</item>
-<!--        <item name="android:windowExitAnimation">@anim/fade_out</item>-->
-<!--        <item name="android:windowHideAnimation">@anim/fade_out</item>-->
-<!--        <item name="android:windowShowAnimation">@anim/fade_in</item>-->
-<!--        <item name="android:windowEnterAnimation">@anim/fade_in</item>-->
-<!--        <item name="android:activityCloseExitAnimation">@anim/fade_out</item>-->
-<!--        <item name="android:activityCloseEnterAnimation">@anim/fade_in</item>-->
-<!--        <item name="android:activityOpenExitAnimation">@anim/fade_out</item>-->
-<!--        <item name="android:activityOpenEnterAnimation">@anim/fade_in</item>-->
+        <!--        <item name="android:windowExitAnimation">@anim/fade_out</item>-->
+        <!--        <item name="android:windowHideAnimation">@anim/fade_out</item>-->
+        <!--        <item name="android:windowShowAnimation">@anim/fade_in</item>-->
+        <!--        <item name="android:windowEnterAnimation">@anim/fade_in</item>-->
+        <!--        <item name="android:activityCloseExitAnimation">@anim/fade_out</item>-->
+        <!--        <item name="android:activityCloseEnterAnimation">@anim/fade_in</item>-->
+        <!--        <item name="android:activityOpenExitAnimation">@anim/fade_out</item>-->
+        <!--        <item name="android:activityOpenEnterAnimation">@anim/fade_in</item>-->
     </style>
+
     <style name="sfb_windowAnimationStyle">
         <item name="android:windowEnterAnimation">@anim/sfb_fade_in</item>
         <item name="android:windowExitAnimation">@anim/sfb_fade_out</item>
     </style>
+
     <style name="sfb_WindowAnimation" parent="@android:style/Animation.Activity">
         <item name="android:activityOpenEnterAnimation">@anim/sfb_fade_in</item>
         <item name="android:activityOpenExitAnimation">@anim/sfb_fade_out</item>
@@ -50,11 +54,11 @@
 
     </style>
 
-    <style name="sfb_EditorTheme" parent="Theme.MaterialComponents.Light.NoActionBar.Bridge">
-    <!-- Customize your theme here. -->
-    <item name="colorPrimary">@color/sfb_colorPrimary</item>
-    <item name="colorPrimaryDark">@color/sfb_colorPrimaryDark</item>
-    <item name="colorAccent">@color/sfb_colorAccent</item>
+    <style name="sfb_EditorTheme" parent="AppTheme">
+        <!-- Customize your theme here. -->
+<!--        <item name="colorPrimary">@color/sfb_colorPrimary</item>-->
+<!--        <item name="colorPrimaryDark">@color/sfb_colorPrimaryDark</item>-->
+<!--        <item name="colorAccent">@color/sfb_colorAccent</item>-->
         <item name="windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
         <item name="android:windowFullscreen">true</item>

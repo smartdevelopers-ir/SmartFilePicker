@@ -8,8 +8,13 @@ import androidx.constraintlayout.widget.Group;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.app.SharedElementCallback;
+import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
+import androidx.core.graphics.Insets;
+import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
@@ -17,6 +22,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.Manifest;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ValueAnimator;
@@ -46,6 +52,7 @@ import android.view.ViewPropertyAnimator;
 import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.animation.OvershootInterpolator;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -66,6 +73,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import ir.smartdevelopers.smartfilebrowser.R;
 import ir.smartdevelopers.smartfilebrowser.adapters.AlbumAdapter;
@@ -100,6 +108,7 @@ public class FileBrowserMainActivity extends AppCompatActivity {
     public static final int REQ_CODE_TACK_PICTURE = 303;
     public static final int REQ_CODE_PICK_BY_GALLEY = 305;
     private static final int REQ_CODE_SYSTEM_FILE_BROWSER = 6354;
+    private static final int REQ_CODE_VISUAL_PERMISSION = 306;
     private AppBarLayout mAppBarLayout;
     private RoundViewGroup mBottomSheetRoot;
     private MyBehavior<View> mBottomSheetBehavior;
@@ -170,6 +179,9 @@ public class FileBrowserMainActivity extends AppCompatActivity {
     private OnItemClickListener<GalleryModel> mOnZoomOutClickListener;
     private String tackingPictureFilePath;
     private View mSystemBrowserButtonView;
+    // for determine bottomSheet is canceled or has data. by default we assume it is canceled
+    // when it closing
+    private final AtomicBoolean mIsCanceled = new AtomicBoolean(true);
     //</editor-fold>
 
     private void getDataFromIntent() {
@@ -220,30 +232,30 @@ public class FileBrowserMainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        WindowCompat.enableEdgeToEdge(getWindow());
+        getWindow().requestFeature(Window.FEATURE_ACTIVITY_TRANSITIONS);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            getWindow().requestFeature(Window.FEATURE_ACTIVITY_TRANSITIONS);
-
-            getWindow().setAllowEnterTransitionOverlap(false);
-            Transition transition = TransitionInflater.from(this).inflateTransition(R.transition.iten_transition_in);
-            getWindow().setSharedElementExitTransition(transition);
-            setExitSharedElementCallback(new SharedElementCallback() {
-                @Override
-                public void onMapSharedElements(List<String> names, Map<String, View> sharedElements) {
-                    for (View view : sharedElements.values()) {
-                        if (view instanceof ImageView) {
-                            if (mResultListener.getSavedBitmap() != null) {
-                                ((ImageView) view).setImageBitmap(mResultListener.getSavedBitmap().copy(Bitmap.Config.ARGB_8888, true));
-                                mResultListener.setSavedBitmap(null);
-                            }
+        getWindow().setAllowEnterTransitionOverlap(false);
+        Transition transition = TransitionInflater.from(this).inflateTransition(R.transition.iten_transition_in);
+        getWindow().setSharedElementExitTransition(transition);
+        setExitSharedElementCallback(new SharedElementCallback() {
+            @Override
+            public void onMapSharedElements(List<String> names, Map<String, View> sharedElements) {
+                for (View view : sharedElements.values()) {
+                    if (view instanceof ImageView) {
+                        if (mResultListener.getSavedBitmap() != null) {
+                            ((ImageView) view).setImageBitmap(mResultListener.getSavedBitmap().copy(Bitmap.Config.ARGB_8888, true));
+                            mResultListener.setSavedBitmap(null);
                         }
                     }
-                    ActivityCompat.startPostponedEnterTransition(FileBrowserMainActivity.this);
                 }
-            });
-        }
+                ActivityCompat.startPostponedEnterTransition(FileBrowserMainActivity.this);
+            }
+        });
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_file_browser_main);
+        mIsCanceled.set(true);
         mSelectionFileViewModel = new ViewModelProvider(this).get(SelectionFileViewModel.class);
         mGalleryViewModel = new ViewModelProvider(this, (ViewModelProvider.Factory) new ViewModelProvider.AndroidViewModelFactory(getApplication()))
                 .get(GalleryViewModel.class);
@@ -252,6 +264,7 @@ public class FileBrowserMainActivity extends AppCompatActivity {
                 .get(FilesViewModel.class);
         mResultListener = ResultListener.getInstance();
         findViews();
+        manageEdgeToEdge();
         getDataFromIntent();
         if (savedInstanceState == null) {
             if (mShowGalleryTab) {
@@ -364,6 +377,11 @@ public class FileBrowserMainActivity extends AppCompatActivity {
             }
         });
         ActivityCompat.postponeEnterTransition(this);
+
+    }
+
+    private void manageEdgeToEdge() {
+        mBottomNavigationView.setTranslucentNavigationEnabled(true);
 
     }
 
@@ -697,7 +715,11 @@ public class FileBrowserMainActivity extends AppCompatActivity {
             @Override
             public void onStateChanged(@NonNull View bottomSheet, int newState) {
                 if (newState == BottomSheetBehavior.STATE_HIDDEN) {
-                    setResult(RESULT_CANCELED);
+
+                    if (mIsCanceled.get()) {
+                        setResult(RESULT_CANCELED);
+                    }
+
                     finish();
                 }
             }
@@ -740,8 +762,7 @@ public class FileBrowserMainActivity extends AppCompatActivity {
             @SuppressLint("ClickableViewAccessibility")
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                setResult(RESULT_CANCELED);
-                finish();
+                close(true);
                 return true;
             }
         });
@@ -829,7 +850,7 @@ public class FileBrowserMainActivity extends AppCompatActivity {
         result.putExtras(bundle);
 
         setResult(RESULT_OK, result);
-        finish();
+        close(false);
     }
 
     private void startFirstAnimation() {
@@ -1163,6 +1184,7 @@ public class FileBrowserMainActivity extends AppCompatActivity {
                 swapContainers(mGalleryRecyclerView, mFileBrowserContainer);
             }
         } else {
+            mGalleryRecyclerView.setVisibility(View.INVISIBLE);
             mFileBrowserContainer.setVisibility(View.VISIBLE);
         }
         mFileFilter = new FileFilter() {
@@ -1172,7 +1194,7 @@ public class FileBrowserMainActivity extends AppCompatActivity {
                         FileUtil.getMimeTypeFromPath(pathname.getPath()).toLowerCase().contains("pdf");
             }
         };
-
+        checkPartialPermission(false);
 //        initFileBrowserRecyclerView();
         changePages(mPageType);
 
@@ -1186,6 +1208,7 @@ public class FileBrowserMainActivity extends AppCompatActivity {
                 swapContainers(mGalleryRecyclerView, mFileBrowserContainer);
             }
         } else {
+            mGalleryRecyclerView.setVisibility(View.INVISIBLE);
             mFileBrowserContainer.setVisibility(View.VISIBLE);
         }
         mFileFilter = new FileFilter() {
@@ -1195,6 +1218,7 @@ public class FileBrowserMainActivity extends AppCompatActivity {
                         FileUtil.getMimeTypeFromPath(pathname.getPath()).toLowerCase().contains("audio");
             }
         };
+        checkPartialPermission(false);
 //        initFileBrowserRecyclerView();
         changePages(mPageType);
 
@@ -1208,6 +1232,7 @@ public class FileBrowserMainActivity extends AppCompatActivity {
                 swapContainers(mGalleryRecyclerView, mFileBrowserContainer);
             }
         } else {
+            mGalleryRecyclerView.setVisibility(View.INVISIBLE);
             mFileBrowserContainer.setVisibility(View.VISIBLE);
         }
         if (mFileTabFileFilter != null) {
@@ -1221,6 +1246,7 @@ public class FileBrowserMainActivity extends AppCompatActivity {
                 }
             };
         }
+        checkPartialPermission(true);
 //        initFileBrowserRecyclerView();
         changePages(mPageType);
 
@@ -1265,12 +1291,63 @@ public class FileBrowserMainActivity extends AppCompatActivity {
             if (mFileBrowserContainer.getVisibility() == View.VISIBLE) {
                 swapContainers(mFileBrowserContainer, mGalleryRecyclerView);
             }
+        } else {
+            mGalleryRecyclerView.setVisibility(View.VISIBLE);
+            mFileBrowserContainer.setVisibility(View.INVISIBLE);
         }
+        checkPartialPermission(true);
         if (mGalleryAdapter.getItemCount() == 0) {
             mGalleryViewModel
                     .getAllGalleryModels(mShowCamera, mShowVideosInGallery, false);
         }
 
+    }
+
+    private void checkPartialPermission(boolean showMessage) {
+        View container = findViewById(R.id.sfb_partialSelectionContainer);
+        if (!showMessage) {
+            container.setVisibility(View.GONE);
+            return;
+        }
+        if (!shouldShowPartialPermissionMessage()) {
+            container.setVisibility(View.GONE);
+            return;
+        }
+        container.setVisibility(View.VISIBLE);
+        Button btn = findViewById(R.id.sfb_btnManagePartialPermission);
+        btn.setOnClickListener(v -> {
+            requestVisualPermission();
+        });
+    }
+
+    private void requestVisualPermission() {
+        ArrayList<String> visualPermissions = new ArrayList<>();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            visualPermissions.add(Manifest.permission.READ_MEDIA_IMAGES);
+            if (mShowVideosInGallery) {
+                visualPermissions.add(Manifest.permission.READ_MEDIA_VIDEO);
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                visualPermissions.add(Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED);
+            }
+        } else {
+            visualPermissions.add(Manifest.permission.READ_EXTERNAL_STORAGE);
+        }
+        ActivityCompat.requestPermissions(this, visualPermissions.toArray(new String[0]), REQ_CODE_VISUAL_PERMISSION);
+    }
+
+    private boolean shouldShowPartialPermissionMessage() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+             (
+              ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED ||
+              ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_VIDEO) ==  PackageManager.PERMISSION_GRANTED
+             )
+        ){
+            return false;
+        }
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE &&
+                ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED) ==
+                        PackageManager.PERMISSION_GRANTED;
     }
 
 
@@ -1468,14 +1545,19 @@ public class FileBrowserMainActivity extends AppCompatActivity {
         }
     }
 
-    //</editor-fold>
-    @Override
-    public void finish() {
+    private void close(boolean canceled) {
         try {
+            mIsCanceled.set(canceled);
             mBottomSheetBehavior.setHideable(true);
             mBottomSheetBehavior.setState(MyBehavior.STATE_HIDDEN);
         } catch (Exception ignore) {
         }
+    }
+
+    //</editor-fold>
+    @Override
+    public void finish() {
+
         super.finish();
         overridePendingTransition(R.anim.sfb_not_anim, R.anim.sfb_fade_out);
 
@@ -1602,7 +1684,7 @@ public class FileBrowserMainActivity extends AppCompatActivity {
                 Intent resultIntent = new Intent();
                 resultIntent.putExtras(bundle);
                 setResult(RESULT_OK, resultIntent);
-                finish();
+                close(false);
             }
         } else if (requestCode == REQ_CODE_SYSTEM_FILE_BROWSER) {
             if (resultCode == RESULT_OK && data != null) {
@@ -1614,7 +1696,7 @@ public class FileBrowserMainActivity extends AppCompatActivity {
                 Intent resultIntent = new Intent();
                 resultIntent.putExtras(bundle);
                 setResult(RESULT_OK, resultIntent);
-                finish();
+                close(false);
 
             }
         }
@@ -1653,5 +1735,23 @@ public class FileBrowserMainActivity extends AppCompatActivity {
             }
         }
         return uris.toArray(new Uri[0]);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults, int deviceId) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults, deviceId);
+        if (requestCode == REQ_CODE_VISUAL_PERMISSION) {
+            boolean hasAcess = false;
+            for (int p : grantResults) {
+                if (p == PackageManager.PERMISSION_GRANTED) {
+                    hasAcess = true;
+                    break;
+                }
+            }
+            if (hasAcess) {
+                mGalleryViewModel.getAllGalleryModels(mShowCamera, mShowVideosInGallery, true);
+                checkPartialPermission(true);
+            }
+        }
     }
 }

@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
-
+    <item name="key_picker_canceld" type="id" />
 </resources>
