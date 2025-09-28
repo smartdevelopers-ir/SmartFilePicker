@@ -58,11 +58,12 @@
                 android:gravity="center_vertical"
                 >
                 <com.google.android.material.textview.MaterialTextView
+                    android:id="@+id/sfb_txtPermissionMessage"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:textColor="?attr/colorOnTertiaryFixed"
-                    android:text="@string/partial_selection_warning"
+                    android:text="@string/sfb_partial_selection_warning"
                     android:layout_marginStart="8dp"
                     android:layout_marginEnd="8dp"
                     />

@@ -11,6 +11,8 @@ import ir.smartdevelopers.smartfilebrowser.customClasses.Utils;
 public  class GalleryModel implements FileModel ,Comparable<GalleryModel>{
 
     public static final int TYPE_CAMERA = -102;
+    public static final int TYPE_SYSTEM_GALLERY = -103;
+
     private long id;
     private String mPath;
     private Uri mUri;

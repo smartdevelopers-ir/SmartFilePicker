@@ -74,8 +74,11 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         if (viewType==GalleryModel.TYPE_CAMERA){
             view=LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.item_camera_layout,viewGroup,false);
             return new CameraViewHolder(view);
+        } else if (viewType == GalleryModel.TYPE_SYSTEM_GALLERY) {
+            view=LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.item_system_gallery_layout,viewGroup,false);
+            return new SystemGalleryAdapter(view);
         }
-         view= LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.item_gallery_layout,viewGroup,false);
+        view= LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.item_gallery_layout,viewGroup,false);
         return new GalleryViewHolder(view);
     }
 
@@ -109,9 +112,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
 
-        if (holder.getItemViewType()==GalleryModel.TYPE_CAMERA){
-
-        }else {
+        if(holder instanceof GalleryViewHolder) {
             ((GalleryViewHolder)holder).bindView(mGalleryModels.get(position));
         }
     }
@@ -273,6 +274,17 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 }
             });
 //            spanCount=itemView.getResources().getInteger(R.integer.sfb_gallery_grid);
+        }
+    }
+    class SystemGalleryAdapter extends RecyclerView.ViewHolder{
+
+        public SystemGalleryAdapter(@NonNull View itemView) {
+            super(itemView);
+            itemView.setOnClickListener(v->{
+                if (mOnItemClickListener != null) {
+                    mOnItemClickListener.onItemClicked(mGalleryModels.get(getAdapterPosition()),v,getAdapterPosition());
+                }
+            });
         }
     }
 

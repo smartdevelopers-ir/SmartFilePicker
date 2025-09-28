@@ -10,11 +10,8 @@ import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.app.SharedElementCallback;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
-import androidx.core.graphics.Insets;
-import androidx.core.view.OnApplyWindowInsetsListener;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
@@ -109,6 +106,8 @@ public class FileBrowserMainActivity extends AppCompatActivity {
     public static final int REQ_CODE_PICK_BY_GALLEY = 305;
     private static final int REQ_CODE_SYSTEM_FILE_BROWSER = 6354;
     private static final int REQ_CODE_VISUAL_PERMISSION = 306;
+    private static final int REQ_CODE_AUDIO_PERMISSION = 307;
+    private static final int REQ_CODE_FILE_PERMISSION = 308;
     private AppBarLayout mAppBarLayout;
     private RoundViewGroup mBottomSheetRoot;
     private MyBehavior<View> mBottomSheetBehavior;
@@ -162,6 +161,7 @@ public class FileBrowserMainActivity extends AppCompatActivity {
     private Group mFileBrowserNoItemGroup;
     private TextView txtFileBrowserNotFoundSubTitle;
     private String mFileBrowserSearchPendingQuery = "";
+    private View mPermissionMessageContainer;
     //</editor-fold>
     //<editor-fold desc="Gallery parameters">
     private RecyclerView mGalleryRecyclerView;
@@ -335,10 +335,28 @@ public class FileBrowserMainActivity extends AppCompatActivity {
 
             LiveData<List<GalleryModel>> allGalleryModels = mGalleryViewModel.getGalleryModelsLiveData();
             allGalleryModels.observe(this, new Observer<List<GalleryModel>>() {
+                private GalleryModel systemGalleryModel;
                 @Override
                 public void onChanged(List<GalleryModel> galleryModels) {
 
                     if (galleryModels != null) {
+                        int position = 0;
+                        if (mShowCamera){
+                            position = 1;
+                        }
+                        if (isGalleryPermissionDenied()){
+                            if (systemGalleryModel == null){
+                                systemGalleryModel = new GalleryModel();
+                                systemGalleryModel.setType(GalleryModel.TYPE_SYSTEM_GALLERY);
+                                systemGalleryModel.setId(GalleryModel.TYPE_SYSTEM_GALLERY);
+                            }
+
+                            galleryModels.add(position,systemGalleryModel);
+                        }else{
+                            if (galleryModels.size() > position && galleryModels.get(position).getType() == GalleryModel.TYPE_SYSTEM_GALLERY){
+                                galleryModels.remove(position);
+                            }
+                        }
                         mGalleryAdapter.setList(galleryModels);
                     }
                 }
@@ -379,6 +397,7 @@ public class FileBrowserMainActivity extends AppCompatActivity {
         ActivityCompat.postponeEnterTransition(this);
 
     }
+
 
     private void manageEdgeToEdge() {
         mBottomNavigationView.setTranslucentNavigationEnabled(true);
@@ -436,6 +455,7 @@ public class FileBrowserMainActivity extends AppCompatActivity {
         mGalleryRecyclerView = findViewById(R.id.sfb_fragment_gallery_recyclerView);
         mFileBrowserNoItemGroup = findViewById(R.id.fragment_file_browser_noItemGroup);
         txtFileBrowserNotFoundSubTitle = findViewById(R.id.fragment_file_browser_txtNoItemFoundSubTitle);
+        mPermissionMessageContainer = findViewById(R.id.sfb_partialSelectionContainer);
     }
 
     private void initListeners() {
@@ -598,6 +618,8 @@ public class FileBrowserMainActivity extends AppCompatActivity {
             public void onItemClicked(GalleryModel model, View view, int position) {
                 if (model.getType() == GalleryModel.TYPE_CAMERA) {
                     openCamera();
+                } else if (model.getType() == GalleryModel.TYPE_SYSTEM_GALLERY) {
+                    openSystemGalleryApp();
                 } else {
                     if (mOnGalleryItemClickListener != null) {
                         mOnGalleryItemClickListener.onItemClicked(model, view, position);
@@ -871,17 +893,17 @@ public class FileBrowserMainActivity extends AppCompatActivity {
     private void showSuitableToolbar(PageType type) {
         switch (type) {
             case TYPE_AUDIO:
-                showFileBrowserToolbar(getString(R.string.sfb_audio_file_broswer_toolbar_title));
+                showFileBrowserToolbar(getString(R.string.sfb_audio_file_browser_toolbar_title));
 
                 break;
             case TYPE_PDF:
-                showFileBrowserToolbar(getString(R.string.sfb_pdf_file_broswer_toolbar_title));
+                showFileBrowserToolbar(getString(R.string.sfb_pdf_file_browser_toolbar_title));
                 break;
             case TYPE_VIDEO:
-                showFileBrowserToolbar(getString(R.string.sfb_video_file_broswer_toolbar_title));
+                showFileBrowserToolbar(getString(R.string.sfb_video_file_browser_toolbar_title));
                 break;
             case TYPE_FILE_BROWSER:
-                showFileBrowserToolbar(getString(R.string.sfb_file_broswer_toolbar_title));
+                showFileBrowserToolbar(getString(R.string.sfb_file_browser_toolbar_title));
                 break;
             case TYPE_GALLERY:
                 showGalleryToolbar();
@@ -1194,9 +1216,9 @@ public class FileBrowserMainActivity extends AppCompatActivity {
                         FileUtil.getMimeTypeFromPath(pathname.getPath()).toLowerCase().contains("pdf");
             }
         };
-        checkPartialPermission(false);
 //        initFileBrowserRecyclerView();
         changePages(mPageType);
+        checkPermission(mPageType,animate);
 
     }
 
@@ -1218,10 +1240,9 @@ public class FileBrowserMainActivity extends AppCompatActivity {
                         FileUtil.getMimeTypeFromPath(pathname.getPath()).toLowerCase().contains("audio");
             }
         };
-        checkPartialPermission(false);
 //        initFileBrowserRecyclerView();
         changePages(mPageType);
-
+        checkPermission(mPageType,animate);
 
     }
 
@@ -1246,10 +1267,9 @@ public class FileBrowserMainActivity extends AppCompatActivity {
                 }
             };
         }
-        checkPartialPermission(true);
 //        initFileBrowserRecyclerView();
         changePages(mPageType);
-
+        checkPermission(mPageType,animate);
     }
 
     private ValueAnimator mContainerAnimator;
@@ -1295,7 +1315,7 @@ public class FileBrowserMainActivity extends AppCompatActivity {
             mGalleryRecyclerView.setVisibility(View.VISIBLE);
             mFileBrowserContainer.setVisibility(View.INVISIBLE);
         }
-        checkPartialPermission(true);
+        checkPermission(mPageType,animate);
         if (mGalleryAdapter.getItemCount() == 0) {
             mGalleryViewModel
                     .getAllGalleryModels(mShowCamera, mShowVideosInGallery, false);
@@ -1303,23 +1323,102 @@ public class FileBrowserMainActivity extends AppCompatActivity {
 
     }
 
-    private void checkPartialPermission(boolean showMessage) {
-        View container = findViewById(R.id.sfb_partialSelectionContainer);
-        if (!showMessage) {
-            container.setVisibility(View.GONE);
-            return;
-        }
-        if (!shouldShowPartialPermissionMessage()) {
-            container.setVisibility(View.GONE);
-            return;
-        }
-        container.setVisibility(View.VISIBLE);
-        Button btn = findViewById(R.id.sfb_btnManagePartialPermission);
-        btn.setOnClickListener(v -> {
-            requestVisualPermission();
-        });
-    }
 
+    private void checkPermission(PageType pageType,boolean animate) {
+        boolean show = false;
+        String message = "";
+        View.OnClickListener onClickListener = null;
+        Button btn = mPermissionMessageContainer.findViewById(R.id.sfb_btnManagePartialPermission);
+        switch (pageType){
+            case TYPE_GALLERY:
+            case TYPE_VIDEO:
+                if (isGalleryPermissionDenied()){
+                    show = true;
+                    message = getString(R.string.sfb_gallery_permission_denied_message);
+                    btn.setText(R.string.sfb_allow);
+
+                }else if (shouldShowPartialPermissionMessage()){
+                    show = true;
+                    message = getString(R.string.sfb_partial_selection_warning);
+                    btn.setText(R.string.sfb_manage);
+                }
+                onClickListener = (v)->requestVisualPermission();
+                break;
+            case TYPE_FILE_BROWSER:
+                if (isFilesPermissionDenied()){
+                    show = true;
+                    message = getString(R.string.sfb_file_permission_denied_message);
+                    btn.setText(R.string.sfb_allow);
+                    onClickListener = (v) -> requestFilesPermission();
+                }
+                break;
+            case TYPE_AUDIO:
+                if (isAudioPermissionDenied()){
+                    show = true;
+                    message = getString(R.string.sfb_audio_permission_denied_message);
+                    btn.setText(R.string.sfb_allow);
+                    onClickListener = (v) -> requestAudioPermission();
+                }
+                break;
+            case TYPE_PDF:
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU){
+                    if (isFilesPermissionDenied()){
+                        show = true;
+                        message = getString(R.string.sfb_file_permission_denied_message);
+                        btn.setText(R.string.sfb_allow);
+                        onClickListener = (v) -> requestFilesPermission();
+                    }
+                }
+                break;
+        }
+
+        if (!show) {
+            if (animate){
+                if (mContainerAnimator!= null && mContainerAnimator.isRunning()){
+                    mContainerAnimator.addListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            mPermissionMessageContainer.setVisibility(View.GONE);
+                        }
+                    });
+                }else{
+                    mPermissionMessageContainer.setVisibility(View.GONE);
+                }
+            }else{
+                mPermissionMessageContainer.setVisibility(View.GONE);
+            }
+            return;
+        }
+        mPermissionMessageContainer.setVisibility(View.VISIBLE);
+        TextView txtMessage = mPermissionMessageContainer.findViewById(R.id.sfb_txtPermissionMessage);
+        txtMessage.setText(message);
+        btn.setOnClickListener(onClickListener);
+    }
+    private void requestAudioPermission(){
+        String permission = Manifest.permission.READ_EXTERNAL_STORAGE;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            permission = Manifest.permission.READ_MEDIA_AUDIO;
+        }
+        ActivityCompat.requestPermissions(this, new String[]{permission}, REQ_CODE_AUDIO_PERMISSION);
+
+    }
+    private void requestFilesPermission(){
+        ArrayList<String> allPermissions = new ArrayList<>();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            allPermissions.add(Manifest.permission.READ_MEDIA_IMAGES);
+            allPermissions.add(Manifest.permission.READ_MEDIA_VIDEO);
+            allPermissions.add(Manifest.permission.READ_MEDIA_AUDIO);
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                allPermissions.add(Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED);
+            }
+        } else {
+            allPermissions.add(Manifest.permission.READ_EXTERNAL_STORAGE);
+        }
+        ActivityCompat.requestPermissions(this, allPermissions.toArray(new String[0]), REQ_CODE_FILE_PERMISSION);
+
+    }
     private void requestVisualPermission() {
         ArrayList<String> visualPermissions = new ArrayList<>();
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -1335,7 +1434,54 @@ public class FileBrowserMainActivity extends AppCompatActivity {
         }
         ActivityCompat.requestPermissions(this, visualPermissions.toArray(new String[0]), REQ_CODE_VISUAL_PERMISSION);
     }
+    private boolean isAudioPermissionDenied(){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE ){
+                return ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_MEDIA_AUDIO) !=
+                        PackageManager.PERMISSION_GRANTED;
 
+        }
+        return ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED;
+    }
+    private boolean isGalleryPermissionDenied() {
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED){
+
+                if (mShowVideosInGallery){
+                    return ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_VIDEO) != PackageManager.PERMISSION_GRANTED;
+                }
+
+            return false;
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE &&
+                ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED) ==
+                        PackageManager.PERMISSION_GRANTED){
+            return false;
+        }
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU){
+            return ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED;
+        }
+        return true;
+
+    }
+    private boolean isFilesPermissionDenied(){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_AUDIO) == PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_VIDEO) == PackageManager.PERMISSION_GRANTED){
+
+            return false;
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE &&
+                ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_VISUAL_USER_SELECTED) == PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_AUDIO) == PackageManager.PERMISSION_GRANTED){
+            return false;
+        }
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU){
+            return ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED;
+        }
+        return true;
+    }
     private boolean shouldShowPartialPermissionMessage() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
              (
@@ -1539,9 +1685,7 @@ public class FileBrowserMainActivity extends AppCompatActivity {
             Uri updatedFileUri = FileProvider.getUriForFile(getApplicationContext(),
                     getPackageName() + ".sfb_provider", new File(newFilePath));
             mGalleryAdapter.updateSelectedFile(newFilePath, editedImagePosition, updatedFileUri);
-            if (Build.VERSION.SDK_INT < 21) {
-                mGalleryAdapter.notifyItemChanged(editedImagePosition);
-            }
+
         }
     }
 
@@ -1750,7 +1894,23 @@ public class FileBrowserMainActivity extends AppCompatActivity {
             }
             if (hasAcess) {
                 mGalleryViewModel.getAllGalleryModels(mShowCamera, mShowVideosInGallery, true);
-                checkPartialPermission(true);
+                checkPermission(mPageType,false);
+            }
+        } else {
+            boolean hasAcess = false;
+            for (int p : grantResults) {
+                if (p == PackageManager.PERMISSION_GRANTED) {
+                    hasAcess = true;
+                    break;
+                }
+            }
+
+            if (hasAcess) {
+                if (requestCode == REQ_CODE_FILE_PERMISSION){
+                    mGalleryViewModel.getAllGalleryModels(mShowCamera, mShowVideosInGallery, true);
+                }
+                getFirstPageList();
+                checkPermission(mPageType,false);
             }
         }
     }
