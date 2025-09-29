@@ -9,12 +9,13 @@
     <color name="sfb_color_file">#006C80</color>
     <color name="sfb_colorDraggingLine">#383838</color>
     <color name="white">#ffffff</color>
-    <color name="sfb_colorFileBrowserItemTitle">#272727</color>
-    <color name="sfb_colorFileBrowserItemSubTitle" >#99262626</color>
     <color name="sfb_colorDivider">#9B9B9B</color>
-    <color name="sfb_colorFileBrowserAllFileText">#29B6F6</color>
     <color name="sfb_color_item_inactive">#CCFFFFFF</color>
     <color name="sfb_colorBlue">#1E88E5</color>
+    <color name="sfb_color_checkbox_fill">?attr/colorSecondary</color>
+    <color name="sfb_color_checkbox_stroke">@color/white</color>
+    <color name="sfb_color_checkbox_tick">?attr/colorOnSecondary</color>
+    <color name="sfb_color_checkbox_number">?attr/colorOnSecondary</color>
     <color name="black">#000000</color>
 
     <!--Theme colors-->

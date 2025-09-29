@@ -50,7 +50,7 @@
         android:layout_toEndOf="@id/item_file_browser_imgIcon"
         android:ellipsize="end"
         android:maxLines="1"
-        android:textColor="@color/sfb_colorFileBrowserItemTitle"
+        android:textColor="?attr/colorOnSurface"
         android:textSize="@dimen/sfb_fileBrowserItemTitleSize"
        tools:text="sadasdasdasdsdsadsadasdsad" />
     <TextView
@@ -65,7 +65,7 @@
         tools:text="sadasdsad"
         android:maxLines="1"
         android:ellipsize="end"
-        android:textColor="@color/sfb_colorFileBrowserItemSubTitle"
+        android:textColor="?attr/colorOnSurfaceVariant"
         android:textSize="@dimen/sfb_fileBrowserItemSubTitleSize"
         />
 
@@ -85,10 +85,8 @@
         android:layout_height="24dp"
         android:layout_alignBottom="@id/item_file_browser_imgIcon"
         android:layout_alignEnd="@id/item_file_browser_imgIcon"
-        android:visibility="gone"
         android:layout_marginEnd="-12dp"
         android:layout_marginBottom="-12dp"
-        tools:visibility="visible"
 
         />
 

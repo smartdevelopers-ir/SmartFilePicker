@@ -39,6 +39,7 @@
         <activity
             android:name=".acitivties.FileBrowserMainActivity"
             android:configChanges="keyboard|orientation"
+            android:launchMode="singleInstance"
             android:theme="@style/sfb_AppTheme" /> <!-- <activity -->
         <!-- android:name="iamutkarshtiwari.github.io.ananas.editimage.EditImageActivity" -->
         <!-- android:exported="true" -->

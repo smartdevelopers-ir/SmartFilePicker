@@ -71,7 +71,8 @@ public class Repository {
             // <editor-fold defaultstate="collapsed" desc=" Images ">
             String[] imageProjection = {MediaStore.Images.Media._ID,
                     MediaStore.Images.Media.DATA, MediaStore.Images.Media.DATE_MODIFIED,
-                    MediaStore.Images.Media.DISPLAY_NAME, MediaStore.Images.Media.MIME_TYPE};
+                    MediaStore.Images.Media.DISPLAY_NAME, MediaStore.Images.Media.MIME_TYPE,
+            MediaStore.Images.Media.WIDTH,MediaStore.Images.Media.HEIGHT,MediaStore.Images.Media.ORIENTATION};
 
             Cursor externalImageCursor = mContentResolver.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, imageProjection,
                     finalSelection, selectionArgs, MediaStore.Images.Media.DATE_MODIFIED + " DESC");
@@ -83,6 +84,8 @@ public class Repository {
                 String[] videoProjection = {MediaStore.Video.Media._ID,
                         MediaStore.Video.Media.DATA, MediaStore.Video.Media.DATE_MODIFIED,
                         MediaStore.Video.Media.DISPLAY_NAME, MediaStore.Video.Media.MIME_TYPE,
+                        MediaStore.Images.Media.WIDTH,MediaStore.Images.Media.HEIGHT,
+                        MediaStore.Images.Media.ORIENTATION,
                         MediaStore.Video.Media.DURATION};
                 Cursor externalVideoCursor = mContentResolver.query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, videoProjection,
                         finalSelection, selectionArgs, MediaStore.Video.Media.DATE_MODIFIED + " DESC");
@@ -168,10 +171,14 @@ public class Repository {
         int dateIndex=cursor.getColumnIndex(projection[2]);
         int nameIndex=cursor.getColumnIndex(projection[3]);
         int mimeTypeIndex=cursor.getColumnIndex(projection[4]);
+        int widthIndex = cursor.getColumnIndex(projection[5]);
+        int heighIndex = cursor.getColumnIndex(projection[6]);
+        int orientationIndex = cursor.getColumnIndex(projection[7]);
         int durationIndex=-1;
-        if (projection.length==6){
-            durationIndex=cursor.getColumnIndex(projection[5]);
+        if (projection.length==9){
+            durationIndex=cursor.getColumnIndex(projection[8]);
         }
+
         while (cursor.moveToNext()){
             GalleryModel model=new GalleryModel();
             model.setId(cursor.getLong(idIndex));
@@ -179,6 +186,9 @@ public class Repository {
             model.setName(cursor.getString(nameIndex));
             model.setDateAdded(cursor.getLong(dateIndex));
             model.setType(FileUtil.getFileTypeCode(cursor.getString(mimeTypeIndex)));
+            model.setWidth(cursor.getInt(widthIndex));
+            model.setHeight(cursor.getInt(heighIndex));
+            model.setOrientation(cursor.getInt(orientationIndex));
 
             if (model.getType()==FileUtil.TYPE_VIDEO && durationIndex!=-1){
                 model.setDuration(cursor.getLong(durationIndex));

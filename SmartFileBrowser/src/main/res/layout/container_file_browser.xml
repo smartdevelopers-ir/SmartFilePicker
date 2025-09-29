@@ -28,7 +28,7 @@
         app:srcCompat="@drawable/sfb_ic_file_not_found"
         tools:ignore="ContentDescription"
         app:layout_constraintVertical_bias="0.3"
-        app:tint="#808080" />
+        app:tint="?attr/colorOnSurfaceVariant" />
     <TextView
         android:id="@+id/fragment_file_browser_txtNoItemFoundTitle"
         android:layout_width="wrap_content"
@@ -40,7 +40,7 @@
         android:layout_marginEnd="16dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
-        android:textAppearance="@style/TextAppearance.AppCompat.SearchResult.Title"
+        android:textAppearance="@style/TextAppearance.Material3.BodyLarge"
         />
     <TextView
         android:id="@+id/fragment_file_browser_txtNoItemFoundSubTitle"
@@ -54,7 +54,7 @@
         android:layout_marginStart="16dp"
         app:layout_constrainedWidth="true"
         android:gravity="center"
-        android:textAppearance="@style/TextAppearance.AppCompat.SearchResult.Subtitle"
+        android:textAppearance="@style/TextAppearance.Material3.BodyMedium"
         />
     <androidx.constraintlayout.widget.Group
         android:id="@+id/fragment_file_browser_noItemGroup"

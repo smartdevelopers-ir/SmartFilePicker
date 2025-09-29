@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="@dimen/sfb_appbarSize"
     xmlns:tools="http://schemas.android.com/tools"
+    android:backgroundTint="?attr/colorSurface"
     app:layout_constraintBottom_toBottomOf="@+id/fileBrowser_activity_main_txtToolbarTitle"
     app:layout_constraintTop_toBottomOf="@+id/fileBrowser_activity_main_txtToolbarTitle">
 
@@ -18,7 +19,7 @@
         android:layout_weight="1"
         android:ellipsize="end"
         android:maxLines="1"
-        android:textAppearance="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"
+        android:textAppearance="@style/TextAppearance.Material3.ActionBar.Title"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@id/fileBrowser_activity_main_btnSearch"
@@ -35,14 +36,16 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         android:layout_margin="16dp"
-        app:srcCompat="@drawable/sfb_ic_search" />
+        app:srcCompat="@drawable/sfb_ic_search"
+        app:tint="?attr/colorOnSurfaceVariant"
+        />
 
     <ir.smartdevelopers.smartfilebrowser.customClasses.SearchView
         android:id="@+id/fileBrowser_activity_main_searchView"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_marginStart="16dp"
-        android:background="@color/white"
+        android:background="?attr/colorSurface"
         android:visibility="gone"
         android:focusable="true"
         android:clickable="true"

@@ -370,14 +370,14 @@ public class FileBrowserAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
         }
         public void itemSelected(FileBrowserModel model,boolean animate) {
             if (mSelectedFiles.contains(model.getCurrentFile())){
-                chbSelected.setVisibility(View.VISIBLE);
+//                chbSelected.setVisibility(View.VISIBLE);
                 chbSelected.setChecked(true);
                 if (!model.isSelected()){
                     model.setSelected(true);
                 }
             }else {
                 chbSelected.setChecked(false);
-                chbSelected.setVisibility(View.GONE);
+//                chbSelected.setVisibility(View.GONE);
                 if (model.isSelected()){
                     model.setSelected(false);
                 }

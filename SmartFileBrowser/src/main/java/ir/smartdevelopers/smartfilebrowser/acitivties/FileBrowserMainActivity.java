@@ -1,17 +1,23 @@
 package ir.smartdevelopers.smartfilebrowser.acitivties;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.constraintlayout.widget.Group;
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.app.SharedElementCallback;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
+import androidx.core.graphics.Insets;
+import androidx.core.graphics.drawable.BitmapDrawableKt;
+import androidx.core.graphics.drawable.DrawableKt;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
@@ -22,15 +28,20 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.Manifest;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.animation.StateListAnimator;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.ClipData;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Rect;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -39,8 +50,10 @@ import android.text.Html;
 import android.text.TextUtils;
 import android.transition.Transition;
 import android.transition.TransitionInflater;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -48,6 +61,8 @@ import android.view.ViewGroup;
 import android.view.ViewPropertyAnimator;
 import android.view.ViewTreeObserver;
 import android.view.Window;
+import android.view.WindowManager;
+import android.view.animation.Animation;
 import android.view.animation.OvershootInterpolator;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -55,6 +70,8 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.window.OnBackInvokedCallback;
+import android.window.OnBackInvokedDispatcher;
 
 
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
@@ -82,6 +99,7 @@ import ir.smartdevelopers.smartfilebrowser.customClasses.MyBehavior;
 import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemLongClickListener;
 import ir.smartdevelopers.smartfilebrowser.customClasses.OnSearchListener;
 import ir.smartdevelopers.smartfilebrowser.customClasses.ResultListener;
+import ir.smartdevelopers.smartfilebrowser.customClasses.Utils;
 import ir.smartdevelopers.smartfilebrowser.models.FileModel;
 import ir.smartdevelopers.smartfilebrowser.customClasses.FileUtil;
 import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemChooseListener;
@@ -395,12 +413,94 @@ public class FileBrowserMainActivity extends AppCompatActivity {
             }
         });
         ActivityCompat.postponeEnterTransition(this);
+    handleBackPress();
+    }
 
+    private void handleBackPress() {
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (mPageType != PageType.TYPE_GALLERY) {
+                    SearchView searchView = findViewById(R.id.fileBrowser_activity_main_searchView);
+                    if (searchView != null && searchView.isShown()) {
+                        searchView.close(true);
+                        return;
+                    }
+                    if (isShowingFileBrowser() /*&& !shouldShowSystemFileBrowser()*/) {
+                        if (isFileBrowserInSubDirectory()) {
+                            goBackToFileBrowserParentDirectory();
+                            return;
+                        }
+                    }
+                }
+                if (mBottomSheetBehavior.getState() == MyBehavior.STATE_EXPANDED) {
+                    if (isShowingGallery() && canGalleryScrollUp()) {
+                        scrollGalleryToFirstPos();
+                        return;
+                    } else if (isShowingFileBrowser() && canFileBrowserScrollUp()) {
+                        scrollFileBrowserToFirstPos();
+                        return;
+                    }
+                    mBottomSheetBehavior.setState(MyBehavior.STATE_HALF_EXPANDED);
+                    return;
+                }
+                //noinspection ConstantConditions
+                if (mSelectionFileViewModel.getSelectionHelperLiveData().getValue().selectionCount > 0) {
+
+                    mSelectionFileViewModel.removeAllSelections();
+                    if (isShowingFileBrowser()) {
+                        mOnFileItemSelectListener.onItemSelected(new FileBrowserModel(), 0, 0);
+                        removeAllFileBrowserSelection();
+                        return;
+                    }
+
+                    if (isShowingGallery()) {
+                        mOnFileItemSelectListener.onItemSelected(new GalleryModel(), 0, 0);
+                        removeAllGallerySelections();
+                        return;
+
+                    }
+                }
+
+
+                if (!TextUtils.isEmpty(mEditedImagePath)) {
+                    File editedImageTempFile = new File(mEditedImagePath);
+                    if (editedImageTempFile.exists()) {
+                        editedImageTempFile.delete();
+                    }
+                }
+                close(true);
+
+            }
+        });
     }
 
 
     private void manageEdgeToEdge() {
         mBottomNavigationView.setTranslucentNavigationEnabled(true);
+        mGalleryRecyclerView.setClipToPadding(false);
+        mFileBrowserRecyclerView.setClipToPadding(false);
+        ViewCompat.setOnApplyWindowInsetsListener(mGalleryRecyclerView,(v,insets)->{
+            Insets navInset = insets.getInsets(WindowInsetsCompat.Type.navigationBars());
+            v.setPadding(v.getPaddingLeft(),v.getPaddingTop(),v.getPaddingRight(),v.getPaddingBottom()+navInset.bottom);
+            return insets;
+        });
+        ViewCompat.setOnApplyWindowInsetsListener(mFileBrowserRecyclerView,(v,insets)->{
+            Insets navInset = insets.getInsets(WindowInsetsCompat.Type.navigationBars());
+            v.setPadding(v.getPaddingLeft(),v.getPaddingTop(),v.getPaddingRight(),v.getPaddingBottom()+navInset.bottom);
+            return insets;
+        });
+        ViewCompat.setOnApplyWindowInsetsListener(mMainRootView,(v,insets)->{
+            Insets navInset = insets.getInsets(WindowInsetsCompat.Type.navigationBars());
+            int screenHeight = getResources().getDisplayMetrics().heightPixels;
+            mBottomSheetBehavior.setPeekHeight((screenHeight / 2) + navInset.bottom, true);
+            return insets;
+        });
+        ViewCompat.setOnApplyWindowInsetsListener(mSelectionContainer,(v,insets)->{
+            Insets navInset = insets.getInsets(WindowInsetsCompat.Type.navigationBars());
+            v.setTag(R.id.sfb_key_selection_container_inset,navInset.bottom);
+            return insets;
+        });
 
     }
 
@@ -654,7 +754,12 @@ public class FileBrowserMainActivity extends AppCompatActivity {
         Uri uri = FileProvider.getUriForFile(this, getPackageName() + ".sfb_provider", model.getCurrentFile());
         Intent editorIntent = new Intent(this, PhotoEditorActivity.class);
         editorIntent.setData(uri);
+        if (view instanceof ImageView){
+            Rect rect = Utils.calculateBitmapBound(getResources(),model);
+            Bitmap preview = DrawableKt.toBitmap(((ImageView) view).getDrawable(),rect.width(),rect.height(), Bitmap.Config.ARGB_8888);
 
+            PhotoEditorActivity.Preview = preview;
+        }
         editorIntent.putExtra(PhotoEditorActivity.KEY_SAVE_PATH, mEditedImagePath);
         Bundle options = null;
         if (view != null) {
@@ -671,6 +776,8 @@ public class FileBrowserMainActivity extends AppCompatActivity {
 
 
     }
+
+
 
 
     private boolean mFileBrowserEnabled = true;
@@ -727,7 +834,12 @@ public class FileBrowserMainActivity extends AppCompatActivity {
         ViewGroup.LayoutParams appBarParams = mAppBarLayout.getLayoutParams();
         appBarParams.height = mActionBarSize;
         mAppBarLayout.setLayoutParams(appBarParams);
-        int screenHeight = getResources().getDisplayMetrics().heightPixels;
+        Display d = ((WindowManager)getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
+
+        DisplayMetrics realDisplayMetrics = new DisplayMetrics();
+        d.getRealMetrics(realDisplayMetrics);
+
+        int screenHeight = realDisplayMetrics.heightPixels;
         mRadius = getResources().getDimension(R.dimen.sfb_bottom_sheet_top_radius);
         mAppBarLayout.setTranslationY(-mActionBarSize);
         mBottomSheetBehavior = MyBehavior.from(mBottomSheetRoot);
@@ -750,6 +862,12 @@ public class FileBrowserMainActivity extends AppCompatActivity {
             public void onSlide(@NonNull View bottomSheet, float slideOffset) {
                 float translation = -mActionBarSize;
                 float h = 0.05f;
+                int bottomInset = 0;
+
+                if ( mSelectionContainer.getTag(R.id.sfb_key_selection_container_inset) != null){
+                    bottomInset = (int) mSelectionContainer.getTag(R.id.sfb_key_selection_container_inset);
+                }
+                int navSpace = screenHeight - bottomInset - ((ViewGroup.MarginLayoutParams)mSelectionContainer.getLayoutParams()).bottomMargin;
                 if (slideOffset > h && slideOffset <= 1) {
                     // show appbar
                     int currentTranslation = (int) convertOffsetToDimen(h, 1, translation, 0, slideOffset);
@@ -764,14 +882,20 @@ public class FileBrowserMainActivity extends AppCompatActivity {
                             0, mBottomNavigationView.getMeasuredHeight(), slideOffset));
                     mBottomNavigationView.setTranslationY(bottomNavigationTranslation);
 
-                    mSelectionContainer.setTranslationY(mBottomNavigationView.getTranslationY());
+                    if (((mSelectionContainer.getBottom()/*-btnSelectionOk.getBottom()*/)+bottomNavigationTranslation) < navSpace ){
+                        mSelectionContainer.setTranslationY(mBottomNavigationView.getTranslationY());
+                    }else{
+                        mSelectionContainer.setTranslationY(navSpace - mSelectionContainer.getBottom());
+                    }
                 } else if (slideOffset <= h && slideOffset >= 0) {
                     mAppBarLayout.setTranslationY(translation);
                 } else if (slideOffset < -h) {
                     float bottomNavigationTranslation = Math.abs(convertOffsetToDimen(-h, -1,
                             0, mBottomNavigationView.getMeasuredHeight(), slideOffset));
                     mBottomNavigationView.setTranslationY(bottomNavigationTranslation);
-                    mSelectionContainer.setTranslationY(mBottomNavigationView.getTranslationY());
+                    mSelectionContainer.setTranslationY(mBottomNavigationView.getTranslationY()*3);
+
+
 
                 }
                 if (slideOffset > h) {
@@ -799,7 +923,7 @@ public class FileBrowserMainActivity extends AppCompatActivity {
             }
         }
         btnBack.setOnClickListener(v -> {
-            onBackPressed();
+            getOnBackPressedDispatcher().onBackPressed();
         });
         btnSelectionOk.setOnClickListener(v -> {
             sendBackResult(null);
@@ -1179,12 +1303,13 @@ public class FileBrowserMainActivity extends AppCompatActivity {
         if (mSelectionContainer.getVisibility() == View.VISIBLE) {
             return;
         }
+        mSelectionContainer.setScaleX(0);
+        mSelectionContainer.setScaleY(0);
+        mSelectionContainer.setVisibility(View.VISIBLE);
         mSelectionContainer.post(() -> {
             mSelectionContainer.animate().setDuration(100).scaleX(1).scaleY(1)
                     .withStartAction(() -> {
-                        mSelectionContainer.setScaleX(0);
-                        mSelectionContainer.setScaleY(0);
-                        mSelectionContainer.setVisibility(View.VISIBLE);
+
                     }).start();
         });
     }
@@ -1435,7 +1560,7 @@ public class FileBrowserMainActivity extends AppCompatActivity {
         ActivityCompat.requestPermissions(this, visualPermissions.toArray(new String[0]), REQ_CODE_VISUAL_PERMISSION);
     }
     private boolean isAudioPermissionDenied(){
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE ){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU ){
                 return ContextCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.READ_MEDIA_AUDIO) !=
                         PackageManager.PERMISSION_GRANTED;
 
@@ -1707,62 +1832,6 @@ public class FileBrowserMainActivity extends AppCompatActivity {
 
     }
 
-    @Override
-    public void onBackPressed() {
-
-        if (mPageType != PageType.TYPE_GALLERY) {
-            SearchView searchView = findViewById(R.id.fileBrowser_activity_main_searchView);
-            if (searchView != null && searchView.isShown()) {
-                searchView.close(true);
-                return;
-            }
-            if (isShowingFileBrowser() /*&& !shouldShowSystemFileBrowser()*/) {
-                if (isFileBrowserInSubDirectory()) {
-                    goBackToFileBrowserParentDirectory();
-                    return;
-                }
-            }
-        }
-        if (mBottomSheetBehavior.getState() == MyBehavior.STATE_EXPANDED) {
-            if (isShowingGallery() && canGalleryScrollUp()) {
-                scrollGalleryToFirstPos();
-                return;
-            } else if (isShowingFileBrowser() && canFileBrowserScrollUp()) {
-                scrollFileBrowserToFirstPos();
-                return;
-            }
-            mBottomSheetBehavior.setState(MyBehavior.STATE_HALF_EXPANDED);
-            return;
-        }
-        //noinspection ConstantConditions
-        if (mSelectionFileViewModel.getSelectionHelperLiveData().getValue().selectionCount > 0) {
-
-            mSelectionFileViewModel.removeAllSelections();
-            if (isShowingFileBrowser()) {
-                mOnFileItemSelectListener.onItemSelected(new FileBrowserModel(), 0, 0);
-                removeAllFileBrowserSelection();
-            }
-
-            return;
-        }
-
-        if (isShowingGallery()) {
-            if (getGalleryItemSelectionCount() > 0) {
-
-                mOnFileItemSelectListener.onItemSelected(new GalleryModel(), 0, 0);
-                removeAllGallerySelections();
-                return;
-            }
-        }
-        if (!TextUtils.isEmpty(mEditedImagePath)) {
-            File editedImageTempFile = new File(mEditedImagePath);
-            if (editedImageTempFile.exists()) {
-                editedImageTempFile.delete();
-            }
-        }
-        setResult(RESULT_CANCELED);
-        super.onBackPressed();
-    }
 
 
     public FileFilter getFileFilter() {
@@ -1882,8 +1951,8 @@ public class FileBrowserMainActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults, int deviceId) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults, deviceId);
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == REQ_CODE_VISUAL_PERMISSION) {
             boolean hasAcess = false;
             for (int p : grantResults) {
@@ -1914,4 +1983,5 @@ public class FileBrowserMainActivity extends AppCompatActivity {
             }
         }
     }
+
 }

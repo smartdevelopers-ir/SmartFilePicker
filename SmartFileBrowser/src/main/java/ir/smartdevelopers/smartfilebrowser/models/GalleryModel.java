@@ -25,6 +25,9 @@ public  class GalleryModel implements FileModel ,Comparable<GalleryModel>{
     private String mThumbnailPath;
     private String mThumbnailId;
     private long duration;
+    private int width;
+    private int height;
+    private int orientation;
 
 
     public String getPath() {
@@ -74,6 +77,21 @@ public  class GalleryModel implements FileModel ,Comparable<GalleryModel>{
         return mType;
     }
 
+    public int getWidth() {
+        return width;
+    }
+
+    public void setWidth(int width) {
+        this.width = width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
+    public void setHeight(int height) {
+        this.height = height;
+    }
 
     /**@param type {@link FileUtil#TYPE_IMAGE} And {@link FileUtil#TYPE_VIDEO}*/
     public void setType(int type) {
@@ -144,5 +162,13 @@ public  class GalleryModel implements FileModel ,Comparable<GalleryModel>{
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    public int getOrientation() {
+        return orientation;
+    }
+
+    public void setOrientation(int orientation) {
+        this.orientation = orientation;
     }
 }

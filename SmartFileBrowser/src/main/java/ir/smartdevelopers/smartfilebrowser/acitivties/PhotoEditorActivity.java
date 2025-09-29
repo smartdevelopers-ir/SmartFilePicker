@@ -45,7 +45,8 @@ public class PhotoEditorActivity extends AppCompatActivity {
 
     public static final String KEY_TRANSITION_NAME = "transition_name";
     public static final String KEY_SAVE_PATH = "save_path";
-
+    public static final String KEY_PREVIEW = "preview_bitmap";
+    public static Bitmap Preview = null;
 
     private PhotoEditorFragment mPhotoEditorFragment;
     private ImageButton btnDone;
@@ -60,21 +61,25 @@ public class PhotoEditorActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
 
         String transitionName = getIntent().getStringExtra(KEY_TRANSITION_NAME);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
 
-            getWindow().requestFeature(Window.FEATURE_ACTIVITY_TRANSITIONS);
+        getWindow().requestFeature(Window.FEATURE_ACTIVITY_TRANSITIONS);
 
-            Transition transition= TransitionInflater.from(this).inflateTransition(R.transition.iten_transition_in);
-            getWindow().setSharedElementEnterTransition(transition);
-            getWindow().setSharedElementReturnTransition(transition);
-        }
+        Transition transition= TransitionInflater.from(this).inflateTransition(R.transition.iten_transition_in);
+        getWindow().setSharedElementEnterTransition(transition);
+        getWindow().setSharedElementReturnTransition(transition);
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_photo_editor);
         mResultListener=ResultListener.getInstance();
         mUri = getIntent().getData();
         mSavePath = getIntent().getStringExtra(KEY_SAVE_PATH);
 
-        mPhotoEditorFragment = PhotoEditorFragment.getInstance(mUri,false);
+        if (Preview != null){
+            mPhotoEditorFragment = PhotoEditorFragment.getInstance(mUri,Preview);
+            Preview = null;
+        }else{
+            mPhotoEditorFragment = PhotoEditorFragment.getInstance(mUri,true);
+        }
         mPhotoEditorFragment.setTransitionName(transitionName);
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.sfb_activity_photoEditor_fragmentView, mPhotoEditorFragment,"photoEditor")
@@ -107,6 +112,13 @@ public class PhotoEditorActivity extends AppCompatActivity {
             }
 
             @Override
+            public void onPreviewLoaded() {
+                if (!saving){
+                    ActivityCompat.startPostponedEnterTransition(PhotoEditorActivity.this);
+                }
+            }
+
+            @Override
             public void onEdit(boolean edited) {
                 isEdited=edited;
                 if (edited){
@@ -119,7 +131,7 @@ public class PhotoEditorActivity extends AppCompatActivity {
             @Override
             public void onImageLoaded(Bitmap bitmap, boolean b) {
                 if (!saving){
-                    ActivityCompat.startPostponedEnterTransition(PhotoEditorActivity.this);
+//                    ActivityCompat.startPostponedEnterTransition(PhotoEditorActivity.this);
                 }else {
                     mResultListener.setSavedBitmap(bitmap);
                     mPhotoEditorFragment.clearAll();
