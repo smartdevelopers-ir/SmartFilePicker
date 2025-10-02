@@ -6,14 +6,12 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.constraintlayout.widget.Group;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.app.SharedElementCallback;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.core.graphics.Insets;
-import androidx.core.graphics.drawable.BitmapDrawableKt;
 import androidx.core.graphics.drawable.DrawableKt;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
@@ -28,7 +26,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.Manifest;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.animation.StateListAnimator;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -39,9 +36,9 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.Rect;
-import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -62,7 +59,6 @@ import android.view.ViewPropertyAnimator;
 import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.WindowManager;
-import android.view.animation.Animation;
 import android.view.animation.OvershootInterpolator;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -70,8 +66,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.window.OnBackInvokedCallback;
-import android.window.OnBackInvokedDispatcher;
 
 
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
@@ -105,7 +99,7 @@ import ir.smartdevelopers.smartfilebrowser.customClasses.FileUtil;
 import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemChooseListener;
 import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemClickListener;
 import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemSelectListener;
-import ir.smartdevelopers.smartfilebrowser.customClasses.RoundViewGroup;
+import ir.smartdevelopers.smartfilebrowser.customClasses.RoundLinearLayout;
 import ir.smartdevelopers.smartfilebrowser.customClasses.SFBFileFilter;
 import ir.smartdevelopers.smartfilebrowser.customClasses.SearchView;
 import ir.smartdevelopers.smartfilebrowser.models.AlbumModel;
@@ -127,7 +121,7 @@ public class FileBrowserMainActivity extends AppCompatActivity {
     private static final int REQ_CODE_AUDIO_PERMISSION = 307;
     private static final int REQ_CODE_FILE_PERMISSION = 308;
     private AppBarLayout mAppBarLayout;
-    private RoundViewGroup mBottomSheetRoot;
+    private RoundLinearLayout mBottomSheetRoot;
     private MyBehavior<View> mBottomSheetBehavior;
     private AHBottomNavigation mBottomNavigationView;
     private View mMainRootView;
@@ -250,12 +244,18 @@ public class FileBrowserMainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        WindowCompat.enableEdgeToEdge(getWindow());
-        getWindow().requestFeature(Window.FEATURE_ACTIVITY_TRANSITIONS);
+        setTheme(R.style.sfb_MainAppTheme_sfb_AppTheme);
+        Window window = getWindow();
+        WindowCompat.enableEdgeToEdge(window);
+        window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        window.addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+//        window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
+        window.setDimAmount(0.6f);
 
-        getWindow().setAllowEnterTransitionOverlap(false);
+        window.requestFeature(Window.FEATURE_ACTIVITY_TRANSITIONS);
+        window.setAllowEnterTransitionOverlap(false);
         Transition transition = TransitionInflater.from(this).inflateTransition(R.transition.iten_transition_in);
-        getWindow().setSharedElementExitTransition(transition);
+        window.setSharedElementExitTransition(transition);
         setExitSharedElementCallback(new SharedElementCallback() {
             @Override
             public void onMapSharedElements(List<String> names, Map<String, View> sharedElements) {
@@ -282,6 +282,9 @@ public class FileBrowserMainActivity extends AppCompatActivity {
                 .get(FilesViewModel.class);
         mResultListener = ResultListener.getInstance();
         findViews();
+//        if ((window.getAttributes().flags & WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION) == WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION){
+//            String s="true";
+//        }
         manageEdgeToEdge();
         getDataFromIntent();
         if (savedInstanceState == null) {

@@ -2,12 +2,14 @@ package ir.smartdevelopers.smartfilebrowser.customClasses;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Environment;
 import android.util.DisplayMetrics;
+import android.util.TypedValue;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -137,5 +139,21 @@ public class Utils {
             }
         }
         return new Rect(0,0, (int) (width/factor), (int) (height/factor));
+    }
+    static int resolveColor(Context context,TypedArray typedArray, int id, int defaultColor) {
+        TypedValue value = new TypedValue();
+        typedArray.getValue(id, value);
+
+        if (value.type == TypedValue.TYPE_ATTRIBUTE) {
+            TypedValue colorVal = new TypedValue();
+            context.getTheme().resolveAttribute(value.data, colorVal, true);
+            if (colorVal.data != 0) {
+                return colorVal.data;
+            }
+
+        } else if (value.type >= TypedValue.TYPE_FIRST_COLOR_INT && value.type <= TypedValue.TYPE_LAST_COLOR_INT) {
+            return value.data;
+        }
+        return defaultColor;
     }
 }

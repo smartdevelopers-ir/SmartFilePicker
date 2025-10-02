@@ -93,10 +93,10 @@ public class SFBCheckboxWithNumber extends View {
                 mAnimationDuration = typedArray.getInteger(R.styleable.SFBCheckboxWithNumber_android_animationDuration, 300);
                 mTextSize = typedArray.getDimension(R.styleable.SFBCheckboxWithNumber_android_textSize, getResources().getDimension(R.dimen.sfb_text_size_14));
 
-                mFillColor = resolveColor(typedArray, R.styleable.SFBCheckboxWithNumber_fillColor, Color.parseColor("#00b8e9"));
-                mStrokeColor = resolveColor(typedArray, R.styleable.SFBCheckboxWithNumber_strokeColor, Color.WHITE);
+                mFillColor = Utils.resolveColor(context,typedArray, R.styleable.SFBCheckboxWithNumber_fillColor, Color.parseColor("#00b8e9"));
+                mStrokeColor = Utils.resolveColor(context,typedArray, R.styleable.SFBCheckboxWithNumber_strokeColor, Color.WHITE);
                 mStrokeWidth = typedArray.getDimension(R.styleable.SFBCheckboxWithNumber_strokeWidth, 12);
-                mTextColor = resolveColor(typedArray, R.styleable.SFBCheckboxWithNumber_android_textColor, Color.WHITE);
+                mTextColor = Utils.resolveColor(context,typedArray, R.styleable.SFBCheckboxWithNumber_android_textColor, Color.WHITE);
                 boolean checked = typedArray.getBoolean(R.styleable.SFBCheckboxWithNumber_android_checked, false);
                 mBlueCheckBoxPaint.setColor(mFillColor);
                 mWhiteCheckBoxPaint.setColor(Color.WHITE);
@@ -114,22 +114,7 @@ public class SFBCheckboxWithNumber extends View {
 
     }
 
-    private int resolveColor(TypedArray typedArray, int id, int defaultColor) {
-        TypedValue value = new TypedValue();
-        typedArray.getValue(id, value);
 
-        if (value.type == TypedValue.TYPE_ATTRIBUTE) {
-            TypedValue colorVal = new TypedValue();
-            getContext().getTheme().resolveAttribute(value.data, colorVal, true);
-            if (colorVal.data != 0) {
-                return colorVal.data;
-            }
-
-        } else if (value.type >= TypedValue.TYPE_FIRST_COLOR_INT && value.type <= TypedValue.TYPE_LAST_COLOR_INT) {
-            return value.data;
-        }
-        return defaultColor;
-    }
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {

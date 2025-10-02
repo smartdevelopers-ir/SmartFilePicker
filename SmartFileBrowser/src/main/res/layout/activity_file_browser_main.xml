@@ -23,7 +23,7 @@
         android:layout_marginTop="@dimen/sfb_expanded_margin_top"
         >
 
-        <ir.smartdevelopers.smartfilebrowser.customClasses.RoundViewGroup
+        <ir.smartdevelopers.smartfilebrowser.customClasses.RoundLinearLayout
             android:id="@+id/fileBrowser_activity_main_contentRootLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -98,7 +98,7 @@
 
             </FrameLayout>
 
-        </ir.smartdevelopers.smartfilebrowser.customClasses.RoundViewGroup>
+        </ir.smartdevelopers.smartfilebrowser.customClasses.RoundLinearLayout>
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
@@ -150,7 +150,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-
 
         />
    <androidx.constraintlayout.widget.ConstraintLayout
