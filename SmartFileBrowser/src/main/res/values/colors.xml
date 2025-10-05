@@ -17,7 +17,6 @@
     <color name="sfb_color_checkbox_tick">?attr/colorOnSecondary</color>
     <color name="sfb_color_checkbox_number">?attr/colorOnSecondary</color>
     <color name="black">#000000</color>
-
     <!--Theme colors-->
     <color name="md_theme_primary">#006874</color>
     <color name="md_theme_onPrimary">#FFFFFF</color>

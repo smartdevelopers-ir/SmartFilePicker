@@ -8,4 +8,5 @@
     <dimen name="sfb_appbarSize">56dp</dimen>
     <dimen name="sfb_expanded_margin_top">44dp</dimen>
     <dimen name="sfb_text_size_14">14sp</dimen>
+    <dimen name="sfb_max_album_menu_width">250dp</dimen>
 </resources>

@@ -17,12 +17,14 @@
         />
     <TextView
         android:id="@+id/item_album_list_txtAlbumName"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:maxLines="1"
         android:ellipsize="end"
         tools:text="asdasdsad"
         android:layout_gravity="center_vertical"
         android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+
         />
 </LinearLayout>

@@ -26,6 +26,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.Manifest;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.animation.AnimatorSet;
+import android.animation.ObjectAnimator;
+import android.animation.PropertyValuesHolder;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -38,6 +41,8 @@ import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Rect;
+import android.graphics.RenderEffect;
+import android.graphics.Shader;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
@@ -71,6 +76,7 @@ import android.widget.Toast;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationItem;
 
+import com.google.android.material.animation.AnimatorSetCompat;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
@@ -1213,7 +1219,7 @@ public class FileBrowserMainActivity extends AppCompatActivity {
         mAlbumListIsShowing = true;
         int duration = animate ? 100 : 0;
         FrameLayout albumPlaceHolderRoot = findViewById(R.id.fileBrowser_activity_main_albumPlaceHolderRoot);
-
+        albumPlaceHolderRoot.setAlpha(0);
         mAlbumPlaceHolder.post(() -> {
             AppCompatTextView spnSelectAlbum = findViewById(R.id.fileBrowser_activity_main_spnSelectAlbum);
             int[] location = new int[2];
@@ -1223,6 +1229,18 @@ public class FileBrowserMainActivity extends AppCompatActivity {
             mAlbumPlaceHolder.setX(x);
             mAlbumPlaceHolder.setY(y);
             mAlbumPlaceHolder.animate().setDuration(duration).scaleY(1).scaleX(1).alpha(1)
+                    .setUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                        @Override
+                        public void onAnimationUpdate(@NonNull ValueAnimator animation) {
+                            float alpha = 0;
+                            if (mAlbumListIsShowing){
+                                alpha = animation.getAnimatedFraction();
+                            }else{
+                               alpha = 1 - animation.getAnimatedFraction();
+                            }
+                            albumPlaceHolderRoot.setAlpha(alpha);
+                        }
+                    })
                     .withStartAction(() -> {
                         mAlbumPlaceHolder.setAlpha(0);
                         mAlbumPlaceHolder.setScaleY(0);
@@ -1237,6 +1255,9 @@ public class FileBrowserMainActivity extends AppCompatActivity {
             @SuppressLint("ClickableViewAccessibility")
             @Override
             public boolean onTouch(View v, MotionEvent event) {
+                if (!mAlbumListIsShowing){
+                    return false;
+                }
                 hideAlbumList(true);
                 return true;
             }
