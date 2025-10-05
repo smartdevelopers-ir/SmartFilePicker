@@ -9,30 +9,28 @@ import android.widget.LinearLayout;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.constraintlayout.widget.ConstraintLayout;
 
 import ir.smartdevelopers.smartfilebrowser.R;
 
-public class RoundViewGroup extends LinearLayout {
+public class RoundLinearLayout extends LinearLayout {
     private SmartRoundDrawable mSmartRoundDrawable;
     private int mBackgroundColor=Color.WHITE;
-    public RoundViewGroup(Context context) {
+    public RoundLinearLayout(Context context) {
         super(context);
         init(context, null);
     }
 
-    public RoundViewGroup(Context context, @Nullable AttributeSet attrs) {
+    public RoundLinearLayout(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         init(context,attrs);
     }
 
-    public RoundViewGroup(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+    public RoundLinearLayout(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init(context, attrs);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
-    public RoundViewGroup(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
+    public RoundLinearLayout(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
         super(context, attrs, defStyleAttr, defStyleRes);
         init(context, attrs);
     }
@@ -42,12 +40,13 @@ public class RoundViewGroup extends LinearLayout {
         mSmartRoundDrawable=new SmartRoundDrawable();
         if (attrs!=null){
             TypedArray typedArray=context.obtainStyledAttributes(attrs,R.styleable.RoundLinearLayout);
-            mBackgroundColor=typedArray.getColor(R.styleable.RoundLinearLayout_backgroundColor,Color.WHITE);
+            mBackgroundColor=Utils.resolveColor(context,typedArray,R.styleable.RoundLinearLayout_backgroundColor,Color.WHITE);
             float topLeftRadius=typedArray.getDimension(R.styleable.RoundLinearLayout_android_topLeftRadius,30f);
             float topRightRadius=typedArray.getDimension(R.styleable.RoundLinearLayout_android_topRightRadius,30f);
             float bottomRightRadius=typedArray.getDimension(R.styleable.RoundLinearLayout_android_bottomRightRadius,30f);
             float bottomLeftRadius=typedArray.getDimension(R.styleable.RoundLinearLayout_android_bottomLeftRadius,30f);
             mSmartRoundDrawable.setRadius(topLeftRadius,topRightRadius,bottomRightRadius,bottomLeftRadius);
+            typedArray.recycle();
         }
         mSmartRoundDrawable.setColor(mBackgroundColor);
         setBackground(mSmartRoundDrawable);

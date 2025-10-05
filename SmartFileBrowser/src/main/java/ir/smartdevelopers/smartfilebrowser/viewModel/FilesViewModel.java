@@ -147,7 +147,7 @@ public class FilesViewModel extends AndroidViewModel {
             return getApplication().getString(R.string.sfb_inner_more_than_one_file_count_text, count);
 
         } else {
-            return getApplication().getString(R.string.sfb_innser_one_file_count_text, count);
+            return getApplication().getString(R.string.sfb_inner_one_file_count_text, count);
 
         }
     }

@@ -5,6 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layoutDirection="ltr"
+    android:background="#000"
+    android:id="@+id/sfb_activity_photoEditor_root"
     tools:context=".acitivties.PhotoEditorActivity">
 <androidx.fragment.app.FragmentContainerView
     android:layout_width="match_parent"
@@ -23,6 +25,7 @@
         android:contentDescription="@string/sfb_done"
         app:srcCompat="@drawable/sfb_ic_round_done"
         android:visibility="gone"
+        tools:visibility="visible"
         />
 
 

@@ -4,13 +4,18 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.FileProvider;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 
 import android.Manifest;
 import android.app.SharedElementCallback;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -21,6 +26,7 @@ import android.transition.TransitionInflater;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -45,7 +51,8 @@ public class PhotoEditorActivity extends AppCompatActivity {
 
     public static final String KEY_TRANSITION_NAME = "transition_name";
     public static final String KEY_SAVE_PATH = "save_path";
-
+    public static final String KEY_PREVIEW = "preview_bitmap";
+    public static Bitmap Preview = null;
 
     private PhotoEditorFragment mPhotoEditorFragment;
     private ImageButton btnDone;
@@ -60,21 +67,31 @@ public class PhotoEditorActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
 
         String transitionName = getIntent().getStringExtra(KEY_TRANSITION_NAME);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-
-            getWindow().requestFeature(Window.FEATURE_ACTIVITY_TRANSITIONS);
-
-            Transition transition= TransitionInflater.from(this).inflateTransition(R.transition.iten_transition_in);
-            getWindow().setSharedElementEnterTransition(transition);
-            getWindow().setSharedElementReturnTransition(transition);
+        Window window = getWindow();
+        window.requestFeature(Window.FEATURE_ACTIVITY_TRANSITIONS);
+        window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        window.setBackgroundDrawable(new ColorDrawable(Color.BLACK));
+        WindowCompat.enableEdgeToEdge(window);
+        WindowInsetsControllerCompat controllerCompat = WindowCompat.getInsetsController(window,window.getDecorView());
+        if (controllerCompat != null){
+            controllerCompat.setAppearanceLightStatusBars(false);
         }
+        Transition transition= TransitionInflater.from(this).inflateTransition(R.transition.iten_transition_in);
+        window.setSharedElementEnterTransition(transition);
+        window.setSharedElementReturnTransition(transition);
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_photo_editor);
         mResultListener=ResultListener.getInstance();
         mUri = getIntent().getData();
         mSavePath = getIntent().getStringExtra(KEY_SAVE_PATH);
 
-        mPhotoEditorFragment = PhotoEditorFragment.getInstance(mUri,false);
+        if (Preview != null){
+            mPhotoEditorFragment = PhotoEditorFragment.getInstance(mUri,Preview);
+            Preview = null;
+        }else{
+            mPhotoEditorFragment = PhotoEditorFragment.getInstance(mUri,true);
+        }
         mPhotoEditorFragment.setTransitionName(transitionName);
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.sfb_activity_photoEditor_fragmentView, mPhotoEditorFragment,"photoEditor")
@@ -84,8 +101,15 @@ public class PhotoEditorActivity extends AppCompatActivity {
         btnDone.setOnClickListener(v -> {
             saveChangesAndClose();
         });
+        View main = findViewById(R.id.sfb_activity_photoEditor_root);
+        ViewCompat.setOnApplyWindowInsetsListener(main,(v,insets)->{
+            Insets bars = insets.getInsets(WindowInsetsCompat.Type.displayCutout());
+            v.setPadding(bars.left,bars.top,bars.right,bars.bottom);
+            return insets;
+        });
         initListener();
         ActivityCompat.postponeEnterTransition(this);
+
     }
 
     private void initListener() {
@@ -107,6 +131,13 @@ public class PhotoEditorActivity extends AppCompatActivity {
             }
 
             @Override
+            public void onPreviewLoaded() {
+                if (!saving){
+                    ActivityCompat.startPostponedEnterTransition(PhotoEditorActivity.this);
+                }
+            }
+
+            @Override
             public void onEdit(boolean edited) {
                 isEdited=edited;
                 if (edited){
@@ -119,7 +150,7 @@ public class PhotoEditorActivity extends AppCompatActivity {
             @Override
             public void onImageLoaded(Bitmap bitmap, boolean b) {
                 if (!saving){
-                    ActivityCompat.startPostponedEnterTransition(PhotoEditorActivity.this);
+//                    ActivityCompat.startPostponedEnterTransition(PhotoEditorActivity.this);
                 }else {
                     mResultListener.setSavedBitmap(bitmap);
                     mPhotoEditorFragment.clearAll();

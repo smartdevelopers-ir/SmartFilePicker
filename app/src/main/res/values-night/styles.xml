@@ -45,9 +45,13 @@
     </style>
 
     <style name="sfb_EditorTheme" parent="sfb_MainAppTheme">
-
+        <!-- Customize your theme here. -->
+<!--        <item name="colorPrimary">@color/sfb_colorPrimary</item>-->
+<!--        <item name="colorPrimaryDark">@color/sfb_colorPrimaryDark</item>-->
+<!--        <item name="colorAccent">@color/sfb_colorAccent</item>-->
         <item name="windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
+        <item name="android:windowFullscreen">true</item>
         <item name="android:windowContentOverlay">@null</item>
         <item name="android:windowBackground">@color/black</item>
     </style>

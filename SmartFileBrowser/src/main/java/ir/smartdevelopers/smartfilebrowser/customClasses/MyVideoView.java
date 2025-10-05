@@ -73,24 +73,6 @@ public class MyVideoView extends VideoView {
         finalWidth=finalWidth*scaleFactor;
         finalHeight=finalHeight*scaleFactor;
 
-//        if (mVideoWidth > 0 && mVideoHeight > 0) {
-//            if (mVideoWidth * deviceHeight > deviceWidth * mVideoHeight) {
-//                // Log.i("@@@", "image too tall, correcting");
-//                deviceHeight = deviceWidth * mVideoHeight / mVideoWidth;
-//            } else if (mVideoWidth * deviceHeight < deviceWidth * mVideoHeight) {
-//                // Log.i("@@@", "image too wide, correcting");
-//                deviceWidth = deviceHeight * mVideoWidth / mVideoHeight;
-//            } else {
-//                // Log.i("@@@", "aspect ratio is correct: " +
-//                // width+"/"+height+"="+
-//                // mVideoWidth+"/"+mVideoHeight);
-//            }
-//        }
-//        if ((Math.abs(mVideoRotation)==90 || Math.abs(mVideoRotation)==270) ){
-//            int tempWidth=deviceWidth;
-//            deviceWidth=deviceHeight;
-//            deviceHeight=tempWidth;
-//        }
         // Log.i("@@@", "setting size: " + width + 'x' + height);
         setMeasuredDimension((int)finalWidth, (int)finalHeight);
     }

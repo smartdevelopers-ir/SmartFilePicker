@@ -178,7 +178,7 @@ public class SmartFilePicker {
             Bundle bundle = data.getExtras();
             if (bundle != null) {
                 Parcelable[] parcelables = bundle.getParcelableArray(FileBrowserMainActivity.EXTRA_RESULT_URIS);
-                if (parcelables != null) {
+                if (parcelables != null && parcelables.length >0) {
                     result = new Uri[parcelables.length];
                     for (int i = 0; i < parcelables.length; i++) {
                         result[i] = (Uri) parcelables[i];

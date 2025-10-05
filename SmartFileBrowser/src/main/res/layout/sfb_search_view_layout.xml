@@ -27,6 +27,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:srcCompat="@drawable/sfb_ic_round_close"
+        app:tint="?attr/colorOnSurfaceVariant"
         android:layout_marginEnd="16dp"
         android:contentDescription="@string/sfb_clear" />
 

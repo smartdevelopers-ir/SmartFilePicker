@@ -1,10 +1,15 @@
 package ir.smartdevelopers.smartfilebrowser.customClasses;
 
 import android.content.Context;
+import android.content.res.Resources;
+import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.os.Environment;
+import android.util.DisplayMetrics;
+import android.util.TypedValue;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -13,6 +18,7 @@ import java.util.Locale;
 
 import ir.smartdevelopers.smartfilebrowser.R;
 import ir.smartdevelopers.smartfilebrowser.models.FileBrowserModel;
+import ir.smartdevelopers.smartfilebrowser.models.GalleryModel;
 
 public class Utils {
     public static String join(String[] strings,String joinChar){
@@ -86,5 +92,68 @@ public class Utils {
         }else {
             return String.format(new Locale("en"),"%2d:%02d",minute,second);
         }
+    }
+    public static Rect calculateBitmapBound(Resources res,GalleryModel model) {
+
+        DisplayMetrics metrics = res.getDisplayMetrics();
+        int displayWidth = metrics.widthPixels;
+        int displayHeight = metrics.heightPixels;
+        int modelWidth = model.getWidth();
+        int modelHeight = model.getHeight();
+        if (model.getOrientation() == 90 || model.getOrientation() == 270){
+            modelWidth = model.getHeight();
+            modelHeight = model.getWidth();
+        }
+        int width ,height;
+        double factor = 1;
+
+        if (modelWidth >= modelHeight){
+            if (modelWidth > displayWidth){
+                factor = (double) modelWidth / displayWidth;
+            } else if (modelHeight> displayHeight) {
+                factor = (double) modelHeight / displayHeight;
+            }
+
+        }else{
+            if (modelHeight > displayHeight) {
+                factor = (double) modelHeight / displayHeight;
+            }else if (modelWidth > displayWidth){
+                factor = (double) modelWidth / displayWidth;
+            }
+        }
+        width = (int) (modelWidth / factor);
+        height = (int) (modelHeight / factor);
+        return new Rect(0,0,width,height);
+    }
+    public static Rect scale(Rect rect,int maxBound){
+        int width = rect.width();
+        int height = rect.height();
+        double factor=1;
+        if (width > height){
+            if (width > maxBound){
+                factor = (double) width / maxBound;
+            }
+        }else{
+            if (height > maxBound){
+                factor = (double) height / maxBound;
+            }
+        }
+        return new Rect(0,0, (int) (width/factor), (int) (height/factor));
+    }
+    static int resolveColor(Context context,TypedArray typedArray, int id, int defaultColor) {
+        TypedValue value = new TypedValue();
+        typedArray.getValue(id, value);
+
+        if (value.type == TypedValue.TYPE_ATTRIBUTE) {
+            TypedValue colorVal = new TypedValue();
+            context.getTheme().resolveAttribute(value.data, colorVal, true);
+            if (colorVal.data != 0) {
+                return colorVal.data;
+            }
+
+        } else if (value.type >= TypedValue.TYPE_FIRST_COLOR_INT && value.type <= TypedValue.TYPE_LAST_COLOR_INT) {
+            return value.data;
+        }
+        return defaultColor;
     }
 }

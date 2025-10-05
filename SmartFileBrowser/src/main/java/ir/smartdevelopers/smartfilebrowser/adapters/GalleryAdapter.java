@@ -1,5 +1,7 @@
 package ir.smartdevelopers.smartfilebrowser.adapters;
 
+import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,6 +12,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
@@ -19,8 +22,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.GlideBuilder;
 import com.bumptech.glide.Priority;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.load.engine.executor.GlideExecutor;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -35,13 +43,14 @@ import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemLongClickListener
 import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemSelectListener;
 import ir.smartdevelopers.smartfilebrowser.customClasses.SFBCheckboxWithNumber;
 import ir.smartdevelopers.smartfilebrowser.customClasses.SFBCountingCheckBox;
+import ir.smartdevelopers.smartfilebrowser.customClasses.Utils;
 import ir.smartdevelopers.smartfilebrowser.models.FileBrowserModel;
 import ir.smartdevelopers.smartfilebrowser.models.FileModel;
 import ir.smartdevelopers.smartfilebrowser.models.GalleryModel;
 
 public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>  {
 
-    public static final int THUMBNAIL_SIZE = 120;
+    public static final int THUMBNAIL_SIZE = 300;
     private List<GalleryModel> mGalleryModels;
     private List<File> mSelectedFiles;
     private boolean mCanSelectMultiple=true;
@@ -74,8 +83,11 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         if (viewType==GalleryModel.TYPE_CAMERA){
             view=LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.item_camera_layout,viewGroup,false);
             return new CameraViewHolder(view);
+        } else if (viewType == GalleryModel.TYPE_SYSTEM_GALLERY) {
+            view=LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.item_system_gallery_layout,viewGroup,false);
+            return new SystemGalleryAdapter(view);
         }
-         view= LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.item_gallery_layout,viewGroup,false);
+        view= LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.item_gallery_layout,viewGroup,false);
         return new GalleryViewHolder(view);
     }
 
@@ -109,9 +121,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
 
-        if (holder.getItemViewType()==GalleryModel.TYPE_CAMERA){
-
-        }else {
+        if(holder instanceof GalleryViewHolder) {
             ((GalleryViewHolder)holder).bindView(mGalleryModels.get(position));
         }
     }
@@ -275,6 +285,17 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 //            spanCount=itemView.getResources().getInteger(R.integer.sfb_gallery_grid);
         }
     }
+    class SystemGalleryAdapter extends RecyclerView.ViewHolder{
+
+        public SystemGalleryAdapter(@NonNull View itemView) {
+            super(itemView);
+            itemView.setOnClickListener(v->{
+                if (mOnItemClickListener != null) {
+                    mOnItemClickListener.onItemClicked(mGalleryModels.get(getAdapterPosition()),v,getAdapterPosition());
+                }
+            });
+        }
+    }
 
     class GalleryViewHolder extends RecyclerView.ViewHolder {
         ImageView mImageView;
@@ -342,12 +363,15 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         }
         void bindView(GalleryModel model){
 
-
+            Rect bound = Utils.calculateBitmapBound(itemView.getResources(),model);
+            Rect scaled = Utils.scale(bound,THUMBNAIL_SIZE);
             Glide.with(mImageView.getContext().getApplicationContext()).load(model.getUri())
-                    .override(THUMBNAIL_SIZE,THUMBNAIL_SIZE)
+                    .override(scaled.width(),scaled.height())
                     //.dontAnimate()
                     //.thumbnail(0.2f)
-                    .encodeQuality(50)
+                    .diskCacheStrategy(DiskCacheStrategy.NONE)
+
+                    .encodeQuality(30)
                     .priority(Priority.LOW)
                     .transition(DrawableTransitionOptions.withCrossFade())
                     .into(mImageView);

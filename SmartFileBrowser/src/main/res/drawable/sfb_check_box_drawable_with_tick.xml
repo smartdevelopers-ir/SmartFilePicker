@@ -9,7 +9,7 @@
         />
     <item
         android:id="@+id/unchecked"
-        android:drawable="@drawable/sfb_chech_box_unchecked"/>
+        android:drawable="@drawable/sfb_check_box_unchecked"/>
     <transition
         android:fromId="@id/unchecked"
         android:toId="@id/checked"

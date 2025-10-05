@@ -21,6 +21,8 @@ import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.view.accessibility.AccessibilityEvent;
+import android.view.animation.AnticipateInterpolator;
+import android.view.animation.LinearInterpolator;
 
 import androidx.annotation.FloatRange;
 import androidx.annotation.IntDef;
@@ -37,6 +39,7 @@ import androidx.core.view.accessibility.AccessibilityNodeInfoCompat;
 import androidx.core.view.accessibility.AccessibilityViewCommand;
 import androidx.customview.view.AbsSavedState;
 import androidx.customview.widget.ViewDragHelper;
+import androidx.interpolator.view.animation.LinearOutSlowInInterpolator;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
@@ -1416,6 +1419,7 @@ public class MyBehavior <V extends View> extends CoordinatorLayout.Behavior<V> {
     }
 
     void startSettlingAnimation(View child, int state, int top, boolean settleFromViewDragHelper) {
+
         boolean startedSettling =
                 viewDragHelper != null
                         && (settleFromViewDragHelper

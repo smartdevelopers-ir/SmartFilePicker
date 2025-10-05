@@ -5,11 +5,17 @@
     <uses-feature
         android:name="android.hardware.camera.any"
         android:required="false" />
-
-    <uses-permission
-        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-        tools:ignore="ScopedStorage" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO"
+        android:minSdkVersion="33"
+        tools:ignore="PhotoAndVideoPolicy" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"
+        android:minSdkVersion="33"
+        tools:ignore="PhotoAndVideoPolicy"
+        />
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO"/>
+    <uses-permission android:name="android.permission.READ_MEDIA_VISUAL_USER_SELECTED"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32"/>
 
     <queries>
         <intent>
@@ -33,7 +39,8 @@
         <activity
             android:name=".acitivties.FileBrowserMainActivity"
             android:configChanges="keyboard|orientation"
-            android:theme="@style/sfb_AppTheme" /> <!-- <activity -->
+            android:launchMode="singleInstance"
+            android:theme="@style/sfb_MainAppTheme.sfb_AppTheme" /> <!-- <activity -->
         <!-- android:name="iamutkarshtiwari.github.io.ananas.editimage.EditImageActivity" -->
         <!-- android:exported="true" -->
         <!-- android:label="@string/sfb_image_editor_label" -->
