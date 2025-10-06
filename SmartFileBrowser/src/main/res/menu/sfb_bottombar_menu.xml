@@ -6,25 +6,25 @@
 <item android:id="@+id/sfb_action_gallery"
     android:title="@string/sfb_gallery"
     android:icon="@drawable/sfb_ic_gallery"
-    app:iconTint="@color/sfb_color_gallery"
-    android:color="@color/sfb_color_gallery"
+    app:iconTint="?attr/SFBColorGallery"
+    android:color="?attr/SFBColorGallery"
     />
     <item android:id="@+id/sfb_action_PDF"
         android:title="@string/sfb_PDF"
         android:icon="@drawable/sfb_ic_pdf"
-        app:iconTint="@color/sfb_color_pdf"
-        android:color="@color/sfb_color_pdf"
+        app:iconTint="?attr/SFBColorPDF"
+        android:color="?attr/SFBColorPDF"
         />
     <item android:id="@+id/sfb_action_audio"
         android:title="@string/sfb_audio"
         android:icon="@drawable/sfb_ic_square_audio"
-        app:iconTint="@color/sfb_color_audio"
-        android:color="@color/sfb_color_audio"
+        app:iconTint="?attr/SFBColorAudio"
+        android:color="?attr/SFBColorAudio"
         />
     <item android:id="@+id/sfb_action_file"
         android:title="@string/sfb_file"
         android:icon="@drawable/sfb_ic_file"
-        app:iconTint="@color/sfb_color_file"
-        android:color="@color/sfb_color_file"
+        app:iconTint="?attr/SFBColorFile"
+        android:color="?attr/SFBColorFile"
         />
 </menu>

@@ -73,12 +73,14 @@ public class VideoViewActivity extends AppCompatActivity {
     private boolean isExiting=false;
     private AppCompatImageView btnPlay;
     private AppCompatTextView txtVideoLength,txtCurrentTime;
+    private View mSliderContainer;
     private Runnable mTimerRunnable;
     private Handler mTimerHandler;
     private boolean isPlaying;
     private Slider mSlider;
     private boolean mVideoPrapered = false;
     private boolean mTransitionEnds = false;
+
     @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -159,13 +161,7 @@ public class VideoViewActivity extends AppCompatActivity {
                 return false;
             }
         });
-        mVideoView.setOnInfoListener(new MediaPlayer.OnInfoListener() {
-            @Override
-            public boolean onInfo(MediaPlayer mp, int what, int extra) {
-                Log.d("VideoVieAcivity","Player info = "+what);
-                return false;
-            }
-        });
+
 
         mVideoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             @Override
@@ -230,7 +226,14 @@ public class VideoViewActivity extends AppCompatActivity {
     private void hideThumbNaile(boolean animate) {
         if (mVideoPrapered && mTransitionEnds){
             if (animate){
-                imgThumbnailHolder.animate().setDuration(animationDuration).alpha(0);
+                imgThumbnailHolder.animate().setDuration(animationDuration).alpha(0)
+                        .setUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                            @Override
+                            public void onAnimationUpdate(@NonNull ValueAnimator animation) {
+                                float translate = mSliderContainer.getHeight() * (1-animation.getAnimatedFraction());
+                                mSliderContainer.setTranslationY(translate);
+                            }
+                        });
             }else{
                 imgThumbnailHolder.setAlpha(0f);
             }
@@ -289,6 +292,7 @@ public class VideoViewActivity extends AppCompatActivity {
         txtCurrentTime=findViewById(R.id.sfb_activity_videoView_playerSeekbarCurrentTime);
         txtVideoLength=findViewById(R.id.sfb_activity_videoView_playerSeekbarEndTime);
         mSlider=findViewById(R.id.sfb_activity_videoView_playerSeekbar);
+        mSliderContainer = findViewById(R.id.sfb_activity_videoView_playerSeekbarContainer);
         mSlider.setValueFrom(0);
         LabelFormatter labelFormatter=new LabelFormatter() {
             @NonNull
@@ -326,6 +330,14 @@ public class VideoViewActivity extends AppCompatActivity {
                 }
             }
 
+        });
+        mSliderContainer.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+            @Override
+            public boolean onPreDraw() {
+                mSliderContainer.getViewTreeObserver().removeOnPreDrawListener(this);
+                mSliderContainer.setTranslationY(mSliderContainer.getHeight());
+                return true;
+            }
         });
 
     }

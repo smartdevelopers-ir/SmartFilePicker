@@ -27,20 +27,20 @@
         <activity
             android:name=".acitivties.VideoViewActivity"
             android:exported="false"
-            android:theme="@style/sfb_EditorTheme"
+            android:theme="@style/sfb_AppTheme.sfb_EditorTheme"
             android:screenOrientation="locked"
             />
         <activity
             android:name=".acitivties.PhotoEditorActivity"
             android:exported="false"
-            android:theme="@style/sfb_EditorTheme"
+            android:theme="@style/sfb_AppTheme.sfb_EditorTheme"
             android:screenOrientation="locked"
             />
         <activity
             android:name=".acitivties.FileBrowserMainActivity"
             android:configChanges="keyboard|orientation"
             android:launchMode="singleInstance"
-            android:theme="@style/sfb_MainAppTheme.sfb_AppTheme" /> <!-- <activity -->
+            android:theme="@style/sfb_AppTheme" /> <!-- <activity -->
         <!-- android:name="iamutkarshtiwari.github.io.ananas.editimage.EditImageActivity" -->
         <!-- android:exported="true" -->
         <!-- android:label="@string/sfb_image_editor_label" -->

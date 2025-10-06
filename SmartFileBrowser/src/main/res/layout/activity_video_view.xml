@@ -54,6 +54,7 @@
             android:paddingBottom="16dp"
             android:paddingTop="16dp"
             android:background="#B3000000"
+
             >
 
             <androidx.appcompat.widget.AppCompatTextView
