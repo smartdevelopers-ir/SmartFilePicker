@@ -4,6 +4,7 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.constraintlayout.widget.Group;
 import androidx.core.app.ActivityCompat;
@@ -26,9 +27,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.Manifest;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
-import android.animation.AnimatorSet;
-import android.animation.ObjectAnimator;
-import android.animation.PropertyValuesHolder;
 import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -41,8 +39,6 @@ import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Rect;
-import android.graphics.RenderEffect;
-import android.graphics.Shader;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
@@ -77,7 +73,6 @@ import android.widget.Toast;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationItem;
 
-import com.google.android.material.animation.AnimatorSetCompat;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
@@ -251,7 +246,7 @@ public class FileBrowserMainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        setTheme(R.style.sfb_MainAppTheme_sfb_AppTheme);
+        setTheme(R.style.sfb_AppTheme);
         Window window = getWindow();
 //        window.setSharedElementsUseOverlay(false);
         WindowCompat.enableEdgeToEdge(window);
@@ -815,25 +810,39 @@ public class FileBrowserMainActivity extends AppCompatActivity {
         mFileBrowserEnabled = enabled;
     }
 
-
+    private AHBottomNavigationItem createNavItem(int colorAttr, int titleRes, int iconRes){
+        TypedValue value = new TypedValue();
+        getTheme().resolveAttribute(colorAttr,value,true);
+        return new AHBottomNavigationItem(
+                getString(titleRes),
+                AppCompatResources.getDrawable(this,iconRes),
+                value.data);
+    }
     private void initViews(Bundle savedInstanceState) {
 
+        int[] attrs={R.attr.SFBColorGallery,R.attr.SFBColorPDF,R.attr.SFBColorAudio,R.attr.SFBColorFile};
+
         if (mShowGalleryTab) {
-            AHBottomNavigationItem gallery = new AHBottomNavigationItem(R.string.sfb_gallery, R.drawable.sfb_ic_gallery, R.color.sfb_color_gallery);
-            mBottomNavigationView.addItem(gallery);
+            mBottomNavigationView.addItem(createNavItem(attrs[0],R.string.sfb_gallery,R.drawable.sfb_ic_gallery));
         }
         if (mShowPDFTab) {
-            AHBottomNavigationItem pdf = new AHBottomNavigationItem(R.string.sfb_PDF, R.drawable.sfb_ic_pdf, R.color.sfb_color_pdf);
-            mBottomNavigationView.addItem(pdf);
+            mBottomNavigationView.addItem(createNavItem(attrs[1],R.string.sfb_PDF, R.drawable.sfb_ic_pdf));
         }
         if (mShowAudioTab) {
-            AHBottomNavigationItem audio = new AHBottomNavigationItem(R.string.sfb_audio, R.drawable.sfb_ic_square_audio, R.color.sfb_color_audio);
-            mBottomNavigationView.addItem(audio);
+            mBottomNavigationView.addItem(createNavItem(attrs[2],R.string.sfb_audio, R.drawable.sfb_ic_square_audio));
         }
         if (mShowFilesTab) {
-            AHBottomNavigationItem files = new AHBottomNavigationItem(R.string.sfb_file, R.drawable.sfb_ic_file, R.color.sfb_color_file);
-            mBottomNavigationView.addItem(files);
+            mBottomNavigationView.addItem(createNavItem(attrs[3],R.string.sfb_file, R.drawable.sfb_ic_file));
         }
+        TypedValue value = new TypedValue();
+        getTheme().resolveAttribute(R.attr.SFBBottomNavActiveColor,value,true);
+        int colorActive = value.data;
+        getTheme().resolveAttribute(R.attr.SFBBottomNavInactiveColor,value,true);
+        int colorInactive = value.data;
+        mBottomNavigationView.setColoredModeColors(colorActive,colorInactive);
+        getTheme().resolveAttribute(R.attr.SFBBottomNavColorDisabled,value,true);
+        int colorDisabled = value.data;
+        mBottomNavigationView.setItemDisableColor(colorDisabled);
         mBottomNavigationView.setOnTabSelectedListener(mOnMenuItemSelectionListener);
         mBottomNavigationView.setColored(true);
         mBottomNavigationView.setUseElevation(true);

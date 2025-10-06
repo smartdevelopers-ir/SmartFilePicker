@@ -1,6 +1,6 @@
 <resources>
     <!-- Base application theme. -->
-    <style name="sfb_MainAppTheme.sfb_AppTheme" parent="Theme.Material3.Light.NoActionBar">
+    <style name="sfb_AppTheme" parent="Theme.Material3.Light.NoActionBar">
 
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowBackground">@android:color/transparent</item>
@@ -12,7 +12,13 @@
         <item name="android:windowDisablePreview">false</item>
         <item name="android:windowCloseOnTouchOutside">true</item>
         <item name="android:windowAnimationStyle">@style/sfb_windowAnimationStyle</item>
-
+        <item name="SFBColorGallery">@color/sfb_color_gallery</item>
+        <item name="SFBColorFile">@color/sfb_color_file</item>
+        <item name="SFBColorAudio">@color/sfb_color_audio</item>
+        <item name="SFBColorPDF">@color/sfb_color_pdf</item>
+        <item name="SFBBottomNavActiveColor">@color/white</item>
+        <item name="SFBBottomNavInactiveColor">@color/sfb_color_item_inactive</item>
+        <item name="SFBBottomNavColorDisabled">@color/sfb_color_item_disabled</item>
     </style>
 
     <style name="sfb_windowAnimationStyle">
@@ -44,7 +50,7 @@
 
     </style>
 
-    <style name="sfb_EditorTheme" parent="sfb_MainAppTheme">
+    <style name="sfb_AppTheme.sfb_EditorTheme" >
 
         <item name="windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
