@@ -8,6 +8,8 @@ import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.widget.VideoView;
 
+import java.io.IOException;
+
 public class MyVideoView extends VideoView {
     private int mVideoWidth;
     private int mVideoHeight;
@@ -27,23 +29,29 @@ public class MyVideoView extends VideoView {
 
     @Override
     public void setVideoURI(Uri uri) {
-        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-        retriever.setDataSource(this.getContext(), uri);
-        String width=retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH);
-        String height=retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT);
-        String rotation=retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION);
-        if (!TextUtils.isEmpty(width) && !TextUtils.isEmpty(height) && !TextUtils.isEmpty(rotation)){
-            assert width != null;
-            mVideoWidth = Integer.parseInt(width);
-            assert height != null;
-            mVideoHeight = Integer.parseInt(height);
-            mVideoRotation=Integer.parseInt(rotation);
-        }else {
-            DisplayMetrics metrics=getContext().getResources().getDisplayMetrics();
-            mVideoWidth=metrics.widthPixels;
-            mVideoHeight=metrics.heightPixels;
-            mVideoRotation=0;
+
+        try(MediaMetadataRetriever retriever = new MediaMetadataRetriever();){
+            retriever.setDataSource(this.getContext(), uri);
+            String width=retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_WIDTH);
+            String height=retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_HEIGHT);
+            String rotation=retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION);
+            if (!TextUtils.isEmpty(width) && !TextUtils.isEmpty(height) && !TextUtils.isEmpty(rotation)){
+                assert width != null;
+                mVideoWidth = Integer.parseInt(width);
+                assert height != null;
+                mVideoHeight = Integer.parseInt(height);
+                mVideoRotation=Integer.parseInt(rotation);
+            }else {
+                DisplayMetrics metrics=getContext().getResources().getDisplayMetrics();
+                mVideoWidth=metrics.widthPixels;
+                mVideoHeight=metrics.heightPixels;
+                mVideoRotation=0;
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+
         super.setVideoURI(uri);
     }
 
@@ -52,7 +60,6 @@ public class MyVideoView extends VideoView {
         // Log.i("@@@", "onMeasure");
         double deviceWidth = getDefaultSize(mVideoWidth, widthMeasureSpec);
         double deviceHeight = getDefaultSize(mVideoHeight, heightMeasureSpec);
-        double scaleFactor=1;
         double finalWidth;
         double finalHeight;
 
@@ -63,17 +70,27 @@ public class MyVideoView extends VideoView {
             finalHeight=mVideoHeight;
             finalWidth=mVideoWidth;
         }
-        if (mVideoWidth > 0 && mVideoHeight > 0) {
-            if (mVideoWidth >= mVideoHeight){
-                scaleFactor=deviceWidth/finalWidth;
-            }else {
-                scaleFactor=deviceHeight/finalHeight;
+        double width ,height;
+        double factor = 1;
+
+        if (finalWidth >= finalHeight){
+            if (finalWidth > deviceWidth){
+                factor =  finalWidth / deviceWidth;
+            } else if (finalHeight> deviceHeight) {
+                factor =  finalHeight / deviceHeight;
+            }
+
+        }else{
+            if (finalHeight > deviceHeight) {
+                factor =  finalHeight / deviceHeight;
+            }else if (finalWidth > deviceWidth){
+                factor =  finalWidth / deviceWidth;
             }
         }
-        finalWidth=finalWidth*scaleFactor;
-        finalHeight=finalHeight*scaleFactor;
+        width =  (finalWidth / factor);
+        height =  (finalHeight / factor);
 
         // Log.i("@@@", "setting size: " + width + 'x' + height);
-        setMeasuredDimension((int)finalWidth, (int)finalHeight);
+        setMeasuredDimension((int)width, (int)height);
     }
 }

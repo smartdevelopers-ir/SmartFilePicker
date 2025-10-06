@@ -44,6 +44,7 @@ import android.graphics.Rect;
 import android.graphics.RenderEffect;
 import android.graphics.Shader;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -252,6 +253,7 @@ public class FileBrowserMainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         setTheme(R.style.sfb_MainAppTheme_sfb_AppTheme);
         Window window = getWindow();
+//        window.setSharedElementsUseOverlay(false);
         WindowCompat.enableEdgeToEdge(window);
         window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         window.addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
@@ -738,11 +740,11 @@ public class FileBrowserMainActivity extends AppCompatActivity {
             }
         };
     }
-
     private void openVideoActivity(GalleryModel model, View view, int position) {
         Uri uri = FileProvider.getUriForFile(this, getPackageName() + ".sfb_provider", model.getCurrentFile());
         Intent videoActivityIntent = new Intent(this, VideoViewActivity.class);
         videoActivityIntent.setData(uri);
+
         Bundle options = null;
         if (view != null) {
             String sharedName = ViewCompat.getTransitionName(view);
@@ -752,7 +754,8 @@ public class FileBrowserMainActivity extends AppCompatActivity {
             options = ActivityOptionsCompat.makeSceneTransitionAnimation(this, view, sharedName).toBundle();
             videoActivityIntent.putExtra(VideoViewActivity.KEY_TRANSITION_NAME, sharedName);
         }
-        ActivityCompat.startActivity(this, videoActivityIntent, options);
+        ActivityCompat.startActivityForResult(this,videoActivityIntent,696987, options);
+//        ContextCompat.startActivity(this,videoActivityIntent, options);
     }
 
     private void openImageEditor(GalleryModel model, View view, int position) {
@@ -764,11 +767,13 @@ public class FileBrowserMainActivity extends AppCompatActivity {
         Intent editorIntent = new Intent(this, PhotoEditorActivity.class);
         editorIntent.setData(uri);
         if (view instanceof ImageView){
-            Rect rect = Utils.calculateBitmapBound(getResources(),model);
-            Bitmap preview = DrawableKt.toBitmap(((ImageView) view).getDrawable(),rect.width(),rect.height(), Bitmap.Config.ARGB_8888);
-
-            PhotoEditorActivity.Preview = preview;
+            Drawable d = ((ImageView) view).getDrawable();
+            if (d != null){
+                Rect rect = Utils.calculateBitmapBound(getResources(),model);
+                PhotoEditorActivity.Preview = DrawableKt.toBitmap(d,rect.width(),rect.height(), Bitmap.Config.ARGB_8888);
+            }
         }
+
         editorIntent.putExtra(PhotoEditorActivity.KEY_SAVE_PATH, mEditedImagePath);
         Bundle options = null;
         if (view != null) {

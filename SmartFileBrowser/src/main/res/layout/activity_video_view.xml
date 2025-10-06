@@ -5,13 +5,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".acitivties.VideoViewActivity"
+    android:background="@color/black"
     >
 
     <ir.smartdevelopers.smartfilebrowser.customClasses.MyVideoView
         android:id="@+id/sfb_activity_videoView_playerView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:visibility="invisible"
+        android:visibility="visible"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -21,6 +22,10 @@
         android:id="@+id/sfb_activity_videoView_imagePlaceHolder"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
 
         />
     <androidx.appcompat.widget.AppCompatImageView

@@ -2,6 +2,7 @@ package ir.smartdevelopers.smartfilebrowser.acitivties;
 
 import static ir.smartdevelopers.smartfilebrowser.customClasses.Utils.formatTime;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -11,11 +12,16 @@ import androidx.appcompat.widget.AppCompatTextView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.SharedElementCallback;
 import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 
+import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
@@ -29,25 +35,37 @@ import android.os.PersistableBundle;
 import android.provider.MediaStore;
 import android.transition.Transition;
 import android.transition.TransitionInflater;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.SurfaceHolder;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.view.Window;
+import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.MediaController;
 import android.widget.TextView;
 import android.widget.VideoView;
+
+import com.bumptech.glide.Glide;
 import com.google.android.material.slider.LabelFormatter;
 import com.google.android.material.slider.Slider;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import ir.smartdevelopers.smartfilebrowser.R;
 import ir.smartdevelopers.smartfilebrowser.customClasses.MyVideoView;
 
 public class VideoViewActivity extends AppCompatActivity {
 
     public static final String KEY_TRANSITION_NAME="transition_name";
+    private final long animationDuration = 500;
+
     private Uri mVideoUri;
     private ImageView imgThumbnailHolder;
 
@@ -59,36 +77,73 @@ public class VideoViewActivity extends AppCompatActivity {
     private Handler mTimerHandler;
     private boolean isPlaying;
     private Slider mSlider;
+    private boolean mVideoPrapered = false;
+    private boolean mTransitionEnds = false;
     @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            getWindow().requestFeature(Window.FEATURE_ACTIVITY_TRANSITIONS);
-            Transition transition= TransitionInflater.from(this).inflateTransition(R.transition.iten_transition_in);
-            getWindow().setSharedElementEnterTransition(transition);
-            getWindow().setSharedElementReturnTransition(transition);
+        Window window = getWindow();
+        String transitionName=getIntent().getStringExtra(KEY_TRANSITION_NAME);
+        window.requestFeature(Window.FEATURE_ACTIVITY_TRANSITIONS);
+//        window.setSharedElementsUseOverlay(false);
+        Transition transition= TransitionInflater.from(this).inflateTransition(R.transition.iten_transition_in);
+        //transition.addTarget(R.id.sfb_activity_videoView_imagePlaceHolder);
+        window.setSharedElementEnterTransition(transition);
+        window.setSharedElementReturnTransition(transition);
 
+        transition.addListener(new Transition.TransitionListener() {
+            @Override
+            public void onTransitionCancel(Transition transition) {
 
+            }
+
+            @Override
+            public void onTransitionEnd(Transition transition) {
+                if (!isExiting){
+                    mTransitionEnds = true;
+                    mVideoView.setVideoURI(mVideoUri);
+                    hideThumbNaile(true);
+                }
+            }
+
+            @Override
+            public void onTransitionPause(Transition transition) {
+
+            }
+
+            @Override
+            public void onTransitionResume(Transition transition) {
+
+            }
+
+            @Override
+            public void onTransitionStart(Transition transition) {
+
+            }
+        });
+        window.addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        window.setBackgroundDrawable(new ColorDrawable(Color.BLACK));
+        WindowCompat.enableEdgeToEdge(window);
+        WindowInsetsControllerCompat controllerCompat = WindowCompat.getInsetsController(window,window.getDecorView());
+        if (controllerCompat != null){
+            controllerCompat.setAppearanceLightStatusBars(false);
         }
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_video_view);
+        supportPostponeEnterTransition();
 
        mVideoUri=getIntent().getData();
-        String transitionName=getIntent().getStringExtra(KEY_TRANSITION_NAME);
+
 
         findViews();
-        initTimer();
         ViewCompat.setTransitionName(imgThumbnailHolder,transitionName);
+        initTimer();
 
         btnPlay.setOnClickListener(v->{
             btnPlay.setVisibility(View.GONE);
-            mVideoView.setVisibility(View.VISIBLE);
             playVideo();
-            if (imgThumbnailHolder.getVisibility()==View.VISIBLE){
-                new Handler().postDelayed(()->{
-                    imgThumbnailHolder.setVisibility(View.INVISIBLE);
-                },900);
-            }
+            hideThumbNaile(false);
+
 
         });
 
@@ -104,8 +159,22 @@ public class VideoViewActivity extends AppCompatActivity {
                 return false;
             }
         });
+        mVideoView.setOnInfoListener(new MediaPlayer.OnInfoListener() {
+            @Override
+            public boolean onInfo(MediaPlayer mp, int what, int extra) {
+                Log.d("VideoVieAcivity","Player info = "+what);
+                return false;
+            }
+        });
 
-
+        mVideoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+            @Override
+            public void onPrepared(MediaPlayer mp) {
+                mVideoPrapered = true;
+                mVideoView.seekTo(1);
+                hideThumbNaile(true);
+            }
+        });
         mVideoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mp) {
@@ -118,13 +187,54 @@ public class VideoViewActivity extends AppCompatActivity {
             }
         });
 
-        mVideoView.setVideoURI(mVideoUri);
-        mVideoView.seekTo(1);
+        //mVideoView.setZOrderOnTop(false);
+
+//        mVideoView.resume();
+//        mVideoView.pause();
 
 
-        ActivityCompat.postponeEnterTransition(this);
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (mVideoView !=null ){
+                    mVideoView.pause();
+                }
+
+                isPlaying=false;
+                showThumbnail(false);
+                isExiting=true;
+                remove();
+                ActivityCompat.finishAfterTransition(VideoViewActivity.this);
+
+            }
+        });
+
         loadVideoThumbnail();
+//        new Handler().postDelayed(()->loadVideoThumbnail(),2000);
 
+
+
+    }
+    private void showThumbnail(boolean animate) {
+        if (animate){
+            imgThumbnailHolder.animate().setDuration(animationDuration)
+                    .alpha(1)
+                    .start();
+        }else{
+            imgThumbnailHolder.setAlpha(1f);
+            mVideoView.setVisibility(View.GONE);
+        }
+    }
+
+
+    private void hideThumbNaile(boolean animate) {
+        if (mVideoPrapered && mTransitionEnds){
+            if (animate){
+                imgThumbnailHolder.animate().setDuration(animationDuration).alpha(0);
+            }else{
+                imgThumbnailHolder.setAlpha(0f);
+            }
+        }
     }
 
     private void initTimer() {
@@ -193,7 +303,7 @@ public class VideoViewActivity extends AppCompatActivity {
             @Override
             public void onValueChange(@NonNull Slider slider, float value, boolean fromUser) {
                 if (fromUser){
-                    mVideoView.seekTo((int) slider.getValue());
+                    mVideoView.seekTo((int) value);
                 }
             }
         });
@@ -221,25 +331,38 @@ public class VideoViewActivity extends AppCompatActivity {
     }
 
     private void loadVideoThumbnail() {
-        MediaMetadataRetriever retriever=new MediaMetadataRetriever();
-        retriever.setDataSource(this,mVideoUri);
-        Bitmap bitmap=retriever.getFrameAtTime();
-        imgThumbnailHolder.setImageBitmap(bitmap);
+        imgThumbnailHolder.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+            @Override
+            public boolean onPreDraw() {
+                imgThumbnailHolder.getViewTreeObserver().removeOnPreDrawListener(this);
+                int h = imgThumbnailHolder.getMeasuredHeight();
+                int w = imgThumbnailHolder.getMeasuredWidth();
+                supportStartPostponedEnterTransition();
+                return true;
+            }
+        });
 
-        String durationSt=retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
-        if (durationSt!=null){
-            long duration=Long.parseLong(durationSt);
-            setTime(duration,txtVideoLength);
-            mSlider.setValueTo(duration);
-        }
+            try (MediaMetadataRetriever retriever=new MediaMetadataRetriever()){
+                retriever.setDataSource(this,mVideoUri);
+                DisplayMetrics metrics = getResources().getDisplayMetrics();
+                    Bitmap bitmap=retriever.getFrameAtTime();
+                    Glide.with(imgThumbnailHolder).load(bitmap).dontTransform()
+                            .override(metrics.widthPixels,metrics.heightPixels)
+                            .into(imgThumbnailHolder);
 
-        setTime(0,txtCurrentTime);
-        ActivityCompat.startPostponedEnterTransition(VideoViewActivity.this);
-        try {
-            retriever.release();
-        } catch (IOException e) {
-            Log.e(getPackageName(),e.getMessage(),e);
-        }
+                String durationSt=retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+                if (durationSt!=null){
+                    long duration=Long.parseLong(durationSt);
+                    setTime(duration,txtVideoLength);
+                    mSlider.setValueTo(duration);
+                }
+                setTime(0,txtCurrentTime);
+
+            } catch (IOException e) {
+                Log.e(getPackageName(),e.getMessage(),e);
+            }
+
+
     }
 
 
@@ -269,18 +392,5 @@ public class VideoViewActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
-    @Override
-    public void onBackPressed() {
-        if (mVideoView !=null ){
-            mVideoView.pause();
-        }
 
-        isPlaying=false;
-        imgThumbnailHolder.setVisibility(View.VISIBLE);
-        imgThumbnailHolder.post(()->{
-            mVideoView.setVisibility(View.GONE);
-        });
-        isExiting=true;
-        super.onBackPressed();
-    }
 }
