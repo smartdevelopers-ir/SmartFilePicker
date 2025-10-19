@@ -1,29 +1,5 @@
 package ir.smartdevelopers.smartfilebrowser.acitivties;
 
-import androidx.activity.OnBackPressedCallback;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.content.res.AppCompatResources;
-import androidx.appcompat.widget.AppCompatTextView;
-import androidx.constraintlayout.widget.Group;
-import androidx.core.app.ActivityCompat;
-import androidx.core.app.ActivityOptionsCompat;
-import androidx.core.app.SharedElementCallback;
-import androidx.core.content.ContextCompat;
-import androidx.core.content.FileProvider;
-import androidx.core.graphics.Insets;
-import androidx.core.graphics.drawable.DrawableKt;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowCompat;
-import androidx.core.view.WindowInsetsCompat;
-import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.Manifest;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -69,10 +45,33 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.content.res.AppCompatResources;
+import androidx.appcompat.widget.AppCompatTextView;
+import androidx.constraintlayout.widget.Group;
+import androidx.core.app.ActivityCompat;
+import androidx.core.app.ActivityOptionsCompat;
+import androidx.core.app.SharedElementCallback;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
+import androidx.core.graphics.Insets;
+import androidx.core.graphics.drawable.DrawableKt;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.exifinterface.media.ExifInterface;
+import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationItem;
-
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
@@ -89,23 +88,23 @@ import ir.smartdevelopers.smartfilebrowser.R;
 import ir.smartdevelopers.smartfilebrowser.adapters.AlbumAdapter;
 import ir.smartdevelopers.smartfilebrowser.adapters.FileBrowserAdapter;
 import ir.smartdevelopers.smartfilebrowser.adapters.GalleryAdapter;
+import ir.smartdevelopers.smartfilebrowser.customClasses.FileUtil;
 import ir.smartdevelopers.smartfilebrowser.customClasses.GalleryLayoutManager;
 import ir.smartdevelopers.smartfilebrowser.customClasses.GalleyItemDecoration;
 import ir.smartdevelopers.smartfilebrowser.customClasses.MyBehavior;
-import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemLongClickListener;
-import ir.smartdevelopers.smartfilebrowser.customClasses.OnSearchListener;
-import ir.smartdevelopers.smartfilebrowser.customClasses.ResultListener;
-import ir.smartdevelopers.smartfilebrowser.customClasses.Utils;
-import ir.smartdevelopers.smartfilebrowser.models.FileModel;
-import ir.smartdevelopers.smartfilebrowser.customClasses.FileUtil;
 import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemChooseListener;
 import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemClickListener;
+import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemLongClickListener;
 import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemSelectListener;
+import ir.smartdevelopers.smartfilebrowser.customClasses.OnSearchListener;
+import ir.smartdevelopers.smartfilebrowser.customClasses.ResultListener;
 import ir.smartdevelopers.smartfilebrowser.customClasses.RoundLinearLayout;
 import ir.smartdevelopers.smartfilebrowser.customClasses.SFBFileFilter;
 import ir.smartdevelopers.smartfilebrowser.customClasses.SearchView;
+import ir.smartdevelopers.smartfilebrowser.customClasses.Utils;
 import ir.smartdevelopers.smartfilebrowser.models.AlbumModel;
 import ir.smartdevelopers.smartfilebrowser.models.FileBrowserModel;
+import ir.smartdevelopers.smartfilebrowser.models.FileModel;
 import ir.smartdevelopers.smartfilebrowser.models.GalleryModel;
 import ir.smartdevelopers.smartfilebrowser.viewModel.FilesViewModel;
 import ir.smartdevelopers.smartfilebrowser.viewModel.GalleryViewModel;
@@ -1914,8 +1913,33 @@ public class FileBrowserMainActivity extends AppCompatActivity {
         if (requestCode == REQ_CODE_TACK_PICTURE) {
             if (resultCode == Activity.RESULT_OK) {
                 File takenPic = new File(tackingPictureFilePath);
+
                 if (takenPic.isFile()) {
+                    int width = 0;
+                    int height = 0;
+                    int orientation = 0;
+
                     FileUtil.scanMediaFile(this, takenPic);
+                    try {
+                        ExifInterface exifInterface = new ExifInterface(takenPic);
+                        width = exifInterface.getAttributeInt(ExifInterface.TAG_IMAGE_WIDTH, 0);
+                        height = exifInterface.getAttributeInt(ExifInterface.TAG_IMAGE_LENGTH, 0);
+                        int orint = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, 0);
+                        switch (orint) {
+                            case ExifInterface.ORIENTATION_ROTATE_90:
+                                orientation = 90;
+                                break;
+                            case ExifInterface.ORIENTATION_ROTATE_180:
+                                orientation = 180;
+                                break;
+                            case ExifInterface.ORIENTATION_ROTATE_270:
+                                orientation = 270;
+                                break;
+                        }
+                    } catch (Exception ignore) {
+
+                    }
+
                     GalleryModel newPicModel = new GalleryModel();
                     newPicModel.setType(FileUtil.TYPE_IMAGE);
                     newPicModel.setSelected(true);
@@ -1923,6 +1947,9 @@ public class FileBrowserMainActivity extends AppCompatActivity {
                     newPicModel.setPath(takenPic.getPath());
                     newPicModel.setUri(FileProvider.getUriForFile(getApplicationContext(),
                             getPackageName() + ".sfb_provider", takenPic));
+                    newPicModel.setWidth(width);
+                    newPicModel.setHeight(height);
+                    newPicModel.setOrientation(orientation);
                     mGalleryAdapter.addNewPic(newPicModel);
 
                 }
