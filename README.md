@@ -21,7 +21,7 @@ This is Telegram like File Picker for android .
 
 ``` gradel
 	dependencies {
-	        implementation 'com.github.smartdevelopers-ir:SmartFilePicker:2.0.5'
+	        implementation 'com.github.smartdevelopers-ir:SmartFilePicker:2.0.6'
 	}
 ```
 
