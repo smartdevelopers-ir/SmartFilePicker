@@ -210,16 +210,16 @@
        android:visibility="gone"
        tools:visibility="visible"
        android:translationZ="16dp"
+        android:background="@color/color_gallery_dim"
 
        >
-       <FrameLayout
+       <com.google.android.material.card.MaterialCardView
            android:id="@+id/fileBrowser_activity_main_albumPlaceHolder"
-           android:layout_width="180dp"
+           android:layout_width="@dimen/sfb_max_album_menu_width"
            android:layout_height="wrap_content"
            tools:layout_height="300dp"
            android:maxHeight="500dp"
-           android:background="?attr/colorSurfaceContainerLow"
-
+           app:cardBackgroundColor="?attr/colorSurfaceContainerHighest"
            android:transformPivotX="0dp"
            android:transformPivotY="0dp"
            android:scaleX="0"
@@ -229,7 +229,7 @@
            android:visibility="invisible"
            tools:visibility="visible"
            android:focusable="true"
-           android:translationZ="16dp"
+            app:cardElevation="16dp"
            />
    </FrameLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

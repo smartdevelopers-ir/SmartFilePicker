@@ -1,28 +1,5 @@
 package ir.smartdevelopers.smartfilebrowser.acitivties;
 
-import androidx.activity.OnBackPressedCallback;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.AppCompatTextView;
-import androidx.constraintlayout.widget.Group;
-import androidx.core.app.ActivityCompat;
-import androidx.core.app.ActivityOptionsCompat;
-import androidx.core.app.SharedElementCallback;
-import androidx.core.content.ContextCompat;
-import androidx.core.content.FileProvider;
-import androidx.core.graphics.Insets;
-import androidx.core.graphics.drawable.DrawableKt;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowCompat;
-import androidx.core.view.WindowInsetsCompat;
-import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.Manifest;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -39,6 +16,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -67,10 +45,33 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.content.res.AppCompatResources;
+import androidx.appcompat.widget.AppCompatTextView;
+import androidx.constraintlayout.widget.Group;
+import androidx.core.app.ActivityCompat;
+import androidx.core.app.ActivityOptionsCompat;
+import androidx.core.app.SharedElementCallback;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
+import androidx.core.graphics.Insets;
+import androidx.core.graphics.drawable.DrawableKt;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
+import androidx.core.view.WindowInsetsCompat;
+import androidx.exifinterface.media.ExifInterface;
+import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationItem;
-
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
@@ -87,23 +88,23 @@ import ir.smartdevelopers.smartfilebrowser.R;
 import ir.smartdevelopers.smartfilebrowser.adapters.AlbumAdapter;
 import ir.smartdevelopers.smartfilebrowser.adapters.FileBrowserAdapter;
 import ir.smartdevelopers.smartfilebrowser.adapters.GalleryAdapter;
+import ir.smartdevelopers.smartfilebrowser.customClasses.FileUtil;
 import ir.smartdevelopers.smartfilebrowser.customClasses.GalleryLayoutManager;
 import ir.smartdevelopers.smartfilebrowser.customClasses.GalleyItemDecoration;
 import ir.smartdevelopers.smartfilebrowser.customClasses.MyBehavior;
-import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemLongClickListener;
-import ir.smartdevelopers.smartfilebrowser.customClasses.OnSearchListener;
-import ir.smartdevelopers.smartfilebrowser.customClasses.ResultListener;
-import ir.smartdevelopers.smartfilebrowser.customClasses.Utils;
-import ir.smartdevelopers.smartfilebrowser.models.FileModel;
-import ir.smartdevelopers.smartfilebrowser.customClasses.FileUtil;
 import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemChooseListener;
 import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemClickListener;
+import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemLongClickListener;
 import ir.smartdevelopers.smartfilebrowser.customClasses.OnItemSelectListener;
+import ir.smartdevelopers.smartfilebrowser.customClasses.OnSearchListener;
+import ir.smartdevelopers.smartfilebrowser.customClasses.ResultListener;
 import ir.smartdevelopers.smartfilebrowser.customClasses.RoundLinearLayout;
 import ir.smartdevelopers.smartfilebrowser.customClasses.SFBFileFilter;
 import ir.smartdevelopers.smartfilebrowser.customClasses.SearchView;
+import ir.smartdevelopers.smartfilebrowser.customClasses.Utils;
 import ir.smartdevelopers.smartfilebrowser.models.AlbumModel;
 import ir.smartdevelopers.smartfilebrowser.models.FileBrowserModel;
+import ir.smartdevelopers.smartfilebrowser.models.FileModel;
 import ir.smartdevelopers.smartfilebrowser.models.GalleryModel;
 import ir.smartdevelopers.smartfilebrowser.viewModel.FilesViewModel;
 import ir.smartdevelopers.smartfilebrowser.viewModel.GalleryViewModel;
@@ -244,8 +245,9 @@ public class FileBrowserMainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        setTheme(R.style.sfb_MainAppTheme_sfb_AppTheme);
+        setTheme(R.style.sfb_AppTheme);
         Window window = getWindow();
+//        window.setSharedElementsUseOverlay(false);
         WindowCompat.enableEdgeToEdge(window);
         window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         window.addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
@@ -732,11 +734,11 @@ public class FileBrowserMainActivity extends AppCompatActivity {
             }
         };
     }
-
     private void openVideoActivity(GalleryModel model, View view, int position) {
         Uri uri = FileProvider.getUriForFile(this, getPackageName() + ".sfb_provider", model.getCurrentFile());
         Intent videoActivityIntent = new Intent(this, VideoViewActivity.class);
         videoActivityIntent.setData(uri);
+
         Bundle options = null;
         if (view != null) {
             String sharedName = ViewCompat.getTransitionName(view);
@@ -746,7 +748,8 @@ public class FileBrowserMainActivity extends AppCompatActivity {
             options = ActivityOptionsCompat.makeSceneTransitionAnimation(this, view, sharedName).toBundle();
             videoActivityIntent.putExtra(VideoViewActivity.KEY_TRANSITION_NAME, sharedName);
         }
-        ActivityCompat.startActivity(this, videoActivityIntent, options);
+        ActivityCompat.startActivityForResult(this,videoActivityIntent,696987, options);
+//        ContextCompat.startActivity(this,videoActivityIntent, options);
     }
 
     private void openImageEditor(GalleryModel model, View view, int position) {
@@ -758,11 +761,13 @@ public class FileBrowserMainActivity extends AppCompatActivity {
         Intent editorIntent = new Intent(this, PhotoEditorActivity.class);
         editorIntent.setData(uri);
         if (view instanceof ImageView){
-            Rect rect = Utils.calculateBitmapBound(getResources(),model);
-            Bitmap preview = DrawableKt.toBitmap(((ImageView) view).getDrawable(),rect.width(),rect.height(), Bitmap.Config.ARGB_8888);
-
-            PhotoEditorActivity.Preview = preview;
+            Drawable d = ((ImageView) view).getDrawable();
+            if (d != null){
+                Rect rect = Utils.calculateBitmapBound(getResources(),model);
+                PhotoEditorActivity.Preview = DrawableKt.toBitmap(d,rect.width(),rect.height(), Bitmap.Config.ARGB_8888);
+            }
         }
+
         editorIntent.putExtra(PhotoEditorActivity.KEY_SAVE_PATH, mEditedImagePath);
         Bundle options = null;
         if (view != null) {
@@ -804,25 +809,39 @@ public class FileBrowserMainActivity extends AppCompatActivity {
         mFileBrowserEnabled = enabled;
     }
 
-
+    private AHBottomNavigationItem createNavItem(int colorAttr, int titleRes, int iconRes){
+        TypedValue value = new TypedValue();
+        getTheme().resolveAttribute(colorAttr,value,true);
+        return new AHBottomNavigationItem(
+                getString(titleRes),
+                AppCompatResources.getDrawable(this,iconRes),
+                value.data);
+    }
     private void initViews(Bundle savedInstanceState) {
 
+        int[] attrs={R.attr.SFBColorGallery,R.attr.SFBColorPDF,R.attr.SFBColorAudio,R.attr.SFBColorFile};
+
         if (mShowGalleryTab) {
-            AHBottomNavigationItem gallery = new AHBottomNavigationItem(R.string.sfb_gallery, R.drawable.sfb_ic_gallery, R.color.sfb_color_gallery);
-            mBottomNavigationView.addItem(gallery);
+            mBottomNavigationView.addItem(createNavItem(attrs[0],R.string.sfb_gallery,R.drawable.sfb_ic_gallery));
         }
         if (mShowPDFTab) {
-            AHBottomNavigationItem pdf = new AHBottomNavigationItem(R.string.sfb_PDF, R.drawable.sfb_ic_pdf, R.color.sfb_color_pdf);
-            mBottomNavigationView.addItem(pdf);
+            mBottomNavigationView.addItem(createNavItem(attrs[1],R.string.sfb_PDF, R.drawable.sfb_ic_pdf));
         }
         if (mShowAudioTab) {
-            AHBottomNavigationItem audio = new AHBottomNavigationItem(R.string.sfb_audio, R.drawable.sfb_ic_square_audio, R.color.sfb_color_audio);
-            mBottomNavigationView.addItem(audio);
+            mBottomNavigationView.addItem(createNavItem(attrs[2],R.string.sfb_audio, R.drawable.sfb_ic_square_audio));
         }
         if (mShowFilesTab) {
-            AHBottomNavigationItem files = new AHBottomNavigationItem(R.string.sfb_file, R.drawable.sfb_ic_file, R.color.sfb_color_file);
-            mBottomNavigationView.addItem(files);
+            mBottomNavigationView.addItem(createNavItem(attrs[3],R.string.sfb_file, R.drawable.sfb_ic_file));
         }
+        TypedValue value = new TypedValue();
+        getTheme().resolveAttribute(R.attr.SFBBottomNavActiveColor,value,true);
+        int colorActive = value.data;
+        getTheme().resolveAttribute(R.attr.SFBBottomNavInactiveColor,value,true);
+        int colorInactive = value.data;
+        mBottomNavigationView.setColoredModeColors(colorActive,colorInactive);
+        getTheme().resolveAttribute(R.attr.SFBBottomNavColorDisabled,value,true);
+        int colorDisabled = value.data;
+        mBottomNavigationView.setItemDisableColor(colorDisabled);
         mBottomNavigationView.setOnTabSelectedListener(mOnMenuItemSelectionListener);
         mBottomNavigationView.setColored(true);
         mBottomNavigationView.setUseElevation(true);
@@ -1213,7 +1232,7 @@ public class FileBrowserMainActivity extends AppCompatActivity {
         mAlbumListIsShowing = true;
         int duration = animate ? 100 : 0;
         FrameLayout albumPlaceHolderRoot = findViewById(R.id.fileBrowser_activity_main_albumPlaceHolderRoot);
-
+        albumPlaceHolderRoot.setAlpha(0);
         mAlbumPlaceHolder.post(() -> {
             AppCompatTextView spnSelectAlbum = findViewById(R.id.fileBrowser_activity_main_spnSelectAlbum);
             int[] location = new int[2];
@@ -1223,6 +1242,18 @@ public class FileBrowserMainActivity extends AppCompatActivity {
             mAlbumPlaceHolder.setX(x);
             mAlbumPlaceHolder.setY(y);
             mAlbumPlaceHolder.animate().setDuration(duration).scaleY(1).scaleX(1).alpha(1)
+                    .setUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+                        @Override
+                        public void onAnimationUpdate(@NonNull ValueAnimator animation) {
+                            float alpha = 0;
+                            if (mAlbumListIsShowing){
+                                alpha = animation.getAnimatedFraction();
+                            }else{
+                               alpha = 1 - animation.getAnimatedFraction();
+                            }
+                            albumPlaceHolderRoot.setAlpha(alpha);
+                        }
+                    })
                     .withStartAction(() -> {
                         mAlbumPlaceHolder.setAlpha(0);
                         mAlbumPlaceHolder.setScaleY(0);
@@ -1237,6 +1268,9 @@ public class FileBrowserMainActivity extends AppCompatActivity {
             @SuppressLint("ClickableViewAccessibility")
             @Override
             public boolean onTouch(View v, MotionEvent event) {
+                if (!mAlbumListIsShowing){
+                    return false;
+                }
                 hideAlbumList(true);
                 return true;
             }
@@ -1879,8 +1913,33 @@ public class FileBrowserMainActivity extends AppCompatActivity {
         if (requestCode == REQ_CODE_TACK_PICTURE) {
             if (resultCode == Activity.RESULT_OK) {
                 File takenPic = new File(tackingPictureFilePath);
+
                 if (takenPic.isFile()) {
+                    int width = 0;
+                    int height = 0;
+                    int orientation = 0;
+
                     FileUtil.scanMediaFile(this, takenPic);
+                    try {
+                        ExifInterface exifInterface = new ExifInterface(takenPic);
+                        width = exifInterface.getAttributeInt(ExifInterface.TAG_IMAGE_WIDTH, 0);
+                        height = exifInterface.getAttributeInt(ExifInterface.TAG_IMAGE_LENGTH, 0);
+                        int orint = exifInterface.getAttributeInt(ExifInterface.TAG_ORIENTATION, 0);
+                        switch (orint) {
+                            case ExifInterface.ORIENTATION_ROTATE_90:
+                                orientation = 90;
+                                break;
+                            case ExifInterface.ORIENTATION_ROTATE_180:
+                                orientation = 180;
+                                break;
+                            case ExifInterface.ORIENTATION_ROTATE_270:
+                                orientation = 270;
+                                break;
+                        }
+                    } catch (Exception ignore) {
+
+                    }
+
                     GalleryModel newPicModel = new GalleryModel();
                     newPicModel.setType(FileUtil.TYPE_IMAGE);
                     newPicModel.setSelected(true);
@@ -1888,6 +1947,9 @@ public class FileBrowserMainActivity extends AppCompatActivity {
                     newPicModel.setPath(takenPic.getPath());
                     newPicModel.setUri(FileProvider.getUriForFile(getApplicationContext(),
                             getPackageName() + ".sfb_provider", takenPic));
+                    newPicModel.setWidth(width);
+                    newPicModel.setHeight(height);
+                    newPicModel.setOrientation(orientation);
                     mGalleryAdapter.addNewPic(newPicModel);
 
                 }

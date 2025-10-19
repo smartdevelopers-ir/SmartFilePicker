@@ -1,23 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="sfb_colorPrimary">#555457</color>
-    <color name="sfb_colorPrimaryDark">#00535353</color>
-    <color name="sfb_colorAccent">#03DAC5</color>
+
     <color name="sfb_color_gallery">#5B33AB</color>
     <color name="sfb_color_pdf">#CB0606</color>
     <color name="sfb_color_audio">#326FB2</color>
     <color name="sfb_color_file">#006C80</color>
     <color name="sfb_colorDraggingLine">#383838</color>
     <color name="white">#ffffff</color>
-    <color name="sfb_colorDivider">#9B9B9B</color>
-    <color name="sfb_color_item_inactive">#CCFFFFFF</color>
+    <color name="sfb_color_item_inactive">#65FFFFFF</color>
+    <color name="sfb_color_item_disabled">#660D0C0C</color>
     <color name="sfb_colorBlue">#1E88E5</color>
     <color name="sfb_color_checkbox_fill">?attr/colorSecondary</color>
     <color name="sfb_color_checkbox_stroke">@color/white</color>
     <color name="sfb_color_checkbox_tick">?attr/colorOnSecondary</color>
     <color name="sfb_color_checkbox_number">?attr/colorOnSecondary</color>
     <color name="black">#000000</color>
-
     <!--Theme colors-->
     <color name="md_theme_primary">#006874</color>
     <color name="md_theme_onPrimary">#FFFFFF</color>

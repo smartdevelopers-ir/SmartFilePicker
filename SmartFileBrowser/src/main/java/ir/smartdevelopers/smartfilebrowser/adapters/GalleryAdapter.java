@@ -15,6 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.appcompat.widget.AppCompatTextView;
+import androidx.core.view.ViewCompat;
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
@@ -362,7 +363,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             //btnZoomOut.setVisibility(View.GONE);
         }
         void bindView(GalleryModel model){
-
+            ViewCompat.setTransitionName(mImageView,"T_N_"+getBindingAdapterPosition());
             Rect bound = Utils.calculateBitmapBound(itemView.getResources(),model);
             Rect scaled = Utils.scale(bound,THUMBNAIL_SIZE);
             Glide.with(mImageView.getContext().getApplicationContext()).load(model.getUri())
