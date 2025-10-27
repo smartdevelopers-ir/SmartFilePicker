@@ -22,7 +22,7 @@ This is Telegram like File Picker for android .
 
 ``` gradel
 	dependencies {
-	        implementation 'com.github.smartdevelopers-ir:SmartFilePicker:2.0.6'
+	        implementation 'com.github.smartdevelopers-ir:SmartFilePicker:2.0.7'
 	}
 ```
 
@@ -61,7 +61,32 @@ protected void onActivityResult(int requestCode, int resultCode, @Nullable Inten
     }
   }
 ```
-
+* Chaging Theme
+  To change theme you should override this style to extends your AppTheme
+  
+  ``` xml
+   <style name="App.AppTheme" parent="Theme.Material3.Light.NoActionBar">
+  	...
+  </style>
+  <style name="SFB.Base" parent="App.AppTheme"/>
+  ```
+  
+  And for customizing bottomNavigation colors you should override this style :
+  
+  ``` xml
+	<style name="SFB.Base.Theme.Browser" parent="SFB.Base.Theme">
+         <item name="SFBColorGallery">@color/sfb_color_gallery</item>
+        <item name="SFBColorFile">@color/sfb_color_file</item>
+        <item name="SFBColorAudio">@color/sfb_color_audio</item>
+        <item name="SFBColorPDF">@color/sfb_color_pdf</item>
+        <item name="SFBBottomNavActiveColor">@color/white</item>
+        <item name="SFBBottomNavInactiveColor">@color/sfb_color_item_inactive</item>
+        <item name="SFBBottomNavColorDisabled">@color/sfb_color_item_disabled</item>
+        <item name="SFBCheckboxFillColor">?attr/colorSecondary</item>
+        <item name="SFBCheckboxOnFillColor">?attr/colorOnSecondary</item>
+        <item name="SFBCheckboxStrokeColor">?attr/colorOnSecondary</item>
+    </style>
+  ```
 # Donation
 You can support me by donating with cryptocurrency :)
 
