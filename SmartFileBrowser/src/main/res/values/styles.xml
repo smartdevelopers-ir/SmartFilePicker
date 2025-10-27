@@ -1,17 +1,9 @@
 <resources>
     <!-- Base application theme. -->
-    <style name="sfb_AppTheme" parent="Theme.Material3.Light.NoActionBar">
+    <style name="SFB" parent="Theme.Material3.Light.NoActionBar"/>
+    <style name="SFB.Base" parent="SFB"/>
 
-        <item name="android:windowIsTranslucent">true</item>
-        <item name="android:windowBackground">@android:color/transparent</item>
-        <item name="android:backgroundDimEnabled">true</item>
-        <item name="android:windowContentOverlay">@null</item>
-        <item name="android:windowTranslucentStatus">true</item>
-<!--        <item name="android:fitsSystemWindows">true</item>-->
-<!--        <item name="android:windowTranslucentNavigation">true</item>-->
-        <item name="android:windowDisablePreview">false</item>
-        <item name="android:windowCloseOnTouchOutside">true</item>
-        <item name="android:windowAnimationStyle">@style/sfb_windowAnimationStyle</item>
+    <style name="SFB.Base.Theme" parent="SFB.Base">
         <item name="SFBColorGallery">@color/sfb_color_gallery</item>
         <item name="SFBColorFile">@color/sfb_color_file</item>
         <item name="SFBColorAudio">@color/sfb_color_audio</item>
@@ -19,7 +11,29 @@
         <item name="SFBBottomNavActiveColor">@color/white</item>
         <item name="SFBBottomNavInactiveColor">@color/sfb_color_item_inactive</item>
         <item name="SFBBottomNavColorDisabled">@color/sfb_color_item_disabled</item>
+        <item name="SFBCheckboxFillColor">?attr/colorSecondary</item>
+        <item name="SFBCheckboxOnFillColor">?attr/colorOnSecondary</item>
+        <item name="SFBCheckboxStrokeColor">?attr/colorOnSecondary</item>
     </style>
+    <style name="SFB.Base.Theme.Browser" parent="SFB.Base.Theme">
+
+    </style>
+
+    <style name="sfb_BaseAppTheme" parent="SFB.Base.Theme.Browser">
+
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+<!--        <item name="android:windowTranslucentStatus">true</item>-->
+<!--        <item name="android:fitsSystemWindows">true</item>-->
+<!--        <item name="android:windowTranslucentNavigation">true</item>-->
+        <item name="android:windowDisablePreview">false</item>
+        <item name="android:windowCloseOnTouchOutside">true</item>
+        <item name="android:windowAnimationStyle">@style/sfb_windowAnimationStyle</item>
+
+    </style>
+
 
     <style name="sfb_windowAnimationStyle">
         <item name="android:windowEnterAnimation">@anim/sfb_fade_in</item>
@@ -50,7 +64,7 @@
 
     </style>
 
-    <style name="sfb_AppTheme.sfb_EditorTheme" >
+    <style name="sfb_BaseAppTheme.sfb_EditorTheme" >
 
         <item name="windowNoTitle">true</item>
         <item name="windowActionBar">false</item>

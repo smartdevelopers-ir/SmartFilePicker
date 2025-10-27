@@ -226,7 +226,7 @@ public class VideoViewActivity extends AppCompatActivity {
     private void hideThumbNaile(boolean animate) {
         if (mVideoPrapered && mTransitionEnds){
             if (animate){
-                imgThumbnailHolder.animate().setDuration(animationDuration).alpha(0)
+                imgThumbnailHolder.animate().setDuration(animationDuration).alpha(0f)
                         .setUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
                             @Override
                             public void onAnimationUpdate(@NonNull ValueAnimator animation) {

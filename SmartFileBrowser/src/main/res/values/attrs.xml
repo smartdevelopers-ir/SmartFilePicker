@@ -16,6 +16,7 @@
         <attr name="android:textColor"/>
         <attr name="android:checked"/>
     </declare-styleable>
+    <attr name="SFBStyle" format="reference"/>
     <attr name="SFBColorGallery" format="color"/>
     <attr name="SFBColorPDF" format="color"/>
     <attr name="SFBColorAudio" format="color"/>
@@ -23,4 +24,7 @@
     <attr name="SFBBottomNavActiveColor" format="color"/>
     <attr name="SFBBottomNavInactiveColor" format="color"/>
     <attr name="SFBBottomNavColorDisabled" format="color"/>
+    <attr name="SFBCheckboxFillColor" format="color"/>
+    <attr name="SFBCheckboxOnFillColor" format="color"/>
+    <attr name="SFBCheckboxStrokeColor" format="color"/>
 </resources>

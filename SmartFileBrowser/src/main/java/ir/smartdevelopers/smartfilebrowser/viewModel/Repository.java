@@ -6,6 +6,8 @@ import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
 import android.database.Cursor;
+import android.media.MediaDataSource;
+import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -19,8 +21,10 @@ import androidx.lifecycle.MutableLiveData;
 
 import java.io.File;
 import java.io.FileFilter;
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
@@ -70,26 +74,38 @@ public class Repository {
         mExecutorService.execute(()->{
             // <editor-fold defaultstate="collapsed" desc=" Images ">
             String[] imageProjection = {MediaStore.Images.Media._ID,
-                    MediaStore.Images.Media.DATA, MediaStore.Images.Media.DATE_MODIFIED,
-                    MediaStore.Images.Media.DISPLAY_NAME, MediaStore.Images.Media.MIME_TYPE,
-            MediaStore.Images.Media.WIDTH,MediaStore.Images.Media.HEIGHT,MediaStore.Images.Media.ORIENTATION};
+                    MediaStore.Images.Media.DATA,
+                    MediaStore.Images.Media.DATE_MODIFIED,
+                    MediaStore.Images.Media.DISPLAY_NAME,
+                    MediaStore.Images.Media.MIME_TYPE,
+                    MediaStore.Images.Media.WIDTH,
+                    MediaStore.Images.Media.HEIGHT,
+                    MediaStore.Images.Media.ORIENTATION};
 
-            Cursor externalImageCursor = mContentResolver.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, imageProjection,
+            Cursor externalImageCursor = mContentResolver.query(
+                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI, imageProjection,
                     finalSelection, selectionArgs, MediaStore.Images.Media.DATE_MODIFIED + " DESC");
-            galleryModelList.addAll(getGalleryModel(externalImageCursor, imageProjection));
+            galleryModelList.addAll(getGalleryModel(externalImageCursor, imageProjection,false));
             // </editor-fold>
 
             // <editor-fold defaultstate="collapsed" desc=" Videos ">
             if (showVideosInGallery) {
                 String[] videoProjection = {MediaStore.Video.Media._ID,
-                        MediaStore.Video.Media.DATA, MediaStore.Video.Media.DATE_MODIFIED,
-                        MediaStore.Video.Media.DISPLAY_NAME, MediaStore.Video.Media.MIME_TYPE,
-                        MediaStore.Images.Media.WIDTH,MediaStore.Images.Media.HEIGHT,
-                        MediaStore.Images.Media.ORIENTATION,
+                        MediaStore.Video.Media.DATA,
+                        MediaStore.Video.Media.DATE_MODIFIED,
+                        MediaStore.Video.Media.DISPLAY_NAME,
+                        MediaStore.Video.Media.MIME_TYPE,
+                        MediaStore.Video.Media.WIDTH,
+                        MediaStore.Video.Media.HEIGHT,
                         MediaStore.Video.Media.DURATION};
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
+                    videoProjection = Arrays.copyOf(videoProjection,videoProjection.length+1);
+                    videoProjection[videoProjection.length-1] = MediaStore.Video.Media.ORIENTATION;
+                }
                 Cursor externalVideoCursor = mContentResolver.query(MediaStore.Video.Media.EXTERNAL_CONTENT_URI, videoProjection,
                         finalSelection, selectionArgs, MediaStore.Video.Media.DATE_MODIFIED + " DESC");
-                galleryModelList.addAll(getGalleryModel(externalVideoCursor, videoProjection));
+                galleryModelList.addAll(getGalleryModel(externalVideoCursor, videoProjection,true));
+
             }
             // </editor-fold>
             Collections.sort(galleryModelList);
@@ -160,7 +176,7 @@ public class Repository {
         return albumModels;
     }
 
-    private List<GalleryModel> getGalleryModel(Cursor cursor,String[] projection){
+    private List<GalleryModel> getGalleryModel(Cursor cursor,String[] projection,boolean isVideo){
 
         List<GalleryModel> galleryModelList=new ArrayList<>();
         if (cursor==null){
@@ -173,10 +189,15 @@ public class Repository {
         int mimeTypeIndex=cursor.getColumnIndex(projection[4]);
         int widthIndex = cursor.getColumnIndex(projection[5]);
         int heighIndex = cursor.getColumnIndex(projection[6]);
-        int orientationIndex = cursor.getColumnIndex(projection[7]);
+        int orientationIndex = -1;
+        if (!isVideo){
+            orientationIndex = cursor.getColumnIndex(MediaStore.Images.Media.ORIENTATION);
+        }else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q){
+            orientationIndex = cursor.getColumnIndex(MediaStore.Video.Media.ORIENTATION);
+        }
         int durationIndex=-1;
-        if (projection.length==9){
-            durationIndex=cursor.getColumnIndex(projection[8]);
+        if (isVideo){
+            durationIndex=cursor.getColumnIndex(MediaStore.Video.Media.DURATION);
         }
 
         while (cursor.moveToNext()){
@@ -188,13 +209,18 @@ public class Repository {
             model.setType(FileUtil.getFileTypeCode(cursor.getString(mimeTypeIndex)));
             model.setWidth(cursor.getInt(widthIndex));
             model.setHeight(cursor.getInt(heighIndex));
-            model.setOrientation(cursor.getInt(orientationIndex));
+
 
             if (model.getType()==FileUtil.TYPE_VIDEO && durationIndex!=-1){
                 model.setDuration(cursor.getLong(durationIndex));
                 model.setUri(ContentUris.withAppendedId(MediaStore.Video.Media.EXTERNAL_CONTENT_URI,model.getId()));
             }else {
                 model.setUri(ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,model.getId()));
+            }
+            if (orientationIndex != -1){
+                model.setOrientation(cursor.getInt(orientationIndex));
+            } else  {
+                model.setOrientation(-1);
             }
             galleryModelList.add(model);
         }

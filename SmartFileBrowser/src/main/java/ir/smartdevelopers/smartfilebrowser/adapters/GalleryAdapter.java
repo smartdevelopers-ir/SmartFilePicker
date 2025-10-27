@@ -1,7 +1,9 @@
 package ir.smartdevelopers.smartfilebrowser.adapters;
 
+import android.content.Context;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
+import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,9 +34,12 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 
 import java.io.File;
+import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ExecutorService;
 
 import ir.smartdevelopers.smartfilebrowser.R;
 import ir.smartdevelopers.smartfilebrowser.customClasses.FileUtil;
@@ -65,9 +70,11 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
     private OnItemChooseListener mOnItemChooseListener;
     /**For preventing multiple btnZoom click*/
     private boolean mZoomButtonClicked=false;
+    private ExecutorService mOrientationRetrieverService;
 
-    public GalleryAdapter(List<File> selectedFiles) {
-       mGalleryModels=new ArrayList<>();
+    public GalleryAdapter(List<File> selectedFiles, ExecutorService orientationRetrieverService) {
+        mOrientationRetrieverService = orientationRetrieverService;
+        mGalleryModels=new ArrayList<>();
         mSelectedFiles=selectedFiles;
         setHasStableIds(true);
     }
@@ -377,7 +384,9 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                     .transition(DrawableTransitionOptions.withCrossFade())
                     .into(mImageView);
 
-
+            if (model.getOrientation() == -1 && mOrientationRetrieverService != null){
+                mOrientationRetrieverService.execute(new OrientationRetriever(model,itemView.getContext()));
+            }
             if (model.getType()== FileUtil.TYPE_VIDEO){
                 txtVideoDuration.setVisibility(View.VISIBLE);
                 txtVideoDuration.setText(model.getDurationTime());
@@ -466,5 +475,29 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
     public void setSelectedFiles(List<File> selectedFiles) {
         mSelectedFiles = selectedFiles;
+    }
+    private static class OrientationRetriever implements Runnable {
+        private GalleryModel mModel;
+        private WeakReference<Context> wContext;
+
+        private OrientationRetriever(GalleryModel model,Context context) {
+            mModel = model;
+            wContext = new WeakReference<>(context.getApplicationContext());
+        }
+
+        @Override
+        public void run() {
+            try(MediaMetadataRetriever retriever = new MediaMetadataRetriever()){
+                retriever.setDataSource(wContext.get(),mModel.getUri());
+                String rotation = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION);
+                if (rotation != null){
+                    mModel.setOrientation(Integer.parseInt(rotation));
+                }else {
+                    mModel.setOrientation(0);
+                }
+            } catch (IOException e) {
+                mModel.setOrientation(0);
+            }
+        }
     }
 }

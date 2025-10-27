@@ -12,7 +12,7 @@
             <path
                 android:name="border"
                 android:pathData="M 50 2 C 23.5 2 2 23.5 2 50 C 2 76.5 23.5 98 50 98 C 76.5 98 98 76.5 98 50 C 98 23.5 76.5 2 50 2 Z M 50 51 C 49.4 51 49 50.6 49 50 C 49 49.4 49.4 49 50 49 C 50.6 49 51 49.4 51 50 C 51 50.6 50.6 51 50 51 Z"
-                android:fillColor="@color/sfb_color_checkbox_stroke"
+                android:fillColor="?attr/SFBCheckboxStrokeColor"
                 android:strokeWidth="1"/>
             <group
                 android:name="fill_group"
@@ -21,7 +21,7 @@
                 <path
                     android:name="fill_area"
                     android:pathData="M 50 8 C 38.865 8 28.175 12.428 20.302 20.302 C 12.428 28.175 8 38.865 8 50 C 8 61.135 12.428 71.825 20.302 79.698 C 28.175 87.572 38.865 92 50 92 C 61.135 92 71.825 87.572 79.698 79.698 C 87.572 71.825 92 61.135 92 50 C 92 38.865 87.572 28.175 79.698 20.302 C 71.825 12.428 61.135 8 50 8 Z"
-                    android:fillColor="@color/sfb_color_checkbox_fill"
+                    android:fillColor="?attr/SFBCheckboxFillColor"
                     android:strokeWidth="1"/>
             </group>
         </vector>
