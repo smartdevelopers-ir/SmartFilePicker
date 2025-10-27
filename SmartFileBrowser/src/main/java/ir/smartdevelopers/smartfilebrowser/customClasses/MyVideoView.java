@@ -10,12 +10,13 @@ import android.widget.VideoView;
 
 import java.io.IOException;
 
-public class MyVideoView extends VideoView {
+public class MyVideoView extends TextureVideoView {
     private int mVideoWidth;
     private int mVideoHeight;
     private int mVideoRotation;
     public MyVideoView(Context context, AttributeSet attrs) {
-        super(context, attrs);
+        this(context, attrs,0);
+
     }
 
     public MyVideoView(Context context, AttributeSet attrs, int defStyle) {
@@ -23,7 +24,8 @@ public class MyVideoView extends VideoView {
     }
 
     public MyVideoView(Context context) {
-        super(context);
+        this(context,null);
+
     }
 
 

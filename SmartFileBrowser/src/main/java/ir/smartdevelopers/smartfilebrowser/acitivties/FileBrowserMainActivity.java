@@ -11,12 +11,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.VectorDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -49,7 +51,9 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.content.res.AppCompatResources;
+import androidx.appcompat.view.ContextThemeWrapper;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.constraintlayout.widget.Group;
 import androidx.core.app.ActivityCompat;
@@ -57,6 +61,7 @@ import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.app.SharedElementCallback;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.graphics.drawable.DrawableKt;
 import androidx.core.view.ViewCompat;
@@ -69,6 +74,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.vectordrawable.graphics.drawable.VectorDrawableCompat;
 
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationItem;
@@ -82,6 +88,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import ir.smartdevelopers.smartfilebrowser.R;
@@ -196,6 +204,7 @@ public class FileBrowserMainActivity extends AppCompatActivity {
     // when it closing
     private final AtomicBoolean mIsCanceled = new AtomicBoolean(true);
     //</editor-fold>
+    private ExecutorService mExecutorService;
 
     private void getDataFromIntent() {
         mShowVideosInGallery = getIntent().getBooleanExtra("mShowVideosInGallery", true);
@@ -243,18 +252,25 @@ public class FileBrowserMainActivity extends AppCompatActivity {
         };
     }
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        setTheme(R.style.sfb_AppTheme);
+
+
+        super.onCreate(savedInstanceState);
+
         Window window = getWindow();
+        window.requestFeature(Window.FEATURE_ACTIVITY_TRANSITIONS);
 //        window.setSharedElementsUseOverlay(false);
         WindowCompat.enableEdgeToEdge(window);
         window.setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        window.getDecorView().setBackground(new ColorDrawable(Color.TRANSPARENT));
         window.addFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
+        window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+
 //        window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
         window.setDimAmount(0.6f);
 
-        window.requestFeature(Window.FEATURE_ACTIVITY_TRANSITIONS);
         window.setAllowEnterTransitionOverlap(false);
         Transition transition = TransitionInflater.from(this).inflateTransition(R.transition.iten_transition_in);
         window.setSharedElementExitTransition(transition);
@@ -273,7 +289,6 @@ public class FileBrowserMainActivity extends AppCompatActivity {
             }
         });
 
-        super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_file_browser_main);
         mIsCanceled.set(true);
         mSelectionFileViewModel = new ViewModelProvider(this).get(SelectionFileViewModel.class);
@@ -339,11 +354,12 @@ public class FileBrowserMainActivity extends AppCompatActivity {
         // </editor-fold>
         // <editor-fold  desc=" FileBrowser adapter init">
         if (mShowGalleryTab) {
+            mExecutorService = Executors.newFixedThreadPool(3);
             int spanCount = getResources().getInteger(R.integer.sfb_gallery_grid);
             int gapSpace = getResources().getDimensionPixelSize(R.dimen.sfb_gallery_gap_size);
 
             mGalleryLayoutManager = new GalleryLayoutManager(this, spanCount);
-            mGalleryAdapter = new GalleryAdapter(mSelectionFileViewModel.getSelectedFiles());
+            mGalleryAdapter = new GalleryAdapter(mSelectionFileViewModel.getSelectedFiles(),mExecutorService);
             mGalleryAdapter.setCanSelectMultiple(mCanSelectMultipleInGallery);
             mGalleryAdapter.setOnItemClickListener(mGalleryModelItemClickListener);
             mGalleryAdapter.setOnItemSelectListener(mOnFileItemSelectListener);
@@ -511,9 +527,12 @@ public class FileBrowserMainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
-//        mCallbackViewModel.clearCallback();
+        if (mExecutorService != null){
+            mExecutorService.shutdown();
+        }
         mResultListener.clear();
+        super.onDestroy();
+
     }
 
     @Override
@@ -818,7 +837,10 @@ public class FileBrowserMainActivity extends AppCompatActivity {
                 value.data);
     }
     private void initViews(Bundle savedInstanceState) {
-
+//        ContextThemeWrapper wrapper = new ContextThemeWrapper(this,R.style.sfb_BaseAppTheme);
+//        Drawable okDrawable = VectorDrawableCompat.create(wrapper.getResources(),R.drawable.sfb_ic_circle_tick_filled,wrapper.getTheme());
+//        //okDrawable.setTintList(null);
+//        btnSelectionOk.setImageDrawable(okDrawable);
         int[] attrs={R.attr.SFBColorGallery,R.attr.SFBColorPDF,R.attr.SFBColorAudio,R.attr.SFBColorFile};
 
         if (mShowGalleryTab) {

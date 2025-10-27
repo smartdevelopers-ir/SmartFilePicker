@@ -210,7 +210,7 @@
        android:visibility="gone"
        tools:visibility="visible"
        android:translationZ="16dp"
-        android:background="@color/color_gallery_dim"
+        android:backgroundTint="@color/color_gallery_dim"
 
        >
        <com.google.android.material.card.MaterialCardView

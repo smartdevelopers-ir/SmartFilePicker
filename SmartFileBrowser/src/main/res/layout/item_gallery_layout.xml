@@ -18,8 +18,8 @@
         app:strokeWidth="2dp"
         android:layout_gravity="end|top"
         android:layout_margin="4dp"
-        android:textColor="@color/sfb_color_checkbox_stroke"
-        app:fillColor="@color/sfb_color_checkbox_fill"
+        android:textColor="?attr/SFBCheckboxOnFillColor"
+        app:fillColor="?attr/SFBCheckboxFillColor"
         />
 
     <ImageButton

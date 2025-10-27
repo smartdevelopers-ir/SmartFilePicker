@@ -10,10 +10,6 @@
     <color name="sfb_color_item_inactive">#65FFFFFF</color>
     <color name="sfb_color_item_disabled">#660D0C0C</color>
     <color name="sfb_colorBlue">#1E88E5</color>
-    <color name="sfb_color_checkbox_fill">?attr/colorSecondary</color>
-    <color name="sfb_color_checkbox_stroke">@color/white</color>
-    <color name="sfb_color_checkbox_tick">?attr/colorOnSecondary</color>
-    <color name="sfb_color_checkbox_number">?attr/colorOnSecondary</color>
     <color name="black">#000000</color>
     <!--Theme colors-->
     <color name="md_theme_primary">#006874</color>
