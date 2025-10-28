@@ -62,6 +62,7 @@ protected void onActivityResult(int requestCode, int resultCode, @Nullable Inten
   }
 ```
 * Chaging Theme
+  
   To change theme you should override this style to extends your AppTheme
   
   ``` xml
@@ -71,7 +72,7 @@ protected void onActivityResult(int requestCode, int resultCode, @Nullable Inten
   <style name="SFB.Base" parent="App.AppTheme"/>
   ```
   
-  And for customizing bottomNavigation colors you should override this style :
+  And for customizing bottomNavigation or bottons color you should override this style :
   
   ``` xml
 	<style name="SFB.Base.Theme.Browser" parent="SFB.Base.Theme">
