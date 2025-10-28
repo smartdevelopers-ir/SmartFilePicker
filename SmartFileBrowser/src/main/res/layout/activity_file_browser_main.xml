@@ -160,6 +160,7 @@
        app:layout_constraintEnd_toEndOf="parent"
        android:layout_margin="8dp"
        android:visibility="invisible"
+       tools:visibility="visible"
        android:clipChildren="false"
        >
        <ImageView
@@ -184,11 +185,11 @@
            android:layout_marginBottom="6dp"
            android:layout_marginEnd="2dp"
            />
-       <TextView
+       <ir.smartdevelopers.smartfilebrowser.customClasses.SquareTextView
            android:id="@+id/fileBrowser_activity_main_txtSelectionCount"
            android:layout_width="wrap_content"
            android:layout_height="wrap_content"
-           tools:text="1"
+           tools:text="22"
            android:textSize="12sp"
            android:maxLines="1"
            app:layout_constraintBottom_toBottomOf="@id/fileBrowser_activity_main_txtSelectionCountPositionHelper"
@@ -210,9 +211,8 @@
        android:visibility="gone"
        tools:visibility="visible"
        android:translationZ="16dp"
-        android:backgroundTint="@color/color_gallery_dim"
-
        >
+
        <com.google.android.material.card.MaterialCardView
            android:id="@+id/fileBrowser_activity_main_albumPlaceHolder"
            android:layout_width="@dimen/sfb_max_album_menu_width"

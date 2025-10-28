@@ -62,11 +62,13 @@ import androidx.core.app.SharedElementCallback;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.FileProvider;
 import androidx.core.content.res.ResourcesCompat;
+import androidx.core.graphics.ColorUtils;
 import androidx.core.graphics.Insets;
 import androidx.core.graphics.drawable.DrawableKt;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.core.view.WindowInsetsControllerCompat;
 import androidx.exifinterface.media.ExifInterface;
 import androidx.interpolator.view.animation.FastOutSlowInInterpolator;
 import androidx.lifecycle.LiveData;
@@ -837,10 +839,7 @@ public class FileBrowserMainActivity extends AppCompatActivity {
                 value.data);
     }
     private void initViews(Bundle savedInstanceState) {
-//        ContextThemeWrapper wrapper = new ContextThemeWrapper(this,R.style.sfb_BaseAppTheme);
-//        Drawable okDrawable = VectorDrawableCompat.create(wrapper.getResources(),R.drawable.sfb_ic_circle_tick_filled,wrapper.getTheme());
-//        //okDrawable.setTintList(null);
-//        btnSelectionOk.setImageDrawable(okDrawable);
+
         int[] attrs={R.attr.SFBColorGallery,R.attr.SFBColorPDF,R.attr.SFBColorAudio,R.attr.SFBColorFile};
 
         if (mShowGalleryTab) {
@@ -863,6 +862,10 @@ public class FileBrowserMainActivity extends AppCompatActivity {
         mBottomNavigationView.setColoredModeColors(colorActive,colorInactive);
         getTheme().resolveAttribute(R.attr.SFBBottomNavColorDisabled,value,true);
         int colorDisabled = value.data;
+        getTheme().resolveAttribute(com.google.android.material.R.attr.colorOnSurface,value,true);
+        int surfaceColor =value.data;
+        int dimColor = ColorUtils.setAlphaComponent(surfaceColor,59);
+        findViewById(R.id.fileBrowser_activity_main_albumPlaceHolderRoot).setBackgroundColor(dimColor);
         mBottomNavigationView.setItemDisableColor(colorDisabled);
         mBottomNavigationView.setOnTabSelectedListener(mOnMenuItemSelectionListener);
         mBottomNavigationView.setColored(true);
