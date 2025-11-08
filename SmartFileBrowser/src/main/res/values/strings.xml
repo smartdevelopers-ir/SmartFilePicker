@@ -43,4 +43,5 @@
     <string name="sfb_allow">Allow</string>
     <string name="sfb_file_permission_denied_message">All files permission is NOT allowed! For better experience allow it.</string>
     <string name="sfb_audio_permission_denied_message">Read audio permission is NOT allowed! For better experience allow it.</string>
+    <string name="sfb_no_media">No media found.</string>
 </resources>
