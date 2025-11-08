@@ -394,6 +394,7 @@ public class FileBrowserMainActivity extends AppCompatActivity {
                         if (galleryModels.isEmpty()){
                             showNoGalleryItem();
                         }else{
+                            hideNoGalleryItem();
                             mGalleryAdapter.setList(galleryModels);
                         }
                     }else{
