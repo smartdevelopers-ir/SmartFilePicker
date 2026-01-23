@@ -66,6 +66,7 @@ public class FileUtil {
     public static int getChildFileCount(File file){
         int count=0;
         File[] innerFiles=file.listFiles();
+        if(innerFiles == null) return 0;
         for (File f:innerFiles){
             if (f.isFile()){
                 count++;
