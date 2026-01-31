@@ -487,6 +487,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
 
         @Override
         public void run() {
+            if (wContext.get() == null) return;
             try(MediaMetadataRetriever retriever = new MediaMetadataRetriever()){
                 retriever.setDataSource(wContext.get(),mModel.getUri());
                 String rotation = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_ROTATION);
@@ -495,7 +496,7 @@ public class GalleryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 }else {
                     mModel.setOrientation(0);
                 }
-            } catch (IOException e) {
+            } catch (Exception e) {
                 mModel.setOrientation(0);
             }
         }
